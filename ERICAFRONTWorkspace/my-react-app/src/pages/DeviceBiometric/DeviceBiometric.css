@@ -1,0 +1,7 @@
+.text-muted { color: var(--text-light); }
+.table-info {
+  font-size: 12px;
+  color: var(--text-light);
+  margin-top: 8px;
+  text-align: right;
+}
