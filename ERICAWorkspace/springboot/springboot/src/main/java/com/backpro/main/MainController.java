@@ -8,6 +8,8 @@ import com.backpro.main.model.service.MainService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+
+// 컨트롤러	
 @Slf4j
 @RequestMapping("/main")
 @RestController
