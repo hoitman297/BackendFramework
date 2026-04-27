@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c ' *)",
+      "Bash(python -c \"import PyPDF2; print\\('PyPDF2 available'\\)\")",
+      "Bash(python -c \"import pdfplumber; print\\('pdfplumber ok'\\)\")",
+      "Bash(python -c \"import fitz; print\\('pymupdf ok'\\)\")",
+      "Bash(python -c \"import pdfminer; print\\('pdfminer ok'\\)\")",
+      "Bash(pip install *)",
+      "Bash(python -m pip install pdfplumber)",
+      "Bash(where python3 *)",
+      "Bash(where python *)",
+      "PowerShell(python3 -m pip install pdfplumber 2>&1 | Select-Object -Last 5)",
+      "Bash(npm list *)",
+      "Bash(node -e \"require\\('pdf-parse'\\)\")",
+      "Bash(npm install *)",
+      "Bash(node -e ' *)",
+      "Bash(npm run *)",
+      "Bash(npx eslint *)"
+    ]
+  }
+}
