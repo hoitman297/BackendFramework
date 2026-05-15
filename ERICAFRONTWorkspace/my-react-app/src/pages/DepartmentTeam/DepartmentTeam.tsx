@@ -1,64 +1,75 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import PageHeader from '../../components/common/PageHeader'
 import Modal from '../../components/common/Modal'
 import DataTable from '../../components/common/DataTable'
+import { api } from '../../services/api'
 import './DepartmentTeam.css'
 
-interface Dept {
-  order: number
-  name: string
-  createdDate: string
-  active: boolean
+interface Department {
+  dept_id: number;
+  dept_name: string;
+  sort_order: number;
+  is_used: string;
+  apply_date: string;
 }
 
 interface Team {
-  order: number
-  name: string
-  dept: string
-  createdDate: string
-  active: boolean
+  team_id: number;
+  team_name: string;
+  dept_name?: string;
+  sort_order: number;
+  is_used: string;
+  apply_date: string;
 }
-
-const mockDepts: Dept[] = [
-  { order: 1, name: '경영', createdDate: '2025-01-01', active: true },
-  { order: 2, name: '기술', createdDate: '2025-01-01', active: true },
-  { order: 3, name: '영업', createdDate: '2025-02-01', active: true },
-  { order: 4, name: '지원', createdDate: '2025-02-01', active: false },
-]
-
-const mockTeams: Record<string, Team[]> = {
-  경영: [
-    { order: 1, name: '경영관리', dept: '경영', createdDate: '2025-01-01', active: true },
-    { order: 2, name: '경영지원', dept: '경영', createdDate: '2025-01-01', active: true },
-  ],
-  기술: [
-    { order: 1, name: '개발팀', dept: '기술', createdDate: '2025-01-01', active: true },
-    { order: 2, name: 'QA팀', dept: '기술', createdDate: '2025-02-01', active: true },
-  ],
-  영업: [
-    { order: 1, name: '국내영업', dept: '영업', createdDate: '2025-02-01', active: true },
-  ],
-  지원: [],
-}
-
-const historyData = [
-  { no: 1, date: '2025-03-01', field: '부서명', before: '경영지원본부', after: '경영관리', modifier: '관리자' },
-]
-
-const historyColumns = [
-  { key: 'no', label: '순번', width: '55px' },
-  { key: 'date', label: '변경일' },
-  { key: 'field', label: '변경항목' },
-  { key: 'before', label: '변경전' },
-  { key: 'after', label: '변경후' },
-  { key: 'modifier', label: '수정자' },
-]
 
 export default function DepartmentTeam() {
-  const [selectedDept, setSelectedDept] = useState('경영')
+  const [depts, setDepts] = useState<Department[]>([])
+  const [teams, setTeams] = useState<Team[]>([])
+  const [selectedDeptId, setSelectedDeptId] = useState<number | null>(null)
   const [historyTarget, setHistoryTarget] = useState<string | null>(null)
 
-  const teams = mockTeams[selectedDept] ?? []
+  const fetchDepts = async () => {
+    try {
+      const res = await api.get<Department[]>('/depts')
+      setDepts(res.data)
+      if (res.data.length > 0 && !selectedDeptId) {
+        setSelectedDeptId(res.data[0].dept_id)
+      }
+    } catch (err) { console.error(err) }
+  }
+
+  const fetchTeams = async (deptId: number) => {
+    try {
+      const res = await api.get<Team[]>(`/teams?dept_id=${deptId}`)
+      setTeams(res.data)
+    } catch (err) { console.error(err) }
+  }
+
+  useEffect(() => { fetchDepts() }, [])
+  useEffect(() => { if (selectedDeptId) fetchTeams(selectedDeptId) }, [selectedDeptId])
+
+  const deptColumns = [
+    { key: 'sort_order', label: '순서', width: '60px' },
+    { key: 'history', label: '이력', width: '60px', render: (_v: any, row: any) => (
+      <button className="link-btn" onClick={(e) => { e.stopPropagation(); setHistoryTarget(row.dept_name) }}>이력</button>
+    )},
+    { key: 'dept_name', label: '부서명' },
+    { key: 'apply_date', label: '생성적용일' },
+    { key: 'is_used', label: '사용', render: (v: any) => v === 'Y' ? 'ON' : 'OFF' },
+  ]
+
+  const teamColumns = [
+    { key: 'sort_order', label: '순서', width: '60px' },
+    { key: 'history', label: '이력', width: '60px', render: (_v: any, row: any) => (
+      <button className="link-btn" onClick={(e) => { e.stopPropagation(); setHistoryTarget(row.team_name) }}>이력</button>
+    )},
+    { key: 'team_name', label: '팀' },
+    { key: 'dept_name', label: '부서' },
+    { key: 'apply_date', label: '생성적용일' },
+    { key: 'is_used', label: '사용', render: (v: any) => v === 'Y' ? 'ON' : 'OFF' },
+  ]
+
+  const selectedDeptName = depts.find(d => d.dept_id === selectedDeptId)?.dept_name || ''
 
   return (
     <div>
@@ -69,105 +80,36 @@ export default function DepartmentTeam() {
       />
 
       <div className="dept-layout">
-        {/* 부서 패널 */}
         <div className="dept-panel">
           <div className="panel-header">
             <span className="panel-title-text">전체 &gt; 부서</span>
             <div className="panel-actions">
-              <button className="btn btn-primary btn-sm">신규</button>
-              <button className="btn btn-secondary btn-sm">저장</button>
+              <button className="btn btn-primary btn-sm" onClick={() => alert('신규')}>신규</button>
+              <button className="btn btn-secondary btn-sm" onClick={() => alert('저장')}>저장</button>
             </div>
           </div>
-          <table className="inner-table">
-            <thead>
-              <tr>
-                <th>순서</th>
-                <th>이력</th>
-                <th>부서명</th>
-                <th>생성적용일</th>
-                <th>사용</th>
-              </tr>
-            </thead>
-            <tbody>
-              {mockDepts.map((d) => (
-                <tr
-                  key={d.name}
-                  className={selectedDept === d.name ? 'selected' : ''}
-                  onClick={() => setSelectedDept(d.name)}
-                >
-                  <td>{d.order}</td>
-                  <td>
-                    <button className="link-btn" onClick={(e) => { e.stopPropagation(); setHistoryTarget(d.name) }}>
-                      이력
-                    </button>
-                  </td>
-                  <td>{d.name}</td>
-                  <td>{d.createdDate}</td>
-                  <td>
-                    <span className={`toggle ${d.active ? 'on' : 'off'}`}>
-                      {d.active ? 'ON' : 'OFF'}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <button className="more-btn">더보기</button>
+          <DataTable 
+            columns={deptColumns as any} 
+            data={depts as any} 
+            onSelectRow={(idx) => setSelectedDeptId(depts[idx].dept_id)}
+          />
         </div>
 
-        {/* 팀 패널 */}
         <div className="dept-panel">
           <div className="panel-header">
-            <span className="panel-title-text">{selectedDept} &gt; 팀</span>
+            <span className="panel-title-text">{selectedDeptName} &gt; 팀</span>
             <div className="panel-actions">
-              <button className="btn btn-primary btn-sm">신규</button>
-              <button className="btn btn-secondary btn-sm">저장</button>
+              <button className="btn btn-primary btn-sm" onClick={() => alert('신규')}>신규</button>
+              <button className="btn btn-secondary btn-sm" onClick={() => alert('저장')}>저장</button>
             </div>
           </div>
-          <table className="inner-table">
-            <thead>
-              <tr>
-                <th>순서</th>
-                <th>이력</th>
-                <th>팀</th>
-                <th>부서</th>
-                <th>생성적용일</th>
-                <th>사용</th>
-              </tr>
-            </thead>
-            <tbody>
-              {teams.length === 0 ? (
-                <tr><td colSpan={6} className="empty-cell">데이터가 없습니다.</td></tr>
-              ) : (
-                teams.map((t) => (
-                  <tr key={t.name}>
-                    <td>{t.order}</td>
-                    <td>
-                      <button className="link-btn" onClick={() => setHistoryTarget(t.name)}>이력</button>
-                    </td>
-                    <td>{t.name}</td>
-                    <td>{t.dept}</td>
-                    <td>{t.createdDate}</td>
-                    <td>
-                      <span className={`toggle ${t.active ? 'on' : 'off'}`}>
-                        {t.active ? 'ON' : 'OFF'}
-                      </span>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-          <button className="more-btn">더보기</button>
+          <DataTable columns={teamColumns as any} data={teams as any} />
         </div>
       </div>
 
       {historyTarget && (
         <Modal title={`${historyTarget} 변경 이력`} onClose={() => setHistoryTarget(null)} width="650px">
-          <DataTable
-            columns={historyColumns as Parameters<typeof DataTable>[0]['columns']}
-            data={historyData as Record<string, unknown>[]}
-          />
+          <div style={{padding: '20px', textAlign: 'center'}}>이력 조회 API 연동 예정</div>
         </Modal>
       )}
     </div>

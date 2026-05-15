@@ -4,8 +4,9 @@
   align-items: flex-start;
 }
 
+/* ── 지점 패널 ── */
 .branch-panel {
-  width: 160px;
+  width: 168px;
   flex-shrink: 0;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -21,10 +22,13 @@
   color: var(--text-light);
   border-bottom: 1px solid var(--border);
   background: #f7fafc;
+  margin: 0;
 }
 
 .branch-list {
   list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .branch-item {
@@ -56,6 +60,7 @@
   border: 1px solid var(--border);
 }
 
+/* ── 메인 영역 ── */
 .device-main {
   flex: 1;
   min-width: 0;
@@ -64,6 +69,101 @@
 .table-info {
   font-size: 12px;
   color: var(--text-light);
-  margin-top: 8px;
+  margin: 4px 0 6px;
   text-align: right;
+}
+
+.loading-state,
+.empty-state {
+  padding: 32px;
+  text-align: center;
+  color: var(--text-light);
+  font-size: 14px;
+}
+
+/* ── 배터리 배지 ── */
+.battery-badge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+.battery-ok   { color: #16a34a; background: #dcfce7; }
+.battery-mid  { color: #d97706; background: #fef3c7; }
+.battery-low  { color: #dc2626; background: #fee2e2; }
+
+/* ── 디바이스 등록/수정 폼 ── */
+.device-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.required {
+  color: var(--danger);
+  margin-left: 2px;
+}
+
+.form-control {
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 13px;
+  background: var(--surface);
+  color: var(--text);
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary-light);
+}
+
+textarea.form-control {
+  resize: vertical;
+  min-height: 72px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+/* ── 모델 정보 ── */
+.model-info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.info-row {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+}
+
+.info-label {
+  width: 80px;
+  font-weight: 500;
+  color: var(--text-light);
+  flex-shrink: 0;
 }
