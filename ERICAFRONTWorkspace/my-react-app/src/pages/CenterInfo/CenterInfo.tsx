@@ -1,54 +1,47 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import PageHeader from '../../components/common/PageHeader'
+import { api } from '../../services/api'
 import './CenterInfo.css'
 
-interface FieldProps {
-  label: string
-  field: string
-  span?: boolean
-  form: Record<string, string>
-  onChange: (key: string, value: string) => void
-}
-
-function FormField({ label, field, span, form, onChange }: FieldProps) {
-  return (
-    <div className={`form-field${span ? ' span-2' : ''}`}>
-      <label className="form-label">{label}</label>
-      <input
-        className="form-input"
-        value={form[field] ?? ''}
-        onChange={(e) => onChange(field, e.target.value)}
-      />
-    </div>
-  )
-}
-
 export default function CenterInfo() {
-  const [form, setForm] = useState<Record<string, string>>({
-    bizNo: '123-45-67890',
-    corpNo: '110111-1234567',
-    bizType: '서비스',
-    bizItem: '의료기기 임대',
-    centerName: 'ERICA 센터',
-    centerNameShort: 'ERICA',
-    centerNameEn: 'ERICA Center',
-    centerNameEnShort: 'ERICA',
-    headName: '홍길동',
-    tel: '02-1234-5678',
-    fax: '02-1234-5679',
-    email: 'center@erica.com',
-    postCode: '06000',
-    address: '서울 강남구 테헤란로 123',
-    taxEmail: 'tax@erica.com',
-    taxManager: '김세무',
-    taxTel: '02-1234-5680',
-    taxFax: '02-1234-5681',
+  const [form, setForm] = useState<any>({
+    center_name: '',
+    center_short_name: '',
+    eng_name: '',
+    biz_reg_no: '',
+    director_name: '',
+    address: '',
+    main_phone: '',
+    main_fax: '',
+    biz_type: '',
+    biz_category: '',
+    tax_mgr_name: '',
+    logo_img_url: '',
+    seal_img_url: '',
   })
 
-  const handleChange = (key: string, value: string) =>
-    setForm((prev) => ({ ...prev, [key]: value }))
+  const fetchCenterInfo = async () => {
+    try {
+      const res = await api.get<any>('/centers/1') // 예시로 ID 1번 조회
+      setForm(res.data)
+    } catch (err) {
+      console.error(err)
+    }
+  }
 
-  const fp = { form, onChange: handleChange }
+  useEffect(() => { fetchCenterInfo() }, [])
+
+  const handleChange = (key: string, value: string) =>
+    setForm((prev: any) => ({ ...prev, [key]: value }))
+
+  const save = async () => {
+    try {
+      await api.patch('/centers/1', form)
+      alert('저장되었습니다.')
+    } catch (err) {
+      alert('저장 실패')
+    }
+  }
 
   return (
     <div>
@@ -62,30 +55,23 @@ export default function CenterInfo() {
         <section className="form-section">
           <h3 className="section-title">기본 정보</h3>
           <div className="form-grid">
-            <FormField {...fp} label="사업자등록번호" field="bizNo" />
-            <FormField {...fp} label="법인등록번호" field="corpNo" />
-            <FormField {...fp} label="업태" field="bizType" />
-            <FormField {...fp} label="업종" field="bizItem" />
-            <FormField {...fp} label="센터명" field="centerName" />
-            <FormField {...fp} label="센터명 약칭" field="centerNameShort" />
-            <FormField {...fp} label="영문 센터명" field="centerNameEn" />
-            <FormField {...fp} label="영문 센터명 약칭" field="centerNameEnShort" />
-            <FormField {...fp} label="센터장" field="headName" />
-            <FormField {...fp} label="대표 전화번호" field="tel" />
-            <FormField {...fp} label="대표 팩스번호" field="fax" />
-            <FormField {...fp} label="대표 이메일" field="email" />
-            <FormField {...fp} label="우편번호" field="postCode" />
-            <FormField {...fp} label="주소" field="address" span />
+            <div className="form-field"><label>센터명</label><input value={form.center_name} onChange={e => handleChange('center_name', e.target.value)} /></div>
+            <div className="form-field"><label>센터명 약칭</label><input value={form.center_short_name} onChange={e => handleChange('center_short_name', e.target.value)} /></div>
+            <div className="form-field"><label>영문 센터명</label><input value={form.eng_name} onChange={e => handleChange('eng_name', e.target.value)} /></div>
+            <div className="form-field"><label>사업자등록번호</label><input value={form.biz_reg_no} onChange={e => handleChange('biz_reg_no', e.target.value)} /></div>
+            <div className="form-field"><label>센터장</label><input value={form.director_name} onChange={e => handleChange('director_name', e.target.value)} /></div>
+            <div className="form-field span-2"><label>주소</label><input value={form.address} onChange={e => handleChange('address', e.target.value)} /></div>
+            <div className="form-field"><label>대표 전화번호</label><input value={form.main_phone} onChange={e => handleChange('main_phone', e.target.value)} /></div>
+            <div className="form-field"><label>대표 팩스번호</label><input value={form.main_fax} onChange={e => handleChange('main_fax', e.target.value)} /></div>
+            <div className="form-field"><label>업태</label><input value={form.biz_type} onChange={e => handleChange('biz_type', e.target.value)} /></div>
+            <div className="form-field"><label>업종</label><input value={form.biz_category} onChange={e => handleChange('biz_category', e.target.value)} /></div>
           </div>
         </section>
 
         <section className="form-section">
           <h3 className="section-title">세금계산서 담당자</h3>
           <div className="form-grid">
-            <FormField {...fp} label="이메일" field="taxEmail" />
-            <FormField {...fp} label="담당자명" field="taxManager" />
-            <FormField {...fp} label="전화번호" field="taxTel" />
-            <FormField {...fp} label="팩스번호" field="taxFax" />
+            <div className="form-field"><label>담당자명</label><input value={form.tax_mgr_name} onChange={e => handleChange('tax_mgr_name', e.target.value)} /></div>
           </div>
         </section>
 
@@ -93,33 +79,27 @@ export default function CenterInfo() {
           <h3 className="section-title">센터 직인 및 로고</h3>
           <div className="upload-grid">
             <div className="upload-item">
-              <label className="form-label">센터 직인</label>
-              <div className="upload-box">
-                <p>이미지 파일을 업로드 해주세요</p>
-                <button className="btn btn-secondary" onClick={() => alert('파일 선택')}>파일 선택</button>
-              </div>
+               <label>센터 직인</label>
+               <div className="upload-box">
+                 {form.seal_img_url ? <img src={form.seal_img_url} alt="직인" /> : <p>이미지 업로드</p>}
+                 <input type="file" onChange={() => alert('파일 업로드 API (SYS-004) 연동 예정')} />
+               </div>
             </div>
             <div className="upload-item">
-              <label className="form-label">센터 로고 (밝은 모드)</label>
-              <div className="upload-box">
-                <p>이미지 파일을 업로드 해주세요</p>
-                <button className="btn btn-secondary" onClick={() => alert('파일 선택')}>파일 선택</button>
-              </div>
-            </div>
-            <div className="upload-item">
-              <label className="form-label">센터 로고 (어두운 모드)</label>
-              <div className="upload-box">
-                <p>이미지 파일을 업로드 해주세요</p>
-                <button className="btn btn-secondary" onClick={() => alert('파일 선택')}>파일 선택</button>
-              </div>
+               <label>센터 로고</label>
+               <div className="upload-box">
+                 {form.logo_img_url ? <img src={form.logo_img_url} alt="로고" /> : <p>이미지 업로드</p>}
+                 <input type="file" />
+               </div>
             </div>
           </div>
         </section>
 
         <div className="form-actions">
-          <button className="btn btn-primary" onClick={() => alert('저장되었습니다.')}>저장</button>
+          <button className="btn btn-primary" onClick={save}>저장</button>
         </div>
       </div>
     </div>
   )
 }
+
