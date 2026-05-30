@@ -1,3 +1,91 @@
+/* 레이아웃 */
+.rental-layout {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.rental-main { flex: 1; min-width: 0; }
+
+/* 지점 패널 */
+.branch-panel {
+  width: 168px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.panel-title {
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-light);
+  border-bottom: 1px solid var(--border);
+  background: #f7fafc;
+  margin: 0;
+}
+
+.branch-list { list-style: none; margin: 0; padding: 0; }
+
+.branch-item {
+  padding: 8px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: background 0.1s;
+}
+
+.branch-item:hover { background: var(--bg); }
+
+.branch-item.active {
+  background: var(--primary-light);
+  border-left-color: var(--primary);
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.branch-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.branch-name { font-size: 12px; }
+
+.branch-stats {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+}
+
+.stat-item.total { color: var(--text-light); }
+.stat-item.active-cnt { color: var(--success); font-weight: 600; }
+.stat-sep { color: var(--border); }
+
+.panel-legend {
+  display: flex;
+  gap: 4px;
+  padding: 6px 12px;
+  font-size: 10px;
+  border-top: 1px solid var(--border);
+  background: #f7fafc;
+}
+
+.legend-total { color: var(--text-light); }
+.legend-active { color: var(--success); }
+.legend-sep { color: var(--border); }
+
+.loading-state {
+  padding: 32px;
+  text-align: center;
+  color: var(--text-light);
+  font-size: 14px;
+}
+
 .link-btn {
   background: none;
   border: none;
@@ -16,3 +104,32 @@
   margin-top: 8px;
   text-align: right;
 }
+
+.rental-form { display: flex; flex-direction: column; gap: 12px; }
+
+.info-row {
+  display: flex;
+  gap: 12px;
+  font-size: 14px;
+  padding: 4px 0;
+}
+
+.info-label {
+  font-weight: 600;
+  color: var(--text-light);
+  min-width: 80px;
+}
+
+.battery-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.battery-ok { background: #d1fae5; color: #065f46; }
+.battery-mid { background: #fef3c7; color: #92400e; }
+.battery-low { background: #fee2e2; color: #991b1b; }
+
+.text-muted { color: var(--text-light); }

@@ -10,6 +10,7 @@ const menuGroups = [
       { path: '/device/rental', label: '디바이스 임대 현황' },
       { path: '/device/biometric', label: '사용 생체 정보' },
       { path: '/device/as', label: 'AS 관리' },
+      { path: '/device/model', label: '디바이스 모델 관리' },
     ],
   },
   {

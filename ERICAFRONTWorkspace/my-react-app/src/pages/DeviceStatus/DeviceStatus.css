@@ -6,7 +6,7 @@
 
 /* ── 지점 패널 ── */
 .branch-panel {
-  width: 168px;
+  width: 220px;
   flex-shrink: 0;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -31,11 +31,34 @@
   padding: 0;
 }
 
+.branch-panel-header {
+  display: grid;
+  grid-template-columns: 1fr 36px 36px 36px;
+  gap: 4px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  background: #eef2f7;
+}
+
+.branch-col-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-light);
+  text-align: center;
+}
+
+.branch-name-cell {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .branch-item {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 36px 36px 36px;
+  gap: 4px;
   align-items: center;
-  justify-content: space-between;
-  padding: 8px 14px;
+  padding: 8px 10px;
   font-size: 13px;
   cursor: pointer;
   border-left: 3px solid transparent;

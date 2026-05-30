@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.backpro.main.model.dao.DeviceModelMapper">
+
+    <resultMap id="DeviceModelResultMap" type="com.backpro.main.model.vo.DeviceModel">
+        <id     property="modelId"   column="model_id"/>
+        <result property="modelName" column="model_name"/>
+        <result property="version"   column="version"/>
+        <result property="manualUrl"   column="manual_url"/>
+        <result property="deviceSpecs" column="device_specs"/>
+        <result property="isDeleted"  column="is_deleted"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="deletedAt" column="deleted_at"/>
+    </resultMap>
+
+    <select id="findAll" resultMap="DeviceModelResultMap">
+        SELECT * FROM device_model WHERE is_deleted = 'N'
+    </select>
+
+    <select id="findById" resultMap="DeviceModelResultMap">
+        SELECT * FROM device_model WHERE model_id = #{modelId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="modelId">
+        INSERT INTO device_model (model_name, version, manual_url, device_specs, is_deleted, created_at)
+        VALUES (#{modelName}, #{version}, #{manualUrl}, #{deviceSpecs}, 'N', NOW())
+    </insert>
+
+    <update id="update">
+        UPDATE device_model
+        <set>
+            <if test="modelName != null">model_name = #{modelName},</if>
+            version      = #{version},
+            manual_url   = #{manualUrl},
+            device_specs = #{deviceSpecs},
+        </set>
+        WHERE model_id = #{modelId}
+    </update>
+
+    <update id="softDelete">
+        UPDATE device_model
+        SET is_deleted = 'Y', deleted_at = NOW()
+        WHERE model_id = #{modelId}
+    </update>
+
+</mapper>

@@ -22,6 +22,7 @@ public class DeviceResponseDto {
     private LocalDateTime lastRentalDate;
     private LocalDateTime lastAsDate;
     private String deviceSpecs;
+    private String modelSpecs;
     private Long userId;
     private LocalDateTime createdAt;
 }

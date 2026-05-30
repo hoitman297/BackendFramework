@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.backpro.main.model.dao.BranchMapper">
+
+    <resultMap id="BranchResultMap" type="com.backpro.main.model.vo.Branch">
+        <id     property="branchId"     column="branch_id"/>
+        <result property="branchName"   column="branch_name"/>
+        <result property="statusCenter" column="status_center"/>
+        <result property="address"      column="address"/>
+        <result property="detailAddress" column="detail_address"/>
+        <result property="managerName"  column="manager_name"/>
+        <result property="mainPhone"    column="main_phone"/>
+        <result property="isDeleted"    column="is_deleted"/>
+        <result property="createdAt"    column="created_at"/>
+        <result property="deletedAt"    column="deleted_at"/>
+    </resultMap>
+
+    <select id="findByIsDeleted" resultMap="BranchResultMap">
+        SELECT * FROM branch
+        WHERE is_deleted = #{isDeleted}
+    </select>
+
+    <select id="findByStatusCenterAndIsDeleted" resultMap="BranchResultMap">
+        SELECT * FROM branch
+        WHERE status_center = #{statusCenter}
+          AND is_deleted = #{isDeleted}
+    </select>
+
+    <select id="findById" resultMap="BranchResultMap">
+        SELECT * FROM branch WHERE branch_id = #{branchId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="branchId">
+        INSERT INTO branch (branch_name, status_center, address, detail_address,
+                            manager_name, main_phone, is_deleted, created_at)
+        VALUES (#{branchName}, #{statusCenter}, #{address}, #{detailAddress},
+                #{managerName}, #{mainPhone},
+                IFNULL(#{isDeleted}, 'N'), NOW())
+    </insert>
+
+    <update id="update">
+        UPDATE branch
+        <set>
+            <if test="branchName   != null">branch_name    = #{branchName},</if>
+            <if test="statusCenter != null">status_center  = #{statusCenter},</if>
+            <if test="address      != null">address        = #{address},</if>
+            <if test="detailAddress != null">detail_address = #{detailAddress},</if>
+            <if test="managerName  != null">manager_name   = #{managerName},</if>
+            <if test="mainPhone    != null">main_phone     = #{mainPhone},</if>
+            <if test="isDeleted    != null">is_deleted     = #{isDeleted},</if>
+            <if test="deletedAt    != null">deleted_at     = #{deletedAt},</if>
+        </set>
+        WHERE branch_id = #{branchId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM branch WHERE branch_id = #{branchId}
+    </delete>
+
+</mapper>

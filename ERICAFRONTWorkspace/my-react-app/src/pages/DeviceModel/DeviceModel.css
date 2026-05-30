@@ -1,0 +1,50 @@
+.model-name-cell {
+  font-weight: 500;
+  color: var(--text);
+}
+
+.version-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  background: var(--primary-light, #eff6ff);
+  color: var(--primary, #2563eb);
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.manual-link {
+  color: var(--primary, #2563eb);
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.manual-link:hover {
+  text-decoration: underline;
+}
+
+.specs-preview {
+  font-size: 12px;
+  color: var(--text-secondary, #6b7280);
+  cursor: default;
+}
+
+.model-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-hint {
+  margin: 4px 0 0;
+  font-size: 12px;
+}
+
+.form-hint a {
+  color: var(--primary, #2563eb);
+  text-decoration: none;
+}
+
+.form-hint a:hover {
+  text-decoration: underline;
+}

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.backpro.main.model.dao.EmergencyMapper">
+
+    <resultMap id="EmergencyResultMap" type="com.backpro.main.model.vo.Emergency">
+        <id     property="emergencyId"       column="emergency_id"/>
+        <result property="typeEmergency"     column="type_emergency"/>
+        <result property="userId"            column="user_id"/>
+        <result property="deviceId"          column="device_id"/>
+        <result property="eventTime"         column="event_time"/>
+        <result property="locationAddress"   column="location_address"/>
+        <result property="statusEmergency"   column="status_emergency"/>
+        <result property="severityEmergency" column="severity_emergency"/>
+        <result property="resolvedTime"      column="resolved_time"/>
+        <result property="updatedAt"         column="updated_at"/>
+        <result property="createdAt"         column="created_at"/>
+        <result property="deletedAt"         column="deleted_at"/>
+    </resultMap>
+
+    <select id="findById" resultMap="EmergencyResultMap">
+        SELECT * FROM emergency WHERE emergency_id = #{emergencyId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="emergencyId">
+        INSERT INTO emergency (type_emergency, user_id, device_id,
+                               event_time, location_address,
+                               status_emergency, severity_emergency, created_at)
+        VALUES (#{typeEmergency}, #{userId}, #{deviceId},
+                IFNULL(#{eventTime}, NOW()), #{locationAddress},
+                0, 0, NOW())
+    </insert>
+
+    <update id="update">
+        UPDATE emergency
+        <set>
+            <if test="statusEmergency   != null">status_emergency   = #{statusEmergency},</if>
+            <if test="severityEmergency != null">severity_emergency = #{severityEmergency},</if>
+            <if test="resolvedTime      != null">resolved_time      = #{resolvedTime},</if>
+            updated_at = NOW(),
+        </set>
+        WHERE emergency_id = #{emergencyId}
+    </update>
+
+</mapper>

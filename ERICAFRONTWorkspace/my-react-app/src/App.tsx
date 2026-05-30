@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import './App.css'
 import Layout from './components/Layout/Layout'
 import DeviceStatus from './pages/DeviceStatus/DeviceStatus'
 import DeviceRental from './pages/DeviceRental/DeviceRental'
@@ -8,6 +9,7 @@ import BranchManagement from './pages/BranchManagement/BranchManagement'
 import CenterInfo from './pages/CenterInfo/CenterInfo'
 import DepartmentTeam from './pages/DepartmentTeam/DepartmentTeam'
 import CenterEmployee from './pages/CenterEmployee/CenterEmployee'
+import DeviceModelPage from './pages/DeviceModel/DeviceModel'
 
 export default function App() {
   return (
@@ -19,6 +21,7 @@ export default function App() {
           <Route path="device/rental" element={<DeviceRental />} />
           <Route path="device/biometric" element={<DeviceBiometric />} />
           <Route path="device/as" element={<DeviceAS />} />
+          <Route path="device/model" element={<DeviceModelPage />} />
           <Route path="branch" element={<BranchManagement />} />
           <Route path="center" element={<CenterInfo />} />
           <Route path="department" element={<DepartmentTeam />} />

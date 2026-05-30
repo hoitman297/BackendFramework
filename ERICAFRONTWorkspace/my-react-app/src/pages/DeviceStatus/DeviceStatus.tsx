@@ -23,6 +23,7 @@ interface Device {
   last_rental_date?: string
   last_as_date?: string
   device_specs?: string
+  model_specs?: string
   user_id: number
   created_at?: string
 }
@@ -31,6 +32,13 @@ interface DeviceModel {
   model_id: number
   model_name: string
   version?: string
+  manual_url?: string
+}
+
+interface UserOption {
+  user_id: number
+  user_name: string
+  email: string
 }
 
 interface AsRecord {
@@ -57,21 +65,24 @@ const AS_TYPE_MAP: Record<number, string> = {
   0: '파손', 1: '침수', 2: '소프트웨어', 3: '기타', 9: '불명',
 }
 
+const today = new Date().toISOString().slice(0, 10)
+
 const EMPTY_FORM = {
   model_id: '',
   branch_id: '',
   device_status: '0',
   battery_level: '100',
-  receive_date: '',
+  receive_date: today,
   dispatch_date: '',
   device_specs: '',
-  user_id: '1',
+  user_id: '',
 }
 
 export default function DeviceStatus() {
   const [devices, setDevices] = useState<Device[]>([])
   const [branches, setBranches] = useState<{ id: number; name: string }[]>([])
   const [models, setModels] = useState<DeviceModel[]>([])
+  const [users, setUsers] = useState<UserOption[]>([])
   const [selectedBranchId, setSelectedBranchId] = useState<number | null>(null)
   const [statusFilter, setStatusFilter] = useState('전체')
   const [search, setSearch] = useState('')
@@ -96,25 +107,27 @@ export default function DeviceStatus() {
     try {
       const res = await api.get<any[]>('/branches')
       setBranches(res.data.map((b) => ({ id: b.branch_id, name: b.branch_name })))
-    } catch (err) {
-      console.error(err)
-    }
+    } catch (err) { console.error(err) }
   }
 
   const fetchModels = async () => {
     try {
       const res = await api.get<DeviceModel[]>('/device-models')
       setModels(res.data)
-    } catch (err) {
-      console.error(err)
-    }
+    } catch (err) { console.error(err) }
+  }
+
+  const fetchUsers = async () => {
+    try {
+      const res = await api.get<UserOption[]>('/users')
+      setUsers(res.data)
+    } catch (err) { console.error(err) }
   }
 
   const fetchDevices = async () => {
     setLoading(true)
     try {
-      const query = selectedBranchId ? `?branch_id=${selectedBranchId}` : ''
-      const res = await api.get<Device[]>(`/devices${query}`)
+      const res = await api.get<Device[]>('/devices')
       setDevices(res.data)
     } catch (err) {
       console.error(err)
@@ -127,28 +140,31 @@ export default function DeviceStatus() {
   useEffect(() => {
     fetchBranches()
     fetchModels()
-  }, [])
-
-  useEffect(() => {
+    fetchUsers()
     fetchDevices()
-  }, [selectedBranchId])
+  }, [])
 
   const filtered = devices.filter((row) => {
     const statusText = STATUS_MAP[row.device_status] || ''
     const matchStatus = statusFilter === '전체' || statusText === statusFilter
+    const matchBranch =
+      selectedBranchId === null ? true
+      : selectedBranchId === -1 ? !row.dispatch_date
+      : row.branch_id === selectedBranchId
     const matchSearch =
-      !search || [row.model_name, row.branch_name].some((v) => v?.includes(search))
-    return matchStatus && matchSearch
+      !search ||
+      [row.model_name, row.branch_name, String(row.device_id)].some((v) =>
+        v?.toLowerCase().includes(search.toLowerCase())
+      )
+    return matchStatus && matchBranch && matchSearch
   })
 
-  // ── 신규 ──
   const openCreate = () => {
     setForm({ ...EMPTY_FORM })
     setEditTarget(null)
     setFormMode('create')
   }
 
-  // ── 행 클릭 → 수정 ──
   const openEdit = (row: Device) => {
     setForm({
       model_id: String(row.model_id),
@@ -164,15 +180,23 @@ export default function DeviceStatus() {
     setFormMode('edit')
   }
 
-  // ── 저장 ──
   const handleSave = async () => {
     if (!form.model_id || !form.branch_id || !form.user_id) {
-      alert('모델, 지점, 담당자 ID는 필수입니다.')
+      alert('모델, 지점, 담당자는 필수입니다.')
+      return
+    }
+    const battery = Number(form.battery_level)
+    if (isNaN(battery) || battery < 0 || battery > 100) {
+      alert('배터리는 0~100 사이의 값이어야 합니다.')
+      return
+    }
+    if (form.dispatch_date && form.receive_date && form.dispatch_date < form.receive_date) {
+      alert('지점발송일은 입고일 이후여야 합니다.')
       return
     }
     setSaving(true)
     try {
-      const body = {
+      const body: Record<string, unknown> = {
         model_id: Number(form.model_id),
         branch_id: Number(form.branch_id),
         device_status: Number(form.device_status),
@@ -197,11 +221,14 @@ export default function DeviceStatus() {
     }
   }
 
-  // ── 삭제 ──
   const handleDelete = async () => {
     const ids = Array.from(selected).map((idx) => filtered[idx]?.device_id).filter(Boolean)
     if (ids.length === 0) { alert('삭제할 항목을 선택하세요.'); return }
-    if (!confirm(`${ids.length}개 디바이스를 삭제하시겠습니까?`)) return
+    const rentingCount = ids.filter((id) => filtered.find((d) => d.device_id === id)?.device_status === 1).length
+    const msg = rentingCount > 0
+      ? `${ids.length}개 디바이스를 삭제하시겠습니까?\n⚠️ 임대중인 디바이스 ${rentingCount}개가 포함되어 있습니다.`
+      : `${ids.length}개 디바이스를 삭제하시겠습니까?`
+    if (!confirm(msg)) return
     try {
       await Promise.all(ids.map((id) => api.delete(`/devices/${id}`)))
       setSelected(new Set())
@@ -211,7 +238,6 @@ export default function DeviceStatus() {
     }
   }
 
-  // ── AS 이력 조회 ──
   const openAsHistory = async (row: Device) => {
     setAsTarget(row)
     setAsHistory([])
@@ -219,15 +245,10 @@ export default function DeviceStatus() {
     try {
       const res = await api.get<AsRecord[]>(`/as?device_id=${row.device_id}`)
       setAsHistory(res.data)
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setAsLoading(false)
-    }
+    } catch (err) { console.error(err) } finally { setAsLoading(false) }
   }
 
-  const branchDeviceCount = (branchId: number) =>
-    devices.filter((d) => d.branch_id === branchId).length
+  const undispatchedCount = devices.filter((d) => !d.dispatch_date).length
 
   const columns = [
     { key: 'no', label: '순번', width: '55px' },
@@ -274,6 +295,7 @@ export default function DeviceStatus() {
       ),
     },
     { key: 'receive_date', label: '입고일', render: (v: unknown) => v ? String(v).slice(0, 10) : '-' },
+    { key: 'device_specs', label: '비고', render: (v: unknown) => v ? String(v) : '-' },
   ]
 
   const dataWithNo = filtered.map((d, i) => ({ ...d, no: i + 1 }))
@@ -290,24 +312,46 @@ export default function DeviceStatus() {
         {/* 지점 패널 */}
         <aside className="branch-panel">
           <p className="panel-title">지점</p>
+          <div className="branch-panel-header">
+            <span className="branch-col-label">지점</span>
+            <span className="branch-col-label">수량</span>
+            <span className="branch-col-label">출고</span>
+            <span className="branch-col-label">폐기</span>
+          </div>
           <ul className="branch-list">
             <li
               className={`branch-item${selectedBranchId === null ? ' active' : ''}`}
               onClick={() => { setSelectedBranchId(null); setSelected(new Set()) }}
             >
-              <span>전체</span>
+              <span className="branch-name-cell">전체</span>
               <span className="branch-count">{devices.length}</span>
+              <span className="branch-count">{devices.filter((d) => d.dispatch_date).length}</span>
+              <span className="branch-count">{devices.filter((d) => d.device_status === 9).length}</span>
             </li>
-            {branches.map((b) => (
-              <li
-                key={b.id}
-                className={`branch-item${selectedBranchId === b.id ? ' active' : ''}`}
-                onClick={() => { setSelectedBranchId(b.id); setSelected(new Set()) }}
-              >
-                <span>{b.name}</span>
-                <span className="branch-count">{branchDeviceCount(b.id)}</span>
-              </li>
-            ))}
+            <li
+              className={`branch-item${selectedBranchId === -1 ? ' active' : ''}`}
+              onClick={() => { setSelectedBranchId(-1); setSelected(new Set()) }}
+            >
+              <span className="branch-name-cell">미발송</span>
+              <span className="branch-count">{undispatchedCount}</span>
+              <span className="branch-count">0</span>
+              <span className="branch-count">-</span>
+            </li>
+            {branches.map((b) => {
+              const branchDevs = devices.filter((d) => d.branch_id === b.id)
+              return (
+                <li
+                  key={b.id}
+                  className={`branch-item${selectedBranchId === b.id ? ' active' : ''}`}
+                  onClick={() => { setSelectedBranchId(b.id); setSelected(new Set()) }}
+                >
+                  <span className="branch-name-cell">{b.name}</span>
+                  <span className="branch-count">{branchDevs.length}</span>
+                  <span className="branch-count">{branchDevs.filter((d) => d.dispatch_date).length}</span>
+                  <span className="branch-count">{branchDevs.filter((d) => d.device_status === 9).length}</span>
+                </li>
+              )
+            })}
           </ul>
         </aside>
 
@@ -339,15 +383,15 @@ export default function DeviceStatus() {
                 </select>
                 <input
                   className="search-input"
-                  placeholder="모델명, 지점명 검색..."
+                  placeholder="모델명, 지점명, 디바이스ID 검색..."
                   value={search}
                   onChange={(e) => { setSearch(e.target.value); setSelected(new Set()) }}
                 />
               </>
             }
             buttons={[
-              { label: '신규', variant: 'primary', onClick: openCreate },
-              { label: '삭제', variant: 'danger', onClick: handleDelete },
+              { label: '신규 등록', variant: 'primary', onClick: openCreate },
+              { label: '삭제', variant: 'danger', onClick: handleDelete, disabled: selected.size === 0 },
             ]}
           />
 
@@ -380,7 +424,7 @@ export default function DeviceStatus() {
         <Modal
           title={formMode === 'create' ? '디바이스 신규 등록' : `디바이스 수정 (ID: ${editTarget?.device_id})`}
           onClose={() => setFormMode(null)}
-          width="520px"
+          width="540px"
         >
           <div className="device-form">
             <div className="form-row">
@@ -390,10 +434,10 @@ export default function DeviceStatus() {
                 value={form.model_id}
                 onChange={(e) => setForm({ ...form, model_id: e.target.value })}
               >
-                <option value="">-- 선택 --</option>
+                <option value="">-- 모델 선택 --</option>
                 {models.map((m) => (
                   <option key={m.model_id} value={m.model_id}>
-                    {m.model_name}{m.version ? ` (${m.version})` : ''}
+                    {m.model_name}{m.version ? ` (v${m.version})` : ''}
                   </option>
                 ))}
               </select>
@@ -406,9 +450,25 @@ export default function DeviceStatus() {
                 value={form.branch_id}
                 onChange={(e) => setForm({ ...form, branch_id: e.target.value })}
               >
-                <option value="">-- 선택 --</option>
+                <option value="">-- 지점 선택 --</option>
                 {branches.map((b) => (
                   <option key={b.id} value={b.id}>{b.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-row">
+              <label className="form-label">담당자 <span className="required">*</span></label>
+              <select
+                className="form-control"
+                value={form.user_id}
+                onChange={(e) => setForm({ ...form, user_id: e.target.value })}
+              >
+                <option value="">-- 담당자 선택 --</option>
+                {users.map((u) => (
+                  <option key={u.user_id} value={u.user_id}>
+                    {u.user_name} ({u.email})
+                  </option>
                 ))}
               </select>
             </div>
@@ -459,23 +519,13 @@ export default function DeviceStatus() {
             </div>
 
             <div className="form-row">
-              <label className="form-label">상세 스펙</label>
+              <label className="form-label">상세 스펙 / 비고</label>
               <textarea
                 className="form-control"
                 rows={3}
                 value={form.device_specs}
                 onChange={(e) => setForm({ ...form, device_specs: e.target.value })}
-                placeholder="디바이스 상세 스펙 입력..."
-              />
-            </div>
-
-            <div className="form-row">
-              <label className="form-label">담당자 ID <span className="required">*</span></label>
-              <input
-                type="number"
-                className="form-control"
-                value={form.user_id}
-                onChange={(e) => setForm({ ...form, user_id: e.target.value })}
+                placeholder="디바이스 상세 스펙 또는 메모 입력..."
               />
             </div>
 
@@ -494,7 +544,7 @@ export default function DeviceStatus() {
         <Modal
           title={`AS 이력 — ${asTarget.model_name} (ID: ${asTarget.device_id})`}
           onClose={() => setAsTarget(null)}
-          width="720px"
+          width="860px"
         >
           {asLoading ? (
             <p className="loading-state">AS 이력을 불러오는 중...</p>
@@ -504,12 +554,15 @@ export default function DeviceStatus() {
             <DataTable
               columns={[
                 { key: 'no', label: '#', width: '45px' },
-                { key: 'status_as', label: '상태', render: (v) => AS_STATUS_MAP[v as number] || String(v) },
+                { key: 'status_as', label: '상태', render: (v) => <StatusBadge status={AS_STATUS_MAP[v as number] || String(v)} /> },
                 { key: 'type_as', label: '유형', render: (v) => AS_TYPE_MAP[v as number] || String(v) },
-                { key: 'branch_name', label: '지점' },
+                { key: 'user_name', label: '접수자', render: (v) => v ? String(v) : '-' },
                 { key: 'receipt_date', label: '접수일', render: (v) => v ? String(v).slice(0, 10) : '-' },
-                { key: 'completion_date', label: '완료일', render: (v) => v ? String(v).slice(0, 10) : '-' },
                 { key: 'receipt_details', label: '접수내역', render: (v) => v ? String(v) : '-' },
+                { key: 'checker_name', label: '확인자', render: (v) => v ? String(v) : '-' },
+                { key: 'manager_name', label: '담당자', render: (v) => v ? String(v) : '-' },
+                { key: 'repair_details', label: '수리내역', render: (v) => v ? String(v) : '-' },
+                { key: 'completion_date', label: '수리완료일', render: (v) => v ? String(v).slice(0, 10) : '-' },
               ]}
               data={asHistory.map((a, i) => ({ ...a, no: i + 1 }))}
             />
@@ -535,7 +588,7 @@ export default function DeviceStatus() {
             </div>
             <div className="info-row">
               <span className="info-label">상세 스펙</span>
-              <span>{modelTarget.device_specs || '정보 없음'}</span>
+              <span>{modelTarget.model_specs || '정보 없음'}</span>
             </div>
             {modelTarget.manual_url && (
               <div className="form-actions" style={{ marginTop: '16px' }}>
