@@ -12,7 +12,6 @@ import lombok.*;
 @Entity
 @Table(name = "department")
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
