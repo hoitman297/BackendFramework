@@ -12,6 +12,7 @@ import lombok.Setter;
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class DepartmentDto {
+
     private Long dept_id;
     private String dept_name;
     private Integer sort_order;
@@ -21,10 +22,10 @@ public class DepartmentDto {
     public static DepartmentDto from(Department d) {
         return DepartmentDto.builder()
             .dept_id(d.getDeptId())
-            .dept_name(d.getDept_name())
-            .sort_order(d.getSort_order())
-            .is_used(d.getIs_used())
-            .apply_date(d.getApply_date())
+            .dept_name(d.getDeptName())       // [FIX] getDept_name() → getDeptName()
+            .sort_order(d.getSortOrder())     // [FIX] getSort_order() → getSortOrder()
+            .is_used(d.getIsUsed())           // [FIX] getIs_used() → getIsUsed()
+            .apply_date(d.getApplyDate())     // [FIX] getApply_date() → getApplyDate()
             .build();
     }
 }

@@ -2,24 +2,19 @@ package com.backpro.main.model.vo;
 
 import java.time.LocalDateTime;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
 
+/**
+ * [NEW] BranchService, Branch 엔티티에서 참조하나 파일이 없어 컴파일 불가 → 신규 생성
+ */
 @Entity
 @Table(name = "manager")
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 public class Manager {
 
     @Id
@@ -31,31 +26,27 @@ public class Manager {
     @JoinColumn(name = "branch_id", nullable = false)
     private Branch branch;
 
-    @Column(name = "name", nullable = false, length = 50)
-    private String name;
+    @Column(name = "manager_name", nullable = false, length = 50)
+    private String managerName;
 
-    @Column(name = "contact", length = 15)
-    private String contact;
+    @Column(length = 15)
+    private String phone;
 
-    @Column(name = "email", nullable = false, length = 100)
+    @Column(length = 100)
     private String email;
 
-    @Column(name = "is_main", nullable = false, length = 1)
-    private String isMain = "N";
+    @Column(name = "role", length = 30)
+    @Builder.Default
+    private String role = "일반";   // 예: 관리자, 일반 등
 
     @Column(name = "created_at", nullable = false, updatable = false)
+    @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    @Builder
-    public Manager(Branch branch, String name, String contact, String email, String isMain) {
-        this.branch = branch;
-        this.name = name;
-        this.contact = contact;
-        this.email = email;
-        this.isMain = isMain != null ? isMain : "N";
-        this.createdAt = LocalDateTime.now();
+    public void softDelete() {
+        this.deletedAt = LocalDateTime.now();
     }
 }

@@ -1,6 +1,7 @@
 package com.backpro.main.model.vo;
 
 import java.time.LocalDateTime;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,6 +13,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class Center {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long centerId;
@@ -31,7 +33,7 @@ public class Center {
     @Column(length = 50)
     private String directorName;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")  // [FIX] @Lob → columnDefinition="TEXT" (Hibernate 6 호환)
     private String address;
 
     @Column(length = 15)
@@ -52,9 +54,10 @@ public class Center {
     private String logoImgUrl;
     private String sealImgUrl;
 
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     @Builder.Default
-    private LocalDateTime created_at = LocalDateTime.now();
+    private LocalDateTime createdAt = LocalDateTime.now();   // [FIX] created_at → createdAt
 
-    private LocalDateTime deleted_at;
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;   // [FIX] deleted_at → deletedAt
 }

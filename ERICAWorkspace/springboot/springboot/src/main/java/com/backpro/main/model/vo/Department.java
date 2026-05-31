@@ -3,7 +3,9 @@ package com.backpro.main.model.vo;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,30 +17,36 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class Department {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "dept_id")
     private Long deptId;
 
-    @Column(nullable = false, length = 100)
-    private String dept_name;
+    // [FIX] dept_name → deptName
+    // Spring Data JPA 메서드명(findByDeptName...)이 Java 필드명 기준으로 파싱됨.
+    // snake_case 필드명은 PropertyReferenceException을 유발함.
+    // SpringPhysicalNamingStrategy가 deptName → dept_name 컬럼으로 자동 변환하므로 DB 스키마 변경 불필요.
+    @Column(name = "dept_name", nullable = false, length = 100)
+    private String deptName;
 
-    @Column(nullable = false)
+    @Column(name = "sort_order", nullable = false)
     @Builder.Default
-    private Integer sort_order = 1;
+    private Integer sortOrder = 1;
 
-    @Column(nullable = false, length = 1)
+    @Column(name = "is_used", nullable = false, length = 1)
     @Builder.Default
-    private String is_used = "Y";
+    private String isUsed = "Y";
 
-    private LocalDateTime apply_date;
+    @Column(name = "apply_date")
+    private LocalDateTime applyDate;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "department", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "department", cascade = CascadeType.ALL, orphanRemoval = false)
     @Builder.Default
     private List<Team> teams = new ArrayList<>();
 
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     @Builder.Default
-    private LocalDateTime created_at = LocalDateTime.now();
+    private LocalDateTime createdAt = LocalDateTime.now();
 }

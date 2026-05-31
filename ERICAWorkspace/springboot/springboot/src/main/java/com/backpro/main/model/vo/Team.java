@@ -1,6 +1,7 @@
 package com.backpro.main.model.vo;
 
 import java.time.LocalDateTime;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,28 +13,31 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class Team {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long team_id;
+    @Column(name = "team_id")
+    private Long teamId;   // [FIX] team_id → teamId
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dept_id", nullable = false)
     private Department department;
 
-    @Column(nullable = false, length = 100)
-    private String team_name;
+    @Column(name = "team_name", nullable = false, length = 100)
+    private String teamName;   // [FIX] team_name → teamName
 
-    @Column(nullable = false)
+    @Column(name = "sort_order", nullable = false)
     @Builder.Default
-    private Integer sort_order = 1;
+    private Integer sortOrder = 1;   // [FIX] sort_order → sortOrder
 
-    @Column(nullable = false, length = 1)
+    @Column(name = "is_used", nullable = false, length = 1)
     @Builder.Default
-    private String is_used = "Y";
+    private String isUsed = "Y";   // [FIX] is_used → isUsed
 
-    private LocalDateTime apply_date;
+    @Column(name = "apply_date")
+    private LocalDateTime applyDate;   // [FIX] apply_date → applyDate
 
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     @Builder.Default
-    private LocalDateTime created_at = LocalDateTime.now();
+    private LocalDateTime createdAt = LocalDateTime.now();   // [FIX] created_at → createdAt
 }
