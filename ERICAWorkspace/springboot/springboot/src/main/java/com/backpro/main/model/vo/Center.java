@@ -1,13 +1,13 @@
 package com.backpro.main.model.vo;
 
 import java.time.LocalDateTime;
-
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
 @Table(name = "center")
 @Getter
+@Setter                                             // [FIX] 추가 - updateCenter()의 setCenterName() 등 모든 setter 컴파일 오류
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
@@ -32,7 +32,7 @@ public class Center {
     @Column(length = 50)
     private String directorName;
 
-    @Column(columnDefinition = "TEXT")  // [FIX] @Lob → columnDefinition="TEXT" (Hibernate 6 호환)
+    @Column(columnDefinition = "TEXT")
     private String address;
 
     @Column(length = 15)
@@ -55,8 +55,8 @@ public class Center {
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @Builder.Default
-    private LocalDateTime createdAt = LocalDateTime.now();   // [FIX] created_at → createdAt
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;   // [FIX] deleted_at → deletedAt
+    private LocalDateTime deletedAt;
 }
