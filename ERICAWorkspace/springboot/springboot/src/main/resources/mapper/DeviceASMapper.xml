@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.backpro.main.model.dao.DeviceASMapper">
+
+    <resultMap id="DeviceAsDtoMap" type="com.backpro.main.model.dto.DeviceAsDto">
+        <id     property="asId"           column="as_id"/>
+        <result property="deviceId"       column="device_id"/>
+        <result property="modelName"      column="model_name"/>
+        <result property="branchId"       column="branch_id"/>
+        <result property="branchName"     column="branch_name"/>
+        <result property="userId"         column="user_id"/>
+        <result property="userName"       column="user_name"/>
+        <result property="rentalId"       column="rental_id"/>
+        <result property="statusAs"       column="status_as"/>
+        <result property="typeAs"         column="type_as"/>
+        <result property="receiptDate"    column="receipt_date"/>
+        <result property="receiptDetails" column="receipt_details"/>
+        <result property="checkerName"    column="checker_name"/>
+        <result property="collectionDate" column="collection_date"/>
+        <result property="managerName"    column="manager_name"/>
+        <result property="repairDetails"  column="repair_details"/>
+        <result property="completionDate" column="completion_date"/>
+        <result property="redispatchDate" column="redispatch_date"/>
+        <result property="createdAt"      column="created_at"/>
+        <result property="dispatchDate"   column="dispatch_date"/>
+    </resultMap>
+
+    <sql id="asJoinSelect">
+        SELECT a.as_id, a.device_id, a.user_id, a.rental_id,
+               a.status_as, a.type_as, a.receipt_date,
+               a.receipt_details, a.checker_name, a.collection_date,
+               a.manager_name, a.repair_details, a.completion_date,
+               a.redispatch_date, a.created_at,
+               b.branch_id, b.branch_name,
+               dm.model_name,
+               u.user_name,
+               d.dispatch_date
+        FROM device_as a
+        JOIN branch b           ON a.branch_id = b.branch_id
+        LEFT JOIN device d      ON a.device_id = d.device_id
+        LEFT JOIN device_model dm ON d.model_id = dm.model_id
+        LEFT JOIN user u        ON a.user_id = u.user_id
+    </sql>
+
+    <select id="findAllWithDetails" resultMap="DeviceAsDtoMap">
+        <include refid="asJoinSelect"/>
+        WHERE a.deleted_at IS NULL
+    </select>
+
+    <select id="findByDeviceIdWithDetails" resultMap="DeviceAsDtoMap">
+        <include refid="asJoinSelect"/>
+        WHERE a.device_id = #{deviceId}
+          AND a.deleted_at IS NULL
+    </select>
+
+    <select id="findWithFilters" resultMap="DeviceAsDtoMap">
+        <include refid="asJoinSelect"/>
+        WHERE a.deleted_at IS NULL
+          <if test="startDate != null">AND DATE(a.receipt_date) &gt;= #{startDate}</if>
+          <if test="endDate   != null">AND DATE(a.receipt_date) &lt;= #{endDate}</if>
+          <if test="branchId  != null">AND a.branch_id = #{branchId}</if>
+          <if test="statusAs  != null">AND a.status_as = #{statusAs}</if>
+          <if test="typeAs    != null">AND a.type_as   = #{typeAs}</if>
+          <if test="deviceId  != null">AND a.device_id = #{deviceId}</if>
+        ORDER BY a.receipt_date DESC
+    </select>
+
+    <select id="findById" resultMap="DeviceAsDtoMap">
+        <include refid="asJoinSelect"/>
+        WHERE a.as_id = #{asId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="asId">
+        INSERT INTO device_as (device_id, branch_id, status_as, type_as,
+                               receipt_date, receipt_details, checker_name,
+                               collection_date, manager_name, repair_details,
+                               completion_date, redispatch_date,
+                               user_id, rental_id, created_at)
+        VALUES (#{deviceId}, #{branchId},
+                IFNULL(#{statusAs}, 0), IFNULL(#{typeAs}, 0),
+                #{receiptDate}, #{receiptDetails}, #{checkerName},
+                #{collectionDate}, #{managerName}, #{repairDetails},
+                #{completionDate}, #{redispatchDate},
+                #{userId}, #{rentalId}, NOW())
+    </insert>
+
+    <update id="update">
+        UPDATE device_as
+        <set>
+            <if test="statusAs       != null">status_as        = #{statusAs},</if>
+            <if test="typeAs         != null">type_as          = #{typeAs},</if>
+            <if test="receiptDate    != null">receipt_date     = #{receiptDate},</if>
+            <if test="receiptDetails != null">receipt_details  = #{receiptDetails},</if>
+            <if test="checkerName    != null">checker_name     = #{checkerName},</if>
+            <if test="collectionDate != null">collection_date  = #{collectionDate},</if>
+            <if test="managerName    != null">manager_name     = #{managerName},</if>
+            <if test="repairDetails  != null">repair_details   = #{repairDetails},</if>
+            <if test="completionDate != null">completion_date  = #{completionDate},</if>
+            <if test="redispatchDate != null">redispatch_date  = #{redispatchDate},</if>
+        </set>
+        WHERE as_id = #{asId}
+    </update>
+
+</mapper>

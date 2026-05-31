@@ -1,3 +1,106 @@
+/* 레이아웃 */
+.as-layout {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.as-main { flex: 1; min-width: 0; }
+
+/* 지점 패널 */
+.as-branch-panel {
+  width: 175px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.as-branch-list { list-style: none; margin: 0; padding: 0; }
+
+.as-branch-item {
+  padding: 8px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: background 0.1s;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.as-branch-item:hover { background: var(--bg); }
+
+.as-branch-item.active {
+  background: var(--primary-light);
+  border-left-color: var(--primary);
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.ab-name { font-size: 12px; }
+
+.ab-stats {
+  display: flex;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.ab-total { color: var(--text-light); }
+.ab-received { color: var(--warning); font-weight: 600; }
+.ab-progress { color: var(--info); font-weight: 600; }
+
+.as-panel-legend {
+  display: flex;
+  gap: 8px;
+  padding: 6px 10px;
+  font-size: 10px;
+  border-top: 1px solid var(--border);
+  background: #f7fafc;
+}
+
+.leg-total { color: var(--text-light); flex: 1; }
+.leg-received { color: var(--warning); flex: 1; }
+.leg-progress { color: var(--info); flex: 1; }
+
+.loading-state,
+.empty-state {
+  padding: 32px;
+  text-align: center;
+  color: var(--text-light);
+  font-size: 14px;
+}
+
+/* 상세 뷰 */
+.as-detail-view { display: flex; flex-direction: column; gap: 16px; }
+
+.detail-block {
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.detail-block-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary);
+  margin: 0 0 8px 0;
+}
+
+.detail-block-body {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.6;
+  margin: 0;
+  white-space: pre-wrap;
+  min-height: 48px;
+}
+
+.detail-meta { display: flex; flex-direction: column; gap: 4px; }
+
 .link-btn {
   background: none;
   border: none;
@@ -14,4 +117,36 @@
   color: var(--text-light);
   margin-top: 8px;
   text-align: right;
+}
+
+.as-form { display: flex; flex-direction: column; gap: 12px; }
+
+.as-detail-info { display: flex; flex-direction: column; gap: 6px; }
+
+.info-row {
+  display: flex;
+  gap: 12px;
+  font-size: 14px;
+  padding: 4px 0;
+}
+
+.info-label {
+  font-weight: 600;
+  color: var(--text-light);
+  min-width: 80px;
+}
+
+.date-input {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.date-sep {
+  align-self: center;
+  font-size: 14px;
+  color: var(--text-light);
+  padding: 0 4px;
 }

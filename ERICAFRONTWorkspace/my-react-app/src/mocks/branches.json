@@ -1,0 +1,12 @@
+{
+  "status": 200,
+  "message": "success",
+  "data": [
+    { "branch_id": 1, "branch_name": "서울 강남점" },
+    { "branch_id": 2, "branch_name": "서울 홍대점" },
+    { "branch_id": 3, "branch_name": "부산 서면점" },
+    { "branch_id": 4, "branch_name": "대구 동성로점" },
+    { "branch_id": 5, "branch_name": "인천 부평점" },
+    { "branch_id": 6, "branch_name": "광주 충장로점" }
+  ]
+}

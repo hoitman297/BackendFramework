@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.backpro.main.model.dao.DepartmentMapper">
+
+    <resultMap id="DepartmentResultMap" type="com.backpro.main.model.vo.Department">
+        <id     property="deptId"    column="dept_id"/>
+        <result property="deptName"  column="dept_name"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="isUsed"    column="is_used"/>
+        <result property="applyDate" column="apply_date"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <select id="findAll" resultMap="DepartmentResultMap">
+        SELECT * FROM department WHERE is_used = 'Y'
+        ORDER BY sort_order
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="deptId">
+        INSERT INTO department (dept_name, sort_order, is_used, apply_date, created_at)
+        VALUES (#{deptName}, IFNULL(#{sortOrder}, 1), IFNULL(#{isUsed}, 'Y'),
+                #{applyDate}, NOW())
+    </insert>
+
+</mapper>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.backpro.main.model.dao.RentalMapper">
+
+    <resultMap id="RentalResponseDtoMap" type="com.backpro.main.model.dto.RentalResponseDto">
+        <id     property="rentalId"       column="rental_id"/>
+        <result property="deviceId"       column="device_id"/>
+        <result property="branchId"       column="branch_id"/>
+        <result property="branchName"     column="branch_name"/>
+        <result property="statusRent"     column="status_rent"/>
+        <result property="reqDate"        column="req_date"/>
+        <result property="expStartDate"   column="exp_start_date"/>
+        <result property="expReturnDate"  column="exp_return_date"/>
+        <result property="receiptDate"    column="receipt_date"/>
+        <result property="returnDate"     column="return_date"/>
+        <result property="isWorn"         column="is_worn"/>
+        <result property="userId"         column="user_id"/>
+        <result property="userName"       column="user_name"/>
+        <result property="modelId"        column="model_id"/>
+        <result property="modelName"      column="model_name"/>
+        <result property="batteryLevel"   column="battery_level"/>
+        <result property="createdAt"      column="created_at"/>
+    </resultMap>
+
+    <sql id="rentalJoinSelect">
+        SELECT r.rental_id, r.device_id, r.branch_id, b.branch_name,
+               r.status_rent, r.req_date, r.exp_start_date, r.exp_return_date,
+               r.receipt_date, r.return_date, r.is_worn, r.user_id, r.created_at,
+               u.user_name,
+               d.model_id, dm.model_name, d.battery_level
+        FROM rental r
+        LEFT JOIN branch b        ON r.branch_id = b.branch_id
+        LEFT JOIN user u          ON r.user_id = u.user_id
+        LEFT JOIN device d        ON r.device_id = d.device_id
+        LEFT JOIN device_model dm ON d.model_id = dm.model_id
+    </sql>
+
+    <select id="findAllWithDetails" resultMap="RentalResponseDtoMap">
+        <include refid="rentalJoinSelect"/>
+        WHERE r.deleted_at IS NULL
+        ORDER BY r.created_at DESC
+    </select>
+
+    <select id="findByUserIdWithDetails" resultMap="RentalResponseDtoMap">
+        <include refid="rentalJoinSelect"/>
+        WHERE r.user_id = #{userId}
+          AND r.deleted_at IS NULL
+        ORDER BY r.created_at DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="rentalId">
+        INSERT INTO rental (device_id, branch_id, status_rent, req_date,
+                            exp_start_date, exp_return_date, receipt_date,
+                            return_date, is_worn, user_id, created_at)
+        VALUES (#{deviceId}, #{branchId},
+                IFNULL(#{statusRent}, 0), IFNULL(#{reqDate}, NOW()),
+                #{expStartDate}, #{expReturnDate}, #{receiptDate},
+                #{returnDate}, IFNULL(#{isWorn}, 'N'), #{userId}, NOW())
+    </insert>
+
+    <update id="update">
+        UPDATE rental
+        <set>
+            <if test="statusRent    != null">status_rent     = #{statusRent},</if>
+            <if test="expStartDate  != null">exp_start_date  = #{expStartDate},</if>
+            <if test="expReturnDate != null">exp_return_date = #{expReturnDate},</if>
+            <if test="receiptDate   != null">receipt_date    = #{receiptDate},</if>
+            <if test="returnDate    != null">return_date     = #{returnDate},</if>
+            <if test="isWorn        != null">is_worn         = #{isWorn},</if>
+        </set>
+        WHERE rental_id = #{rentalId}
+    </update>
+
+    <update id="deleteById">
+        UPDATE rental SET deleted_at = NOW() WHERE rental_id = #{rentalId}
+    </update>
+
+</mapper>

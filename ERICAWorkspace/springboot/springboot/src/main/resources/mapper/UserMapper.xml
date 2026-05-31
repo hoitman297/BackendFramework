@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.backpro.main.model.dao.UserMapper">
+
+    <resultMap id="UserResultMap" type="com.backpro.main.model.vo.User">
+        <id     property="userId"      column="user_id"/>
+        <result property="userName"    column="user_name"/>
+        <result property="isDeleted"   column="is_deleted"/>
+        <result property="userPassword" column="user_password"/>
+        <result property="email"       column="email"/>
+        <result property="phone"       column="phone"/>
+        <result property="centerId"    column="center_id"/>
+        <result property="isCompany"   column="is_company"/>
+        <result property="department"  column="department"/>
+        <result property="team"        column="team"/>
+        <result property="rank"        column="rank"/>
+        <result property="workStatus"  column="work_status"/>
+        <result property="createdAt"   column="created_at"/>
+        <result property="deletedAt"   column="deleted_at"/>
+    </resultMap>
+
+    <select id="findAll" resultMap="UserResultMap">
+        SELECT * FROM user WHERE is_deleted = 'N'
+    </select>
+
+    <select id="findByFilters" resultMap="UserResultMap">
+        SELECT * FROM user
+        WHERE is_deleted = 'N'
+        <if test="isCompany != null">AND is_company  = #{isCompany}</if>
+        <if test="department != null">AND department = #{department}</if>
+        <if test="team != null">AND team           = #{team}</if>
+    </select>
+
+    <select id="findById" resultMap="UserResultMap">
+        SELECT * FROM user WHERE user_id = #{userId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="userId">
+        INSERT INTO user (user_name, is_deleted, user_password, email, phone,
+                          center_id, is_company, department, team,
+                          `rank`, work_status, created_at)
+        VALUES (#{userName}, IFNULL(#{isDeleted}, 'N'), #{userPassword},
+                #{email}, #{phone}, #{centerId},
+                IFNULL(#{isCompany}, 'N'), #{department}, #{team},
+                #{rank}, #{workStatus}, NOW())
+    </insert>
+
+    <update id="update">
+        UPDATE user
+        <set>
+            <if test="userName     != null">user_name    = #{userName},</if>
+            <if test="userPassword != null">user_password = #{userPassword},</if>
+            <if test="email        != null">email        = #{email},</if>
+            <if test="phone        != null">phone        = #{phone},</if>
+            <if test="centerId     != null">center_id    = #{centerId},</if>
+            <if test="isCompany    != null">is_company   = #{isCompany},</if>
+            <if test="department   != null">department   = #{department},</if>
+            <if test="team         != null">team         = #{team},</if>
+            <if test="rank         != null">`rank`       = #{rank},</if>
+            <if test="workStatus   != null">work_status  = #{workStatus},</if>
+            <if test="isDeleted    != null">is_deleted   = #{isDeleted},</if>
+            <if test="deletedAt    != null">deleted_at   = #{deletedAt},</if>
+        </set>
+        WHERE user_id = #{userId}
+    </update>
+
+</mapper>

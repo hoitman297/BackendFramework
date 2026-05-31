@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.backpro.main.model.dao.CenterMapper">
+
+    <resultMap id="CenterResultMap" type="com.backpro.main.model.vo.Center">
+        <id     property="centerId"        column="center_id"/>
+        <result property="centerName"      column="center_name"/>
+        <result property="centerShortName" column="center_short_name"/>
+        <result property="engName"         column="eng_name"/>
+        <result property="bizRegNo"        column="biz_reg_no"/>
+        <result property="directorName"    column="director_name"/>
+        <result property="address"         column="address"/>
+        <result property="mainPhone"       column="main_phone"/>
+        <result property="mainFax"         column="main_fax"/>
+        <result property="bizType"         column="biz_type"/>
+        <result property="bizCategory"     column="biz_category"/>
+        <result property="taxMgrName"      column="tax_mgr_name"/>
+        <result property="logoImgUrl"      column="logo_img_url"/>
+        <result property="sealImgUrl"      column="seal_img_url"/>
+        <result property="createdAt"       column="created_at"/>
+        <result property="deletedAt"       column="deleted_at"/>
+    </resultMap>
+
+    <select id="findById" resultMap="CenterResultMap">
+        SELECT * FROM center WHERE center_id = #{centerId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="centerId">
+        INSERT INTO center (center_name, center_short_name, eng_name, biz_reg_no,
+                            director_name, address, main_phone, main_fax,
+                            biz_type, biz_category, tax_mgr_name, created_at)
+        VALUES (#{centerName}, #{centerShortName}, #{engName}, #{bizRegNo},
+                #{directorName}, #{address}, #{mainPhone}, #{mainFax},
+                #{bizType}, #{bizCategory}, #{taxMgrName}, NOW())
+    </insert>
+
+    <update id="update">
+        UPDATE center
+        <set>
+            <if test="centerName      != null">center_name       = #{centerName},</if>
+            <if test="centerShortName != null">center_short_name = #{centerShortName},</if>
+            <if test="engName         != null">eng_name          = #{engName},</if>
+            <if test="bizRegNo        != null">biz_reg_no        = #{bizRegNo},</if>
+            <if test="directorName    != null">director_name     = #{directorName},</if>
+            <if test="address         != null">address           = #{address},</if>
+            <if test="mainPhone       != null">main_phone        = #{mainPhone},</if>
+            <if test="mainFax         != null">main_fax          = #{mainFax},</if>
+            <if test="bizType         != null">biz_type          = #{bizType},</if>
+            <if test="bizCategory     != null">biz_category      = #{bizCategory},</if>
+            <if test="taxMgrName      != null">tax_mgr_name      = #{taxMgrName},</if>
+            <if test="logoImgUrl      != null">logo_img_url      = #{logoImgUrl},</if>
+            <if test="sealImgUrl      != null">seal_img_url      = #{sealImgUrl},</if>
+        </set>
+        WHERE center_id = #{centerId}
+    </update>
+
+</mapper>

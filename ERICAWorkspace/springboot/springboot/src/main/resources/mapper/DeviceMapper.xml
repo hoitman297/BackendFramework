@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.backpro.main.model.dao.DeviceMapper">
+
+    <resultMap id="DeviceResponseMap" type="com.backpro.main.model.dto.DeviceResponseDto">
+        <id     property="deviceId"      column="device_id"/>
+        <result property="modelId"       column="model_id"/>
+        <result property="modelName"     column="model_name"/>
+        <result property="modelVersion"  column="version"/>
+        <result property="manualUrl"     column="manual_url"/>
+        <result property="branchId"      column="branch_id"/>
+        <result property="branchName"    column="branch_name"/>
+        <result property="deviceStatus"  column="device_status"/>
+        <result property="batteryLevel"  column="battery_level"/>
+        <result property="receiveDate"   column="receive_date"/>
+        <result property="dispatchDate"  column="dispatch_date"/>
+        <result property="lastRentalDate" column="last_rental_date"/>
+        <result property="lastAsDate"    column="last_as_date"/>
+        <result property="deviceSpecs"   column="device_specs"/>
+        <result property="modelSpecs"    column="model_specs"/>
+        <result property="userId"        column="user_id"/>
+        <result property="createdAt"     column="created_at"/>
+    </resultMap>
+
+    <sql id="deviceJoinSelect">
+        SELECT d.device_id, d.device_status, d.battery_level, d.receive_date,
+               d.dispatch_date, d.last_rental_date, d.last_as_date, d.device_specs,
+               d.user_id, d.created_at,
+               dm.model_id, dm.model_name, dm.version, dm.manual_url,
+               dm.device_specs AS model_specs,
+               b.branch_id, b.branch_name
+        FROM device d
+        JOIN device_model dm ON d.model_id = dm.model_id
+        JOIN branch b        ON d.branch_id = b.branch_id
+    </sql>
+
+    <select id="findAllWithDetails" resultMap="DeviceResponseMap">
+        <include refid="deviceJoinSelect"/>
+        WHERE d.deleted_at IS NULL
+    </select>
+
+    <select id="findByBranchIdWithDetails" resultMap="DeviceResponseMap">
+        <include refid="deviceJoinSelect"/>
+        WHERE d.branch_id = #{branchId}
+          AND d.deleted_at IS NULL
+    </select>
+
+    <select id="findByIdWithDetails" resultMap="DeviceResponseMap">
+        <include refid="deviceJoinSelect"/>
+        WHERE d.device_id = #{deviceId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="deviceId">
+        INSERT INTO device (model_id, branch_id, device_status, battery_level,
+                            receive_date, dispatch_date, device_specs,
+                            user_id, center_id, created_at)
+        VALUES (#{modelId}, #{branchId},
+                IFNULL(#{deviceStatus}, 0), IFNULL(#{batteryLevel}, 100),
+                #{receiveDate}, #{dispatchDate}, #{deviceSpecs},
+                #{userId}, #{centerId}, NOW())
+    </insert>
+
+    <update id="update">
+        UPDATE device
+        <set>
+            <if test="modelId       != null">model_id        = #{modelId},</if>
+            <if test="branchId      != null">branch_id       = #{branchId},</if>
+            <if test="deviceStatus  != null">device_status   = #{deviceStatus},</if>
+            <if test="batteryLevel  != null">battery_level   = #{batteryLevel},</if>
+            <if test="receiveDate   != null">receive_date    = #{receiveDate},</if>
+            <if test="dispatchDate  != null">dispatch_date   = #{dispatchDate},</if>
+            <if test="deviceSpecs   != null">device_specs    = #{deviceSpecs},</if>
+        </set>
+        WHERE device_id = #{deviceId}
+    </update>
+
+    <select id="findStats" resultType="com.backpro.main.model.dto.DeviceStatsDto">
+        SELECT
+            COUNT(*)                                              AS total,
+            SUM(CASE WHEN device_status = 0 THEN 1 ELSE 0 END)  AS in_stock,
+            SUM(CASE WHEN device_status = 1 THEN 1 ELSE 0 END)  AS renting,
+            SUM(CASE WHEN device_status = 2 THEN 1 ELSE 0 END)  AS waiting,
+            SUM(CASE WHEN device_status = 3 THEN 1 ELSE 0 END)  AS as_received,
+            SUM(CASE WHEN device_status = 4 THEN 1 ELSE 0 END)  AS as_completed,
+            SUM(CASE WHEN device_status = 9 THEN 1 ELSE 0 END)  AS discarded
+        FROM device
+        WHERE deleted_at IS NULL
+          <if test="branchId != null">AND branch_id = #{branchId}</if>
+          <if test="modelId  != null">AND model_id  = #{modelId}</if>
+    </select>
+
+    <update id="deleteById">
+        UPDATE device SET deleted_at = NOW() WHERE device_id = #{deviceId}
+    </update>
+
+</mapper>

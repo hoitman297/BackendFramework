@@ -3,7 +3,14 @@
 -- ==========================================
 
 -- [수정] erica 데이터베이스가 없다면 만들고, 사용하도록 지정합니다.erica
-USE `erica`;
+
+-- DB생성문 처음 생성 시 주석해제 후 작동
+CREATE DATABASE ERICA
+CHARACTER SET utf8mb4
+COLLATE UTF8MB4_UNICODE_CI;
+USE `ERICA`;
+
+
 
 SET FOREIGN_KEY_CHECKS = 0;
 
@@ -20,6 +27,10 @@ CREATE TABLE `user` (
     `phone`         VARCHAR(15)   NOT NULL COMMENT '사용자 전화번호',
     `center_id`     INT           NULL     COMMENT '센터 고유 식별자',
     `is_company`    CHAR(1)       NOT NULL DEFAULT 'N' COMMENT 'Y : 기업, N: 개인',
+    `department`    VARCHAR(100)  NULL     COMMENT '부서명',
+    `team`          VARCHAR(100)  NULL     COMMENT '팀명',
+    `rank`          VARCHAR(50)   NULL     COMMENT '직급',
+    `work_status`   VARCHAR(50)   NULL     COMMENT '재직 상태 (재직/휴직/퇴직 등)',
     `created_at`    DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성 시점',
     `deleted_at`    DATETIME      NULL     COMMENT '삭제 시점',
     PRIMARY KEY (`user_id`),
@@ -263,5 +274,8 @@ ALTER TABLE `device_log`
 
 ALTER TABLE `identifier_master`
     ADD CONSTRAINT `fk_identifier_master_center` FOREIGN KEY (`center_id`) REFERENCES `center` (`center_id`);
-
+ALTER TABLE `device_model`
+    ADD COLUMN `device_specs` TEXT NULL COMMENT '디바이스 상세 스펙' AFTER `manual_url`;
+ALTER TABLE `device_log`
+    ADD COLUMN `total_steps` MEDIUMINT NULL COMMENT '총 걸음수 (누적)' AFTER `steps_per_day`;
 SET FOREIGN_KEY_CHECKS = 1;

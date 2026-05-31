@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.backpro.main.model.dao.DeviceLogMapper">
+
+    <resultMap id="DeviceLogResponseDtoMap" type="com.backpro.main.model.dto.DeviceLogResponseDto">
+        <id     property="logId"           column="log_id"/>
+        <result property="deviceId"        column="device_id"/>
+        <result property="userId"          column="user_id"/>
+        <result property="userName"        column="user_name"/>
+        <result property="branchName"      column="branch_name"/>
+        <result property="modelId"         column="model_id"/>
+        <result property="modelName"       column="model_name"/>
+        <result property="lastUsedDate"    column="last_used_date"/>
+        <result property="usageTimePerDay" column="usage_time_per_day"/>
+        <result property="totalUsageTime"  column="total_usage_time"/>
+        <result property="respRatePerDay"  column="resp_rate_per_day"/>
+        <result property="stepsPerDay"     column="steps_per_day"/>
+        <result property="totalSteps"      column="total_steps"/>
+        <result property="lastLocation"    column="last_location"/>
+        <result property="batteryLevel"    column="battery_level"/>
+        <result property="createdAt"       column="created_at"/>
+        <result property="emergencyId"     column="emergency_id"/>
+        <result property="typeEmergency"   column="type_emergency"/>
+        <result property="emergencyTime"   column="emergency_time"/>
+        <result property="statusEmergency" column="status_emergency"/>
+    </resultMap>
+
+    <select id="findAllWithDetails" resultMap="DeviceLogResponseDtoMap">
+        SELECT dl.log_id, dl.device_id, dl.user_id,
+               u.user_name,
+               b.branch_name,
+               d.model_id, dm.model_name,
+               d.battery_level,
+               dl.last_used_date, dl.usage_time_per_day, dl.total_usage_time,
+               dl.resp_rate_per_day, dl.steps_per_day, dl.total_steps, dl.last_location, dl.created_at,
+               e.emergency_id, e.type_emergency, e.event_time AS emergency_time, e.status_emergency
+        FROM device_log dl
+        LEFT JOIN user u          ON dl.user_id = u.user_id
+        LEFT JOIN device d        ON dl.device_id = d.device_id
+        LEFT JOIN branch b        ON d.branch_id = b.branch_id
+        LEFT JOIN device_model dm ON d.model_id = dm.model_id
+        LEFT JOIN (
+            SELECT e1.emergency_id, e1.device_id, e1.type_emergency,
+                   e1.event_time, e1.status_emergency
+            FROM emergency e1
+            INNER JOIN (
+                SELECT device_id, MAX(created_at) AS max_created
+                FROM emergency
+                WHERE deleted_at IS NULL
+                GROUP BY device_id
+            ) e2 ON e1.device_id = e2.device_id AND e1.created_at = e2.max_created
+            WHERE e1.deleted_at IS NULL
+        ) e ON dl.device_id = e.device_id
+        WHERE dl.deleted_at IS NULL
+        ORDER BY dl.created_at DESC
+    </select>
+
+    <select id="findByUserIdAndDateRange" resultMap="DeviceLogResponseDtoMap">
+        SELECT dl.log_id, dl.device_id, dl.user_id,
+               u.user_name,
+               b.branch_name,
+               d.model_id, dm.model_name,
+               d.battery_level,
+               dl.last_used_date, dl.usage_time_per_day, dl.total_usage_time,
+               dl.resp_rate_per_day, dl.steps_per_day, dl.total_steps, dl.last_location, dl.created_at,
+               e.emergency_id, e.type_emergency, e.event_time AS emergency_time, e.status_emergency
+        FROM device_log dl
+        LEFT JOIN user u          ON dl.user_id = u.user_id
+        LEFT JOIN device d        ON dl.device_id = d.device_id
+        LEFT JOIN branch b        ON d.branch_id = b.branch_id
+        LEFT JOIN device_model dm ON d.model_id = dm.model_id
+        LEFT JOIN (
+            SELECT e1.emergency_id, e1.device_id, e1.type_emergency,
+                   e1.event_time, e1.status_emergency
+            FROM emergency e1
+            INNER JOIN (
+                SELECT device_id, MAX(created_at) AS max_created
+                FROM emergency
+                WHERE deleted_at IS NULL
+                GROUP BY device_id
+            ) e2 ON e1.device_id = e2.device_id AND e1.created_at = e2.max_created
+            WHERE e1.deleted_at IS NULL
+        ) e ON dl.device_id = e.device_id
+        WHERE dl.user_id = #{userId}
+          AND dl.deleted_at IS NULL
+          <if test="startDate != null">AND DATE(dl.created_at) &gt;= #{startDate}</if>
+          <if test="endDate   != null">AND DATE(dl.created_at) &lt;= #{endDate}</if>
+        ORDER BY dl.created_at DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="logId">
+        INSERT INTO device_log (device_id, user_id, last_used_date,
+                                usage_time_per_day, total_usage_time,
+                                resp_rate_per_day, steps_per_day, total_steps,
+                                last_location, created_at)
+        VALUES (#{deviceId}, #{userId}, NOW(),
+                #{usageTimePerDay}, #{totalUsageTime},
+                #{respRatePerDay}, #{stepsPerDay}, #{totalSteps},
+                #{lastLocation}, NOW())
+    </insert>
+
+</mapper>

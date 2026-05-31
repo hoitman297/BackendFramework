@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.backpro.main.model.dao.ManagerMapper">
+
+    <resultMap id="ManagerResultMap" type="com.backpro.main.model.vo.Manager">
+        <id     property="managerId" column="manager_id"/>
+        <result property="branchId"  column="branch_id"/>
+        <result property="name"      column="name"/>
+        <result property="contact"   column="contact"/>
+        <result property="email"     column="email"/>
+        <result property="isMain"    column="is_main"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="deletedAt" column="deleted_at"/>
+    </resultMap>
+
+    <select id="findByBranchIdAndDeletedAtIsNull" resultMap="ManagerResultMap">
+        SELECT * FROM manager
+        WHERE branch_id = #{branchId}
+          AND deleted_at IS NULL
+    </select>
+
+    <select id="findById" resultMap="ManagerResultMap">
+        SELECT * FROM manager WHERE manager_id = #{managerId} AND deleted_at IS NULL
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="managerId">
+        INSERT INTO manager (branch_id, name, contact, email, is_main, created_at)
+        VALUES (#{branchId}, #{name}, #{contact}, #{email},
+                IFNULL(#{isMain}, 'N'), NOW())
+    </insert>
+
+    <update id="update">
+        UPDATE manager
+        <set>
+            <if test="name    != null">name    = #{name},</if>
+            <if test="contact != null">contact = #{contact},</if>
+            <if test="email   != null">email   = #{email},</if>
+            <if test="isMain  != null">is_main = #{isMain},</if>
+        </set>
+        WHERE manager_id = #{managerId}
+    </update>
+
+</mapper>

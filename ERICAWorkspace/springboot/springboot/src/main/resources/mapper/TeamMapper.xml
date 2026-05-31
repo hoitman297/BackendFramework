@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.backpro.main.model.dao.TeamMapper">
+
+    <resultMap id="TeamResultMap" type="com.backpro.main.model.vo.Team">
+        <id     property="teamId"    column="team_id"/>
+        <result property="deptId"    column="dept_id"/>
+        <result property="teamName"  column="team_name"/>
+        <result property="sortOrder" column="sort_order"/>
+        <result property="isUsed"    column="is_used"/>
+        <result property="applyDate" column="apply_date"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <select id="findByDeptId" resultMap="TeamResultMap">
+        SELECT * FROM team
+        WHERE dept_id = #{deptId}
+          AND is_used = 'Y'
+        ORDER BY sort_order
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="teamId">
+        INSERT INTO team (dept_id, team_name, sort_order, is_used, apply_date, created_at)
+        VALUES (#{deptId}, #{teamName}, IFNULL(#{sortOrder}, 1),
+                IFNULL(#{isUsed}, 'Y'), #{applyDate}, NOW())
+    </insert>
+
+</mapper>
