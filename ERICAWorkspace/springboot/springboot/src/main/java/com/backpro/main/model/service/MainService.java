@@ -62,6 +62,26 @@ public class MainService {
         return team;
     }
 
+    public Department updateDepartment(Long id, Department dept) {
+        dept.setDeptId(id);
+        departmentMapper.update(dept);
+        return dept;
+    }
+
+    public void deleteDepartment(Long id) {
+        departmentMapper.softDelete(id);
+    }
+
+    public Team updateTeam(Long id, Team team) {
+        team.setTeamId(id);
+        teamMapper.update(team);
+        return team;
+    }
+
+    public void deleteTeam(Long id) {
+        teamMapper.softDelete(id);
+    }
+
     // ========== Branch (BCH) ==========
 
     @Transactional(readOnly = true)
@@ -82,7 +102,11 @@ public class MainService {
     }
 
     public void deleteBranch(Long id) {
-        branchMapper.deleteById(id);
+        Branch branch = branchMapper.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Branch not found: " + id));
+        branch.setIsDeleted("Y");
+        branch.setDeletedAt(java.time.LocalDateTime.now());
+        branchMapper.update(branch);
     }
 
     // ========== Manager (MGR) ==========

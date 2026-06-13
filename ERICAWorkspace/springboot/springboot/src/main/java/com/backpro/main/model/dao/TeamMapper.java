@@ -9,4 +9,6 @@ import java.util.List;
 public interface TeamMapper {
     List<Team> findByDeptId(@Param("deptId") Long deptId);
     int insert(Team team);
+    int update(Team team);
+    int softDelete(@Param("teamId") Long teamId);
 }
