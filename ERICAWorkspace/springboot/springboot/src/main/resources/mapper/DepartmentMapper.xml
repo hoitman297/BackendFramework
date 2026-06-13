@@ -23,4 +23,19 @@
                 #{applyDate}, NOW())
     </insert>
 
+    <update id="update">
+        UPDATE department
+        <set>
+            <if test="deptName  != null">dept_name  = #{deptName},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            <if test="isUsed    != null">is_used    = #{isUsed},</if>
+            <if test="applyDate != null">apply_date = #{applyDate},</if>
+        </set>
+        WHERE dept_id = #{deptId}
+    </update>
+
+    <update id="softDelete">
+        UPDATE department SET is_used = 'N' WHERE dept_id = #{deptId}
+    </update>
+
 </mapper>

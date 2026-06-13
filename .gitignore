@@ -291,3 +291,33 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/java,react,node,eclipse,windows,visualstudiocode
+ERICAWorkspace/springboot/springboot/src/main/java/com/backpro/main/CenterController.java
+ERICAWorkspace/springboot/springboot/src/main/java/com/backpro/main/OrganizationController.java
+ERICAWorkspace/springboot/springboot/src/main/java/com/backpro/main/model/dto/BranchDto.java
+ERICAWorkspace/springboot/springboot/src/main/java/com/backpro/main/model/dto/CenterDto.java
+ERICAWorkspace/springboot/springboot/src/main/java/com/backpro/main/model/dto/DepartmentDto.java
+ERICAWorkspace/springboot/springboot/src/main/java/com/backpro/main/model/dto/ManagerDto.java
+ERICAWorkspace/springboot/springboot/src/main/java/com/backpro/main/model/dto/TeamDto.java
+ERICAWorkspace/springboot/springboot/src/main/java/com/backpro/main/model/service/CenterService.java
+ERICAWorkspace/springboot/springboot/src/main/java/com/backpro/main/model/service/OrganizationService.java
+KJW/BranchController.java
+KJW/CenterController.java
+KJW/OrganizationController.java
+KJW/DTO/BranchDto.java
+KJW/DTO/CenterDto.java
+KJW/DTO/DepartmentDto.java
+KJW/DTO/ManagerDto.java
+KJW/DTO/TeamDto.java
+KJW/Repository/BranchRepository.java
+KJW/Repository/CenterRepository.java
+KJW/Repository/DepartmentRepository.java
+KJW/Repository/ManagerRepository.java
+KJW/Repository/TeamRepository.java
+KJW/Service/BranchService.java
+KJW/Service/CenterService.java
+KJW/Service/OrganizationService.java
+KJW/VO/Branch.java
+KJW/VO/Center.java
+KJW/VO/Department.java
+KJW/VO/Manager.java
+KJW/VO/Team.java

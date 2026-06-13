@@ -3,14 +3,18 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.backpro.main.model.dao.TeamMapper">
 
+    <resultMap id="DeptRefMap" type="com.backpro.main.model.vo.Department">
+        <id property="deptId" column="dept_id"/>
+    </resultMap>
+
     <resultMap id="TeamResultMap" type="com.backpro.main.model.vo.Team">
         <id     property="teamId"    column="team_id"/>
-        <result property="deptId"    column="dept_id"/>
         <result property="teamName"  column="team_name"/>
         <result property="sortOrder" column="sort_order"/>
         <result property="isUsed"    column="is_used"/>
         <result property="applyDate" column="apply_date"/>
         <result property="createdAt" column="created_at"/>
+        <association property="department" resultMap="DeptRefMap"/>
     </resultMap>
 
     <select id="findByDeptId" resultMap="TeamResultMap">
@@ -22,8 +26,23 @@
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="teamId">
         INSERT INTO team (dept_id, team_name, sort_order, is_used, apply_date, created_at)
-        VALUES (#{deptId}, #{teamName}, IFNULL(#{sortOrder}, 1),
+        VALUES (#{department.deptId}, #{teamName}, IFNULL(#{sortOrder}, 1),
                 IFNULL(#{isUsed}, 'Y'), #{applyDate}, NOW())
     </insert>
+
+    <update id="update">
+        UPDATE team
+        <set>
+            <if test="teamName  != null">team_name  = #{teamName},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            <if test="isUsed    != null">is_used    = #{isUsed},</if>
+            <if test="applyDate != null">apply_date = #{applyDate},</if>
+        </set>
+        WHERE team_id = #{teamId}
+    </update>
+
+    <update id="softDelete">
+        UPDATE team SET is_used = 'N' WHERE team_id = #{teamId}
+    </update>
 
 </mapper>

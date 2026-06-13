@@ -26,8 +26,7 @@ public class MainController {
 
     @GetMapping("/branches")
     public ApiResponse<List<Branch>> getBranches(@RequestParam(required = false) String status_center) {
-        String status = "활성".equals(status_center) ? "Y" : "비활성".equals(status_center) ? "N" : null;
-        return ApiResponse.ok(mainService.getAllBranches(status));
+        return ApiResponse.ok(mainService.getAllBranches(status_center));
     }
 
     @PostMapping("/branches")
@@ -290,6 +289,17 @@ public class MainController {
         return ApiResponse.ok(mainService.saveDepartment(dept));
     }
 
+    @PatchMapping("/depts/{id}")
+    public ApiResponse<Department> updateDept(@PathVariable Long id, @RequestBody Department dept) {
+        return ApiResponse.ok(mainService.updateDepartment(id, dept));
+    }
+
+    @DeleteMapping("/depts/{id}")
+    public ApiResponse<String> deleteDept(@PathVariable Long id) {
+        mainService.deleteDepartment(id);
+        return ApiResponse.ok("Deleted");
+    }
+
     @GetMapping("/teams")
     public ApiResponse<List<Team>> getTeams(@RequestParam Long dept_id) {
         return ApiResponse.ok(mainService.getTeamsByDept(dept_id));
@@ -298,5 +308,16 @@ public class MainController {
     @PostMapping("/teams")
     public ApiResponse<Team> registerTeam(@RequestBody Team team) {
         return ApiResponse.ok(mainService.saveTeam(team));
+    }
+
+    @PatchMapping("/teams/{id}")
+    public ApiResponse<Team> updateTeam(@PathVariable Long id, @RequestBody Team team) {
+        return ApiResponse.ok(mainService.updateTeam(id, team));
+    }
+
+    @DeleteMapping("/teams/{id}")
+    public ApiResponse<String> deleteTeam(@PathVariable Long id) {
+        mainService.deleteTeam(id);
+        return ApiResponse.ok("Deleted");
     }
 }

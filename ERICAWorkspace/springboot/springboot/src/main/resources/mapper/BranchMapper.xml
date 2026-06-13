@@ -4,16 +4,20 @@
 <mapper namespace="com.backpro.main.model.dao.BranchMapper">
 
     <resultMap id="BranchResultMap" type="com.backpro.main.model.vo.Branch">
-        <id     property="branchId"     column="branch_id"/>
-        <result property="branchName"   column="branch_name"/>
-        <result property="statusCenter" column="status_center"/>
-        <result property="address"      column="address"/>
-        <result property="detailAddress" column="detail_address"/>
-        <result property="managerName"  column="manager_name"/>
-        <result property="mainPhone"    column="main_phone"/>
-        <result property="isDeleted"    column="is_deleted"/>
-        <result property="createdAt"    column="created_at"/>
-        <result property="deletedAt"    column="deleted_at"/>
+        <id     property="branchId"        column="branch_id"/>
+        <result property="branchName"      column="branch_name"/>
+        <result property="branchShortName" column="branch_short_name"/>
+        <result property="statusCenter"    column="status_center"/>
+        <result property="address"         column="address"/>
+        <result property="detailAddress"   column="detail_address"/>
+        <result property="managerName"     column="manager_name"/>
+        <result property="phone"           column="phone"/>
+        <result property="fax"             column="fax"/>
+        <result property="sortOrder"       column="sort_order"/>
+        <result property="isDeleted"       column="is_deleted"/>
+        <result property="createdAt"       column="created_at"/>
+        <result property="updatedAt"       column="updated_at"/>
+        <result property="deletedAt"       column="deleted_at"/>
     </resultMap>
 
     <select id="findByIsDeleted" resultMap="BranchResultMap">
@@ -32,24 +36,27 @@
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="branchId">
-        INSERT INTO branch (branch_name, status_center, address, detail_address,
-                            manager_name, main_phone, is_deleted, created_at)
-        VALUES (#{branchName}, #{statusCenter}, #{address}, #{detailAddress},
-                #{managerName}, #{mainPhone},
-                IFNULL(#{isDeleted}, 'N'), NOW())
+        INSERT INTO branch (branch_name, branch_short_name, status_center, address, detail_address,
+                            manager_name, phone, fax, sort_order, is_deleted, created_at)
+        VALUES (#{branchName}, #{branchShortName}, #{statusCenter}, #{address}, #{detailAddress},
+                #{managerName}, #{phone}, #{fax},
+                IFNULL(#{sortOrder}, 1), IFNULL(#{isDeleted}, 'N'), NOW())
     </insert>
 
     <update id="update">
         UPDATE branch
         <set>
-            <if test="branchName   != null">branch_name    = #{branchName},</if>
-            <if test="statusCenter != null">status_center  = #{statusCenter},</if>
-            <if test="address      != null">address        = #{address},</if>
-            <if test="detailAddress != null">detail_address = #{detailAddress},</if>
-            <if test="managerName  != null">manager_name   = #{managerName},</if>
-            <if test="mainPhone    != null">main_phone     = #{mainPhone},</if>
-            <if test="isDeleted    != null">is_deleted     = #{isDeleted},</if>
-            <if test="deletedAt    != null">deleted_at     = #{deletedAt},</if>
+            <if test="branchName      != null">branch_name       = #{branchName},</if>
+            <if test="branchShortName != null">branch_short_name = #{branchShortName},</if>
+            <if test="statusCenter    != null">status_center     = #{statusCenter},</if>
+            <if test="address         != null">address           = #{address},</if>
+            <if test="detailAddress   != null">detail_address    = #{detailAddress},</if>
+            <if test="managerName     != null">manager_name      = #{managerName},</if>
+            <if test="phone           != null">phone             = #{phone},</if>
+            <if test="fax             != null">fax               = #{fax},</if>
+            <if test="sortOrder       != null">sort_order        = #{sortOrder},</if>
+            <if test="isDeleted       != null">is_deleted        = #{isDeleted},</if>
+            <if test="deletedAt       != null">deleted_at        = #{deletedAt},</if>
         </set>
         WHERE branch_id = #{branchId}
     </update>
