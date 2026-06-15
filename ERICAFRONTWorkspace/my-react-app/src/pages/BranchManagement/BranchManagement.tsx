@@ -5,6 +5,7 @@ import DataTable from '../../components/common/DataTable'
 import StatusBadge from '../../components/common/StatusBadge'
 import Modal from '../../components/common/Modal'
 import { api } from '../../services/api'
+import Toast, { useToast } from '../../components/common/Toast'
 import './BranchManagement.css'
 
 interface Branch {
@@ -66,6 +67,7 @@ const managerColumns = [
 ]
 
 export default function BranchManagement() {
+  const { toast, showToast } = useToast()
   const [branches, setBranches] = useState<Branch[]>([])
   const [managers, setManagers] = useState<Manager[]>([])
   const [loading, setLoading] = useState(false)
@@ -85,7 +87,7 @@ export default function BranchManagement() {
       setBranches(res.data)
     } catch (err) {
       console.error(err)
-      alert('지점 목록을 불러오는데 실패했습니다.')
+      showToast('지점 목록을 불러오는데 실패했습니다.', 'error')
     } finally {
       setLoading(false)
     }
@@ -97,7 +99,7 @@ export default function BranchManagement() {
       setManagers(res.data)
     } catch (err) {
       console.error(err)
-      alert('담당자 목록을 불러오는데 실패했습니다.')
+      showToast('담당자 목록을 불러오는데 실패했습니다.', 'error')
     }
   }
 
@@ -119,7 +121,7 @@ export default function BranchManagement() {
   }
 
   const openEdit = () => {
-    if (selected.size !== 1) return alert('수정할 항목을 1개만 선택해 주세요.')
+    if (selected.size !== 1) { showToast('수정할 항목을 1개만 선택해 주세요.', 'error'); return }
     const idx = [...selected][0]
     const branch = filtered[idx]
     if (!branch) return
@@ -139,21 +141,21 @@ export default function BranchManagement() {
   }
 
   const saveForm = async () => {
-    if (!formData.branch_name.trim()) return alert('지점명을 입력해 주세요.')
+    if (!formData.branch_name.trim()) { showToast('지점명을 입력해 주세요.', 'error'); return }
     try {
       if (editBranch) {
         await api.patch(`/branches/${editBranch.branch_id}`, formData)
-        alert('수정되었습니다.')
+        showToast('수정되었습니다.', 'success')
       } else {
         await api.post('/branches', formData)
-        alert('등록되었습니다.')
+        showToast('등록되었습니다.', 'success')
       }
       setShowForm(false)
       setSelected(new Set())
       fetchBranches()
     } catch (err) {
       console.error(err)
-      alert('저장 실패')
+      showToast('저장 실패', 'error')
     }
   }
 
@@ -163,12 +165,12 @@ export default function BranchManagement() {
     try {
       const toDelete = [...selected].map(idx => filtered[idx]).filter(Boolean)
       await Promise.all(toDelete.map(b => api.delete(`/branches/${b.branch_id}`)))
-      alert('삭제되었습니다.')
+      showToast('삭제되었습니다.', 'success')
       setSelected(new Set())
       fetchBranches()
     } catch (err) {
       console.error(err)
-      alert('삭제 실패')
+      showToast('삭제 실패', 'error')
     }
   }
 
@@ -236,6 +238,8 @@ export default function BranchManagement() {
         />
       )}
       <p className="table-info">총 {filtered.length}건</p>
+
+      <Toast {...toast} />
 
       {showManagerBranchId && (
         <Modal title={`${showManagerBranchId.name} > 담당자 현황`} onClose={() => setShowManagerBranchId(null)} width="700px">

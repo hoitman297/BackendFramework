@@ -1,0 +1,11 @@
+{
+  "branch_name": "테스트지점A",
+  "branch_short_name": "테A",
+  "status_center": "운영",
+  "address": "서울시 강남구 테헤란로 123",
+  "detail_address": "2층",
+  "manager_name": "홍길동",
+  "phone": "02-1234-5678",
+  "fax": "02-1234-5679",
+  "sort_order": 1
+}

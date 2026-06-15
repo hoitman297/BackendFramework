@@ -6,6 +6,7 @@ import SummaryCard from '../../components/common/SummaryCard'
 import StatusBadge from '../../components/common/StatusBadge'
 import Modal from '../../components/common/Modal'
 import { api } from '../../services/api'
+import Toast, { useToast } from '../../components/common/Toast'
 import './DeviceAS.css'
 
 interface DeviceASData {
@@ -67,6 +68,7 @@ const EMPTY_FORM = {
 }
 
 export default function DeviceAS() {
+  const { toast, showToast } = useToast()
   const [asItems, setAsItems] = useState<DeviceASData[]>([])
   const [branches, setBranches] = useState<{ id: number; name: string }[]>([])
   const [devices, setDevices] = useState<Device[]>([])
@@ -171,7 +173,7 @@ export default function DeviceAS() {
 
   const handleRegister = async () => {
     if (!form.device_id || !form.branch_id || !form.user_id) {
-      alert('디바이스, 지점, 접수자는 필수입니다.')
+      showToast('디바이스, 지점, 접수자는 필수입니다.', 'error')
       return
     }
     setSaving(true)
@@ -191,7 +193,7 @@ export default function DeviceAS() {
       setForm({ ...EMPTY_FORM })
       await fetchASList()
     } catch (err: any) {
-      alert(err.message || '등록에 실패했습니다.')
+      showToast(err.message || '등록에 실패했습니다.', 'error')
     } finally {
       setSaving(false)
     }
@@ -215,15 +217,15 @@ export default function DeviceAS() {
     const receiptDate = editTarget.receipt_date ? editTarget.receipt_date.slice(0, 10) : ''
     const { collection_date, completion_date, redispatch_date } = editFields
     if (collection_date && receiptDate && collection_date < receiptDate) {
-      alert('수거일은 접수일 이후여야 합니다.')
+      showToast('수거일은 접수일 이후여야 합니다.', 'error')
       return
     }
     if (completion_date && collection_date && completion_date < collection_date) {
-      alert('완료일은 수거일 이후여야 합니다.')
+      showToast('완료일은 수거일 이후여야 합니다.', 'error')
       return
     }
     if (redispatch_date && completion_date && redispatch_date < completion_date) {
-      alert('재발송일은 완료일 이후여야 합니다.')
+      showToast('재발송일은 완료일 이후여야 합니다.', 'error')
       return
     }
     setSaving(true)
@@ -240,7 +242,7 @@ export default function DeviceAS() {
       setEditTarget(null)
       await fetchASList()
     } catch (err: any) {
-      alert(err.message || '수정에 실패했습니다.')
+      showToast(err.message || '수정에 실패했습니다.', 'error')
     } finally {
       setSaving(false)
     }
@@ -522,6 +524,8 @@ export default function DeviceAS() {
           )}
         </Modal>
       )}
+
+      <Toast {...toast} />
 
       {/* 상세 모달 (접수/수리 내역) */}
       {detailTarget && (

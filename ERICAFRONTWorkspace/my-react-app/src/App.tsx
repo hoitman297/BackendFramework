@@ -1,6 +1,7 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import './App.css'
 import Layout from './components/Layout/Layout'
+import Login from './pages/Login/Login'
 import DeviceStatus from './pages/DeviceStatus/DeviceStatus'
 import DeviceRental from './pages/DeviceRental/DeviceRental'
 import DeviceBiometric from './pages/DeviceBiometric/DeviceBiometric'
@@ -11,11 +12,20 @@ import DepartmentTeam from './pages/DepartmentTeam/DepartmentTeam'
 import CenterEmployee from './pages/CenterEmployee/CenterEmployee'
 import DeviceModelPage from './pages/DeviceModel/DeviceModel'
 
+function PrivateRoute({ children }: { children: React.ReactNode }) {
+  const location = useLocation()
+  if (!localStorage.getItem('token')) {
+    return <Navigate to="/login" state={{ from: location }} replace />
+  }
+  return <>{children}</>
+}
+
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Layout />}>
+        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
           <Route index element={<Navigate to="/device/status" replace />} />
           <Route path="device/status" element={<DeviceStatus />} />
           <Route path="device/rental" element={<DeviceRental />} />

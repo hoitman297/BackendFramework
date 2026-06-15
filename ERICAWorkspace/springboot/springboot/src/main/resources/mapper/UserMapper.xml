@@ -36,6 +36,10 @@
         SELECT * FROM user WHERE user_id = #{userId}
     </select>
 
+    <select id="findByEmail" resultMap="UserResultMap">
+        SELECT * FROM user WHERE email = #{email} AND is_deleted = 'N'
+    </select>
+
     <insert id="insert" useGeneratedKeys="true" keyProperty="userId">
         INSERT INTO user (user_name, is_deleted, user_password, email, phone,
                           center_id, is_company, department, team,
@@ -62,6 +66,11 @@
             <if test="isDeleted    != null">is_deleted   = #{isDeleted},</if>
             <if test="deletedAt    != null">deleted_at   = #{deletedAt},</if>
         </set>
+        WHERE user_id = #{userId}
+    </update>
+
+    <update id="softDelete">
+        UPDATE user SET is_deleted = 'Y', deleted_at = NOW()
         WHERE user_id = #{userId}
     </update>
 

@@ -6,6 +6,7 @@ import SummaryCard from '../../components/common/SummaryCard'
 import StatusBadge from '../../components/common/StatusBadge'
 import Modal from '../../components/common/Modal'
 import { api } from '../../services/api'
+import Toast, { useToast } from '../../components/common/Toast'
 import './DeviceStatus.css'
 
 interface Device {
@@ -79,6 +80,7 @@ const EMPTY_FORM = {
 }
 
 export default function DeviceStatus() {
+  const { toast, showToast } = useToast()
   const [devices, setDevices] = useState<Device[]>([])
   const [branches, setBranches] = useState<{ id: number; name: string }[]>([])
   const [models, setModels] = useState<DeviceModel[]>([])
@@ -131,7 +133,7 @@ export default function DeviceStatus() {
       setDevices(res.data)
     } catch (err) {
       console.error(err)
-      alert('디바이스 목록을 불러오는데 실패했습니다.')
+      showToast('디바이스 목록을 불러오는데 실패했습니다.', 'error')
     } finally {
       setLoading(false)
     }
@@ -182,16 +184,16 @@ export default function DeviceStatus() {
 
   const handleSave = async () => {
     if (!form.model_id || !form.branch_id || !form.user_id) {
-      alert('모델, 지점, 담당자는 필수입니다.')
+      showToast('모델, 지점, 담당자는 필수입니다.', 'error')
       return
     }
     const battery = Number(form.battery_level)
     if (isNaN(battery) || battery < 0 || battery > 100) {
-      alert('배터리는 0~100 사이의 값이어야 합니다.')
+      showToast('배터리는 0~100 사이의 값이어야 합니다.', 'error')
       return
     }
     if (form.dispatch_date && form.receive_date && form.dispatch_date < form.receive_date) {
-      alert('지점발송일은 입고일 이후여야 합니다.')
+      showToast('지점발송일은 입고일 이후여야 합니다.', 'error')
       return
     }
     setSaving(true)
@@ -215,7 +217,7 @@ export default function DeviceStatus() {
       setSelected(new Set())
       await fetchDevices()
     } catch (err: any) {
-      alert(err.message || '저장에 실패했습니다.')
+      showToast(err.message || '저장에 실패했습니다.', 'error')
     } finally {
       setSaving(false)
     }
@@ -223,7 +225,7 @@ export default function DeviceStatus() {
 
   const handleDelete = async () => {
     const ids = Array.from(selected).map((idx) => filtered[idx]?.device_id).filter(Boolean)
-    if (ids.length === 0) { alert('삭제할 항목을 선택하세요.'); return }
+    if (ids.length === 0) { showToast('삭제할 항목을 선택하세요.', 'error'); return }
     const rentingCount = ids.filter((id) => filtered.find((d) => d.device_id === id)?.device_status === 1).length
     const msg = rentingCount > 0
       ? `${ids.length}개 디바이스를 삭제하시겠습니까?\n⚠️ 임대중인 디바이스 ${rentingCount}개가 포함되어 있습니다.`
@@ -234,7 +236,7 @@ export default function DeviceStatus() {
       setSelected(new Set())
       await fetchDevices()
     } catch (err: any) {
-      alert(err.message || '삭제에 실패했습니다.')
+      showToast(err.message || '삭제에 실패했습니다.', 'error')
     }
   }
 
@@ -569,6 +571,8 @@ export default function DeviceStatus() {
           )}
         </Modal>
       )}
+
+      <Toast {...toast} />
 
       {/* ── 모델 정보 모달 ── */}
       {modelTarget && (

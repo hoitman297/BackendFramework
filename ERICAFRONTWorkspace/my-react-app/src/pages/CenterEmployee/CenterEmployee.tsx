@@ -102,7 +102,7 @@ export default function CenterEmployee() {
     { key: 'team', label: '팀' },
     { key: 'rank', label: '직급' },
     { key: 'work_status', label: '상태', render: (v: any) => <StatusBadge status={String(v || '근무')} /> },
-    { key: 'email', label: '이메일' },
+    { key: 'email', label: '아이디' },
     { key: 'phone', label: '전화번호' },
   ]
 
@@ -162,7 +162,7 @@ export default function CenterEmployee() {
         </aside>
         <div className="employee-main">
           <ToolBar
-            left={<input className="search-input" placeholder="이름, 이메일 검색..." value={search} onChange={e => setSearch(e.target.value)} />}
+            left={<input className="search-input" placeholder="이름, 아이디 검색..." value={search} onChange={e => setSearch(e.target.value)} />}
             buttons={[{ label: '새로고침', variant: 'secondary', onClick: fetchUsers }]}
           />
           {loading ? (

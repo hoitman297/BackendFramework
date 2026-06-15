@@ -2,11 +2,12 @@
 -- 임대 관리 시스템 DB v3.2 (MySQL)
 -- ==========================================
 
-DROP DATABASE IF EXISTS `ERICA`;
-CREATE DATABASE `ERICA`
+
+DROP DATABASE IF EXISTS `team5`;
+CREATE DATABASE `team5`
     CHARACTER SET utf8mb4
     COLLATE utf8mb4_unicode_ci;
-USE `ERICA`;
+USE `team5`;
 
 
 

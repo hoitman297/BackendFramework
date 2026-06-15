@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import PageHeader from '../../components/common/PageHeader'
 import { api } from '../../services/api'
+import Toast, { useToast } from '../../components/common/Toast'
 import './CenterInfo.css'
 
 const EMPTY_FORM = {
@@ -20,6 +21,7 @@ const EMPTY_FORM = {
 }
 
 export default function CenterInfo() {
+  const { toast, showToast } = useToast()
   const [form, setForm] = useState<any>(EMPTY_FORM)
   const [centerId, setCenterId] = useState<number | null>(null)
   const [logoUploading, setLogoUploading] = useState(false)
@@ -52,17 +54,17 @@ export default function CenterInfo() {
         const res = await api.post<any>('/centers', form)
         if (res.data?.center_id) setCenterId(res.data.center_id)
       }
-      alert('저장되었습니다.')
+      showToast('저장되었습니다.', 'success')
       fetchCenterInfo()
     } catch (err) {
       console.error(err)
-      alert('저장 실패')
+      showToast('저장 실패', 'error')
     }
   }
 
   const uploadImage = async (file: File, type: 'logo' | 'seal') => {
     if (!centerId) {
-      alert('먼저 기본 정보를 저장해 주세요.')
+      showToast('먼저 기본 정보를 저장해 주세요.', 'error')
       return
     }
     const setUploading = type === 'logo' ? setLogoUploading : setSealUploading
@@ -72,8 +74,10 @@ export default function CenterInfo() {
       formData.append('center_id', String(centerId))
       formData.append('image_file', file)
 
+      const token = localStorage.getItem('token')
       const response = await fetch(`/api/centers/upload?center_id=${centerId}`, {
         method: 'POST',
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
         body: formData,
       })
       const result = await response.json()
@@ -83,12 +87,12 @@ export default function CenterInfo() {
       if (url) {
         const key = type === 'logo' ? 'logo_img_url' : 'seal_img_url'
         setForm((prev: any) => ({ ...prev, [key]: url }))
-        alert('업로드되었습니다.')
+        showToast('업로드되었습니다.', 'success')
         fetchCenterInfo()
       }
     } catch (err) {
       console.error(err)
-      alert('파일 업로드 실패')
+      showToast('파일 업로드 실패', 'error')
     } finally {
       setUploading(false)
     }
@@ -166,6 +170,7 @@ export default function CenterInfo() {
           <button className="btn btn-primary" onClick={save}>저장</button>
         </div>
       </div>
+      <Toast {...toast} />
     </div>
   )
 }

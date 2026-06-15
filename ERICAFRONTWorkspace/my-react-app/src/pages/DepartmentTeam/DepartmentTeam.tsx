@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import PageHeader from '../../components/common/PageHeader'
 import Modal from '../../components/common/Modal'
 import { api } from '../../services/api'
+import Toast, { useToast } from '../../components/common/Toast'
 import './DepartmentTeam.css'
 
 interface Department {
@@ -25,6 +26,7 @@ const EMPTY_DEPT = { dept_name: '', sort_order: 1, is_used: 'Y', apply_date: '' 
 const EMPTY_TEAM = { team_name: '', sort_order: 1, is_used: 'Y', apply_date: '' }
 
 export default function DepartmentTeam() {
+  const { toast, showToast } = useToast()
   const [depts, setDepts] = useState<Department[]>([])
   const [teams, setTeams] = useState<Team[]>([])
   const [selectedDeptId, setSelectedDeptId] = useState<number | null>(null)
@@ -78,20 +80,20 @@ export default function DepartmentTeam() {
   }
 
   const saveDept = async () => {
-    if (!deptForm.dept_name.trim()) return alert('부서명을 입력해 주세요.')
+    if (!deptForm.dept_name.trim()) { showToast('부서명을 입력해 주세요.', 'error'); return }
     const body: any = { ...deptForm }
     if (body.apply_date) body.apply_date = body.apply_date + 'T00:00:00'
     try {
       if (editDeptId) {
         await api.patch(`/depts/${editDeptId}`, body)
-        alert('수정되었습니다.')
+        showToast('수정되었습니다.', 'success')
       } else {
         await api.post('/depts', body)
-        alert('등록되었습니다.')
+        showToast('등록되었습니다.', 'success')
       }
       setShowDeptModal(false)
       fetchDepts()
-    } catch (err) { console.error(err); alert('저장 실패') }
+    } catch (err) { console.error(err); showToast('저장 실패', 'error') }
   }
 
   const deleteDept = async (dept: Department) => {
@@ -100,12 +102,12 @@ export default function DepartmentTeam() {
       await api.delete(`/depts/${dept.dept_id}`)
       if (selectedDeptId === dept.dept_id) { setSelectedDeptId(null); setTeams([]) }
       fetchDepts()
-    } catch (err) { console.error(err); alert('삭제 실패') }
+    } catch (err) { console.error(err); showToast('삭제 실패', 'error') }
   }
 
   // 팀 모달 열기
   const openTeamCreate = () => {
-    if (!selectedDeptId) return alert('먼저 부서를 선택해 주세요.')
+    if (!selectedDeptId) { showToast('먼저 부서를 선택해 주세요.', 'error'); return }
     setEditTeamId(null)
     setTeamForm(EMPTY_TEAM)
     setShowTeamModal(true)
@@ -123,7 +125,7 @@ export default function DepartmentTeam() {
   }
 
   const saveTeam = async () => {
-    if (!teamForm.team_name.trim()) return alert('팀명을 입력해 주세요.')
+    if (!teamForm.team_name.trim()) { showToast('팀명을 입력해 주세요.', 'error'); return }
     const body: any = {
       ...teamForm,
       department: { dept_id: selectedDeptId },
@@ -132,14 +134,14 @@ export default function DepartmentTeam() {
     try {
       if (editTeamId) {
         await api.patch(`/teams/${editTeamId}`, body)
-        alert('수정되었습니다.')
+        showToast('수정되었습니다.', 'success')
       } else {
         await api.post('/teams', body)
-        alert('등록되었습니다.')
+        showToast('등록되었습니다.', 'success')
       }
       setShowTeamModal(false)
       if (selectedDeptId) fetchTeams(selectedDeptId)
-    } catch (err) { console.error(err); alert('저장 실패') }
+    } catch (err) { console.error(err); showToast('저장 실패', 'error') }
   }
 
   const deleteTeam = async (team: Team) => {
@@ -148,7 +150,7 @@ export default function DepartmentTeam() {
       await api.delete(`/teams/${team.team_id}`)
       if (selectedTeamId === team.team_id) setSelectedTeamId(null)
       if (selectedDeptId) fetchTeams(selectedDeptId)
-    } catch (err) { console.error(err); alert('삭제 실패') }
+    } catch (err) { console.error(err); showToast('삭제 실패', 'error') }
   }
 
   const selectedDeptName = depts.find(d => d.dept_id === selectedDeptId)?.dept_name || ''
@@ -318,9 +320,11 @@ export default function DepartmentTeam() {
 
       {historyTarget && (
         <Modal title={`${historyTarget} 변경 이력`} onClose={() => setHistoryTarget(null)} width="650px">
-          <div style={{padding: '20px', textAlign: 'center', color: 'var(--text-light)'}}>이력 조회 API 연동 예정</div>
+          <div style={{padding: '20px', textAlign: 'center', color: 'var(--text-light)'}}>변경 이력 기능은 준비 중입니다.</div>
         </Modal>
       )}
+
+      <Toast {...toast} />
     </div>
   )
 }
