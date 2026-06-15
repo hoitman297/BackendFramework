@@ -1,6 +1,3 @@
-/**
- * API 공통 응답 규격 인터페이스
- */
 export interface ApiResponse<T> {
   status: number;
   message: string;
@@ -9,17 +6,24 @@ export interface ApiResponse<T> {
 
 const BASE_URL = '/api';
 
-/**
- * 공통 fetch 래퍼 함수
- */
 async function request<T>(url: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
+  const token = localStorage.getItem('token');
   const response = await fetch(`${BASE_URL}${url}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
       ...options.headers,
     },
   });
+
+  if (response.status === 401) {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userName');
+    window.location.href = '/login';
+    return Promise.reject(new Error('인증이 필요합니다.'));
+  }
 
   const result: ApiResponse<T> = await response.json();
 

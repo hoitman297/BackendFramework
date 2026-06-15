@@ -5,6 +5,7 @@ import DataTable from '../../components/common/DataTable'
 import SummaryCard from '../../components/common/SummaryCard'
 import Modal from '../../components/common/Modal'
 import { api } from '../../services/api'
+import Toast, { useToast } from '../../components/common/Toast'
 import './DeviceModel.css'
 
 interface DeviceModel {
@@ -25,6 +26,7 @@ const EMPTY_FORM = {
 }
 
 export default function DeviceModel() {
+  const { toast, showToast } = useToast()
   const [models, setModels] = useState<DeviceModel[]>([])
   const [loading, setLoading] = useState(false)
   const [search, setSearch] = useState('')
@@ -43,7 +45,7 @@ export default function DeviceModel() {
       setModels(res.data)
     } catch (err) {
       console.error(err)
-      alert('모델 목록을 불러오는데 실패했습니다.')
+      showToast('모델 목록을 불러오는데 실패했습니다.', 'error')
     } finally {
       setLoading(false)
     }
@@ -77,12 +79,12 @@ export default function DeviceModel() {
 
   const handleSave = async () => {
     if (!form.model_name.trim()) {
-      alert('모델명은 필수입니다.')
+      showToast('모델명은 필수입니다.', 'error')
       return
     }
     if (form.manual_url.trim()) {
       try { new URL(form.manual_url.trim()) } catch {
-        alert('메뉴얼 URL 형식이 올바르지 않습니다.\n예) https://example.com/manual.pdf')
+        showToast('메뉴얼 URL 형식이 올바르지 않습니다.', 'error')
         return
       }
     }
@@ -103,7 +105,7 @@ export default function DeviceModel() {
       setSelected(new Set())
       await fetchModels()
     } catch (err: any) {
-      alert(err.message || '저장에 실패했습니다.')
+      showToast(err.message || '저장에 실패했습니다.', 'error')
     } finally {
       setSaving(false)
     }
@@ -113,14 +115,14 @@ export default function DeviceModel() {
     const ids = Array.from(selected)
       .map((idx) => filtered[idx]?.model_id)
       .filter(Boolean)
-    if (ids.length === 0) { alert('삭제할 모델을 선택하세요.'); return }
+    if (ids.length === 0) { showToast('삭제할 모델을 선택하세요.', 'error'); return }
     if (!confirm(`${ids.length}개 모델을 삭제하시겠습니까?\n삭제된 모델은 복구할 수 없습니다.`)) return
     try {
       await Promise.all(ids.map((id) => api.delete(`/models/${id}`)))
       setSelected(new Set())
       await fetchModels()
     } catch (err: any) {
-      alert(err.message || '삭제에 실패했습니다.')
+      showToast(err.message || '삭제에 실패했습니다.', 'error')
     }
   }
 
@@ -235,6 +237,8 @@ export default function DeviceModel() {
           }
         />
       )}
+
+      <Toast {...toast} />
 
       {/* 신규 등록 / 수정 모달 */}
       {formMode && (

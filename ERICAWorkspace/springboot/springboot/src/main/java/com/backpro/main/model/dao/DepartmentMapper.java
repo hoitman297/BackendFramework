@@ -2,6 +2,7 @@ package com.backpro.main.model.dao;
 
 import com.backpro.main.model.vo.Department;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 @Mapper

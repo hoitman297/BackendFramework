@@ -6,6 +6,7 @@ import SummaryCard from '../../components/common/SummaryCard'
 import StatusBadge from '../../components/common/StatusBadge'
 import Modal from '../../components/common/Modal'
 import { api } from '../../services/api'
+import Toast, { useToast } from '../../components/common/Toast'
 import './DeviceRental.css'
 
 interface Rental {
@@ -59,6 +60,7 @@ const EMPTY_FORM = {
 }
 
 export default function DeviceRental() {
+  const { toast, showToast } = useToast()
   const [rentals, setRentals] = useState<Rental[]>([])
   const [branches, setBranches] = useState<{ id: number; name: string }[]>([])
   const [devices, setDevices] = useState<Device[]>([])
@@ -141,15 +143,15 @@ export default function DeviceRental() {
 
   const handleRegister = async () => {
     if (!form.device_id || !form.user_id || !form.exp_return_date) {
-      alert('디바이스, 신청자, 반납예정일은 필수입니다.')
+      showToast('디바이스, 신청자, 반납예정일은 필수입니다.', 'error')
       return
     }
     if (!form.branch_id) {
-      alert('지점을 선택해 주세요.')
+      showToast('지점을 선택해 주세요.', 'error')
       return
     }
     if (form.exp_start_date && form.exp_return_date < form.exp_start_date) {
-      alert('반납예정일은 사용예정시작일 이후여야 합니다.')
+      showToast('반납예정일은 사용예정시작일 이후여야 합니다.', 'error')
       return
     }
     setSaving(true)
@@ -167,7 +169,7 @@ export default function DeviceRental() {
       setForm({ ...EMPTY_FORM })
       await fetchRentals()
     } catch (err: any) {
-      alert(err.message || '등록에 실패했습니다.')
+      showToast(err.message || '등록에 실패했습니다.', 'error')
     } finally {
       setSaving(false)
     }
@@ -183,7 +185,7 @@ export default function DeviceRental() {
 
   const handleDelete = async () => {
     const ids = Array.from(selected).map((idx) => filtered[idx]?.rental_id).filter(Boolean)
-    if (ids.length === 0) { alert('삭제할 항목을 선택하세요.'); return }
+    if (ids.length === 0) { showToast('삭제할 항목을 선택하세요.', 'error'); return }
     const activeCount = ids.filter((id) => filtered.find((r) => r.rental_id === id)?.status_rent === 2).length
     const msg = activeCount > 0
       ? `${ids.length}개 임대 이력을 삭제하시겠습니까?\n⚠️ 사용중인 임대 ${activeCount}개가 포함되어 있습니다.`
@@ -194,7 +196,7 @@ export default function DeviceRental() {
       setSelected(new Set())
       await fetchRentals()
     } catch (err: any) {
-      alert(err.message || '삭제에 실패했습니다.')
+      showToast(err.message || '삭제에 실패했습니다.', 'error')
     }
   }
 
@@ -211,7 +213,7 @@ export default function DeviceRental() {
       setEditTarget(null)
       await fetchRentals()
     } catch (err: any) {
-      alert(err.message || '수정에 실패했습니다.')
+      showToast(err.message || '수정에 실패했습니다.', 'error')
     } finally {
       setSaving(false)
     }
@@ -473,6 +475,8 @@ export default function DeviceRental() {
           </div>
         </Modal>
       )}
+
+      <Toast {...toast} />
 
       {/* 사용자 임대 이력 모달 */}
       {historyUser && (

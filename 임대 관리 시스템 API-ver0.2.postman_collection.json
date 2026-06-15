@@ -1,0 +1,2736 @@
+{
+  "info": {
+    "_postman_id": "6b0026bb-1e12-453d-8d2a-9674e3a1654e",
+    "name": "임대 관리 시스템 API-ver0.2",
+    "description": "임대 관리 시스템 전체 API 명세서\n\n■ 공통 응답 규격 (Common Response)\n- status  : Integer - HTTP 상태 코드 또는 서비스 결과 코드 (200, 400, 500 등)\n- message : String  - 처리 결과 메시지\n- data    : Object/Array - 실제 반환되는 데이터 객체 또는 목록\n\n예시)\n{\n  \"status\": 200,\n  \"message\": \"success\",\n  \"data\": { ... }\n}",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "54058907",
+    "_collection_link": "https://go.postman.co/collection/54888667-6b0026bb-1e12-453d-8d2a-9674e3a1654e?source=collection_link"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "0. 인증 (Auth)",
+      "item": [
+        {
+          "name": "AUTH-001 로그인",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"\",\n  \"password\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "■ 기능: 이메일/비밀번호로 로그인하여 JWT 토큰 발급\n\n■ Body 파라미터\n- email    : String - 이메일 (로그인 ID)\n- password : String - 비밀번호\n\n■ 응답\n- token     : String - JWT Bearer 토큰 → 이후 모든 요청의 Authorization: Bearer {{token}} 헤더에 사용\n- user_id   : Long   - 사용자 ID\n- user_name : String - 사용자 이름\n- email     : String - 이메일\n\n※ 컬렉션 변수 {{token}} 에 발급된 토큰 값을 저장하면 이후 API가 자동으로 인증됩니다."
+          },
+          "response": [
+            {
+              "name": "AUTH-001 성공 응답 예시",
+              "originalRequest": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"hong@example.com\",\n  \"password\": \"password123\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"Success\",\n  \"data\": {\n    \"token\": \"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJob25nQGV4YW1wbGUuY29tIiwidXNlcklkIjoxfQ.xxx\",\n    \"user_id\": 1,\n    \"user_name\": \"홍길동\",\n    \"email\": \"hong@example.com\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "1. 사용자 관리 (User)",
+      "item": [
+        {
+          "name": "USR-001 사용자 등록",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_name\": \"\",\n  \"email\": \"\",\n  \"user_password\": \"\",\n  \"phone\": \"\",\n  \"center_id\": \"\",\n  \"is_company\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users"
+              ]
+            },
+            "description": "■ 기능: 신규 사용자 계정 생성\n\n■ Body 파라미터\n- user_name    : String  - 사용자 이름\n- email        : String  - 이메일 (로그인 ID)\n- user_password: String  - 비밀번호\n- phone        : String  - 연락처\n- center_id    : String  - 소속 센터 ID\n- is_company   : Boolean - 기업 여부 (true: 기업, false: 개인)"
+          },
+          "response": [
+            {
+              "name": "USR-001 성공 응답 예시",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"user_name\": \"\",\n  \"email\": \"\",\n  \"user_password\": \"\",\n  \"phone\": \"\",\n  \"center_id\": \"\",\n  \"is_company\": false\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/users",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users"
+                  ]
+                },
+                "description": "■ 기능: 신규 사용자 계정 생성\n\n■ Body 파라미터\n- user_name    : String  - 사용자 이름\n- email        : String  - 이메일 (로그인 ID)\n- user_password: String  - 비밀번호\n- phone        : String  - 연락처\n- center_id    : String  - 소속 센터 ID\n- is_company   : Boolean - 기업 여부 (true: 기업, false: 개인)"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"사용자 등록 성공\",\n  \"data\": {\n    \"user_id\": \"1\",\n    \"user_name\": \"홍길동\",\n    \"email\": \"hong@example.com\",\n    \"phone\": \"010-1234-5678\",\n    \"center_id\": \"1\",\n    \"is_company\": false\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "USR-002 사용자 목록 조회",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users?center_id=&is_company=",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "center_id",
+                  "value": "",
+                  "description": "소속 센터 ID (필터)"
+                },
+                {
+                  "key": "is_company",
+                  "value": "",
+                  "description": "기업 여부 필터 (true/false)"
+                }
+              ]
+            },
+            "description": "■ 기능: 소속 센터별/유형별 사용자 목록 조회\n\n■ Query 파라미터\n- center_id  : String  - 소속 센터 ID (필터)\n- is_company : Boolean - 기업/개인 유형 필터"
+          },
+          "response": [
+            {
+              "name": "USR-002 성공 응답 예시",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/users?center_id=&is_company=",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users"
+                  ],
+                  "query": [
+                    {
+                      "key": "center_id",
+                      "value": "",
+                      "description": "소속 센터 ID (필터)"
+                    },
+                    {
+                      "key": "is_company",
+                      "value": "",
+                      "description": "기업 여부 필터 (true/false)"
+                    }
+                  ]
+                },
+                "description": "■ 기능: 소속 센터별/유형별 사용자 목록 조회\n\n■ Query 파라미터\n- center_id  : String  - 소속 센터 ID (필터)\n- is_company : Boolean - 기업/개인 유형 필터"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"사용자 목록 조회 성공\",\n  \"data\": [\n    {\n      \"user_id\": \"1\",\n      \"user_name\": \"홍길동\",\n      \"email\": \"hong@example.com\",\n      \"phone\": \"010-1234-5678\",\n      \"center_id\": \"1\",\n      \"is_company\": false\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "USR-003 사용자 정보 수정",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_name\": \"\",\n  \"phone\": \"\",\n  \"is_deleted\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/:user_id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                ":user_id"
+              ],
+              "variable": [
+                {
+                  "key": "user_id",
+                  "value": "",
+                  "description": "수정할 사용자 ID"
+                }
+              ]
+            },
+            "description": "■ 기능: 사용자 프로필 및 활성 상태 변경\n\n■ Path 파라미터\n- user_id   : String  - 수정할 사용자 ID\n\n■ Body 파라미터 (수정할 값만 전달)\n- user_name : String  - 사용자 이름\n- phone     : String  - 연락처\n- is_deleted: Boolean - 삭제/비활성 상태 (true: 삭제)"
+          },
+          "response": [
+            {
+              "name": "USR-003 성공 응답 예시",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"user_name\": \"\",\n  \"phone\": \"\",\n  \"is_deleted\": false\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/users/:user_id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    ":user_id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "user_id",
+                      "value": "",
+                      "description": "수정할 사용자 ID"
+                    }
+                  ]
+                },
+                "description": "■ 기능: 사용자 프로필 및 활성 상태 변경\n\n■ Path 파라미터\n- user_id   : String  - 수정할 사용자 ID\n\n■ Body 파라미터 (수정할 값만 전달)\n- user_name : String  - 사용자 이름\n- phone     : String  - 연락처\n- is_deleted: Boolean - 삭제/비활성 상태 (true: 삭제)"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"사용자 정보 수정 성공\",\n  \"data\": {\n    \"user_id\": \"1\",\n    \"user_name\": \"홍길동(수정)\",\n    \"phone\": \"010-9999-8888\",\n    \"is_deleted\": false\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "USR-004 사용자 삭제",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/:user_id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                ":user_id"
+              ],
+              "variable": [
+                {
+                  "key": "user_id",
+                  "value": "",
+                  "description": "삭제할 사용자 ID"
+                }
+              ]
+            },
+            "description": "■ 기능: 사용자 논리적 삭제 처리\n\n■ Path 파라미터\n- user_id : Long - 삭제할 사용자 ID\n\n■ 처리 방식 (논리적 삭제)\n- is_deleted = 'Y', deleted_at = NOW() 로 변경\n- 이후 목록 조회에서 자동 제외됨"
+          },
+          "response": [
+            {
+              "name": "USR-004 성공 응답 예시",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/users/:user_id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    ":user_id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "user_id",
+                      "value": "1",
+                      "description": "삭제할 사용자 ID"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"Success\",\n  \"data\": \"Deleted\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. 지점 담당자 관리 (Manager)",
+      "item": [
+        {
+          "name": "MGR-001 담당자 등록",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"branch_id\": \"\",\n  \"name\": \"\",\n  \"contact\": \"\",\n  \"email\": \"\",\n  \"is_main\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/managers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "managers"
+              ]
+            },
+            "description": "■ 기능: 지점에 소속된 담당자 정보 등록\n\n■ Body 파라미터\n- branch_id : String  - 소속 지점 ID\n- name      : String  - 담당자 이름\n- contact   : String  - 연락처\n- email     : String  - 이메일\n- is_main   : Boolean - 주담당자 여부 (true: 주담당자, false: 부담당자)"
+          },
+          "response": [
+            {
+              "name": "MGR-001 성공 응답 예시",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"branch_id\": \"\",\n  \"name\": \"\",\n  \"contact\": \"\",\n  \"email\": \"\",\n  \"is_main\": false\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/managers",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "managers"
+                  ]
+                },
+                "description": "■ 기능: 지점에 소속된 담당자 정보 등록\n\n■ Body 파라미터\n- branch_id : String  - 소속 지점 ID\n- name      : String  - 담당자 이름\n- contact   : String  - 연락처\n- email     : String  - 이메일\n- is_main   : Boolean - 주담당자 여부 (true: 주담당자, false: 부담당자)"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"담당자 등록 성공\",\n  \"data\": {\n    \"manager_id\": \"1\",\n    \"branch_id\": \"1\",\n    \"name\": \"김담당\",\n    \"contact\": \"010-1111-2222\",\n    \"email\": \"manager@example.com\",\n    \"is_main\": true\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "MGR-002 담당자 목록 조회",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/managers?branch_id=",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "managers"
+              ],
+              "query": [
+                {
+                  "key": "branch_id",
+                  "value": "",
+                  "description": "조회할 지점 ID (필터)"
+                }
+              ]
+            },
+            "description": "■ 기능: 특정 지점의 모든 담당자 목록 조회\n\n■ Query 파라미터\n- branch_id : String - 조회할 지점 ID (필터)"
+          },
+          "response": [
+            {
+              "name": "MGR-002 성공 응답 예시",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/managers?branch_id=",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "managers"
+                  ],
+                  "query": [
+                    {
+                      "key": "branch_id",
+                      "value": "",
+                      "description": "조회할 지점 ID (필터)"
+                    }
+                  ]
+                },
+                "description": "■ 기능: 특정 지점의 모든 담당자 목록 조회\n\n■ Query 파라미터\n- branch_id : String - 조회할 지점 ID (필터)"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"담당자 목록 조회 성공\",\n  \"data\": [\n    {\n      \"manager_id\": \"1\",\n      \"branch_id\": \"1\",\n      \"name\": \"김담당\",\n      \"contact\": \"010-1111-2222\",\n      \"email\": \"manager@example.com\",\n      \"is_main\": true\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "MGR-003 담당자 정보 수정",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"\",\n  \"contact\": \"\",\n  \"is_main\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/managers/:manager_id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "managers",
+                ":manager_id"
+              ],
+              "variable": [
+                {
+                  "key": "manager_id",
+                  "value": "",
+                  "description": "수정할 담당자 ID"
+                }
+              ]
+            },
+            "description": "■ 기능: 담당자 연락처 및 주/부 권한 수정\n\n■ Path 파라미터\n- manager_id : String  - 수정할 담당자 ID\n\n■ Body 파라미터 (수정할 값만 전달)\n- name    : String  - 담당자 이름\n- contact : String  - 연락처\n- is_main : Boolean - 주담당자 여부"
+          },
+          "response": [
+            {
+              "name": "MGR-003 성공 응답 예시",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"\",\n  \"contact\": \"\",\n  \"is_main\": false\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/managers/:manager_id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "managers",
+                    ":manager_id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "manager_id",
+                      "value": "",
+                      "description": "수정할 담당자 ID"
+                    }
+                  ]
+                },
+                "description": "■ 기능: 담당자 연락처 및 주/부 권한 수정\n\n■ Path 파라미터\n- manager_id : String  - 수정할 담당자 ID\n\n■ Body 파라미터 (수정할 값만 전달)\n- name    : String  - 담당자 이름\n- contact : String  - 연락처\n- is_main : Boolean - 주담당자 여부"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"담당자 정보 수정 성공\",\n  \"data\": {\n    \"manager_id\": \"1\",\n    \"name\": \"김담당(수정)\",\n    \"contact\": \"010-9999-7777\",\n    \"is_main\": false\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. 디바이스 모델 관리 (Model)",
+      "item": [
+        {
+          "name": "MDL-001 모델 등록",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"model_name\": \"\",\n  \"version\": \"\",\n  \"manual_url\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/models",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "models"
+              ]
+            },
+            "description": "■ 기능: 신규 디바이스 모델 정보 생성 (등록)\n\n■ Body 파라미터\n- model_name : String - 모델명\n- version    : String - 버전\n- manual_url : String - 매뉴얼 URL"
+          },
+          "response": [
+            {
+              "name": "MDL-001 성공 응답 예시",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"model_name\": \"\",\n  \"version\": \"\",\n  \"manual_url\": \"\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/models",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "models"
+                  ]
+                },
+                "description": "■ 기능: 신규 디바이스 모델 정보 생성 (등록)\n\n■ Body 파라미터\n- model_name : String - 모델명\n- version    : String - 버전\n- manual_url : String - 매뉴얼 URL"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"모델 등록 성공\",\n  \"data\": {\n    \"model_id\": \"1\",\n    \"model_name\": \"XR-100\",\n    \"version\": \"v1.0\",\n    \"manual_url\": \"https://example.com/manual/xr100\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "MDL-002 모델 목록 조회",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/models?is_deleted=",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "models"
+              ],
+              "query": [
+                {
+                  "key": "is_deleted",
+                  "value": "",
+                  "description": "활성 여부 필터 (0: 활성, 1: 삭제)"
+                }
+              ]
+            },
+            "description": "■ 기능: 전체 디바이스 모델 정보 조회\n\n■ 정렬 기준: 모델명\n■ 필터: 활성 여부 (is_deleted)\n\n■ Query 파라미터\n- is_deleted : String - 활성 여부 필터 (0: 활성, 1: 삭제됨)"
+          },
+          "response": [
+            {
+              "name": "MDL-002 성공 응답 예시",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/models?is_deleted=",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "models"
+                  ],
+                  "query": [
+                    {
+                      "key": "is_deleted",
+                      "value": "",
+                      "description": "활성 여부 필터 (0: 활성, 1: 삭제)"
+                    }
+                  ]
+                },
+                "description": "■ 기능: 전체 디바이스 모델 정보 조회\n\n■ 정렬 기준: 모델명\n■ 필터: 활성 여부 (is_deleted)\n\n■ Query 파라미터\n- is_deleted : String - 활성 여부 필터 (0: 활성, 1: 삭제됨)"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"모델 목록 조회 성공\",\n  \"data\": [\n    {\n      \"model_id\": \"1\",\n      \"model_name\": \"XR-100\",\n      \"version\": \"v1.0\",\n      \"manual_url\": \"https://example.com/manual/xr100\",\n      \"is_deleted\": 0\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "MDL-003 모델 정보 수정",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"model_name\": \"\",\n  \"version\": \"\",\n  \"manual_url\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/models/:model_id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "models",
+                ":model_id"
+              ],
+              "variable": [
+                {
+                  "key": "model_id",
+                  "value": "",
+                  "description": "수정할 모델 ID"
+                }
+              ]
+            },
+            "description": "■ 기능: 특정 모델의 부분 정보 수정\n\n■ Path 파라미터\n- model_id   : String - 수정할 모델 ID\n\n■ Body 파라미터 (수정할 값만 전달)\n- model_name : String - 모델명\n- version    : String - 버전\n- manual_url : String - 매뉴얼 URL"
+          },
+          "response": [
+            {
+              "name": "MDL-003 성공 응답 예시",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"model_name\": \"\",\n  \"version\": \"\",\n  \"manual_url\": \"\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/models/:model_id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "models",
+                    ":model_id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "model_id",
+                      "value": "",
+                      "description": "수정할 모델 ID"
+                    }
+                  ]
+                },
+                "description": "■ 기능: 특정 모델의 부분 정보 수정\n\n■ Path 파라미터\n- model_id   : String - 수정할 모델 ID\n\n■ Body 파라미터 (수정할 값만 전달)\n- model_name : String - 모델명\n- version    : String - 버전\n- manual_url : String - 매뉴얼 URL"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"모델 정보 수정 성공\",\n  \"data\": {\n    \"model_id\": \"1\",\n    \"model_name\": \"XR-200\",\n    \"version\": \"v2.0\",\n    \"manual_url\": \"https://example.com/manual/xr200\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "MDL-004 모델 삭제",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/models/:model_id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "models",
+                ":model_id"
+              ],
+              "variable": [
+                {
+                  "key": "model_id",
+                  "value": "",
+                  "description": "삭제할 모델 ID"
+                }
+              ]
+            },
+            "description": "■ 기능: 모델 논리적 삭제 처리\n\n■ Path 파라미터\n- model_id : String - 삭제할 모델 ID\n\n■ 처리 방식 (논리적 삭제)\n- 해당 모델의 is_deleted = '1' 로 변경\n- 해당 모델을 참조하는 device 데이터도 조회 불가 상태(is_deleted=1)로 자동 연쇄 변경됨"
+          },
+          "response": [
+            {
+              "name": "MDL-004 성공 응답 예시",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/models/:model_id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "models",
+                    ":model_id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "model_id",
+                      "value": "",
+                      "description": "삭제할 모델 ID"
+                    }
+                  ]
+                },
+                "description": "■ 기능: 모델 논리적 삭제 처리\n\n■ Path 파라미터\n- model_id : String - 삭제할 모델 ID\n\n■ 처리 방식 (논리적 삭제)\n- 해당 모델의 is_deleted = '1' 로 변경\n- 해당 모델을 참조하는 device 데이터도 조회 불가 상태(is_deleted=1)로 자동 연쇄 변경됨"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"모델 삭제 성공\",\n  \"data\": {\n    \"model_id\": \"1\",\n    \"is_deleted\": 1\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. 디바이스 현황 (Device)",
+      "item": [
+        {
+          "name": "DEV-001 디바이스 등록",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"model_id\": \"\",\n  \"branch_id\": \"\",\n  \"user_id\": \"\",\n  \"device_specs\": \"\",\n  \"battery_level\": 0,\n  \"device_status\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/devices",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "devices"
+              ]
+            },
+            "description": "■ 기능: 신규 디바이스 할당 및 정보 생성\n\n■ Body 파라미터\n- model_id      : String  - 디바이스 모델 ID\n- branch_id     : String  - 소속 지점 ID\n- user_id       : String  - 담당 사용자 ID\n- device_specs  : String  - 디바이스 제원 정보\n- battery_level : Integer - 배터리 잔량 (%)\n- device_status : String  - 디바이스 상태 (예: 임대대기, 사용중, AS중 등)"
+          },
+          "response": [
+            {
+              "name": "DEV-001 성공 응답 예시",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"model_id\": \"\",\n  \"branch_id\": \"\",\n  \"user_id\": \"\",\n  \"device_specs\": \"\",\n  \"battery_level\": 0,\n  \"device_status\": \"\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/devices",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "devices"
+                  ]
+                },
+                "description": "■ 기능: 신규 디바이스 할당 및 정보 생성\n\n■ Body 파라미터\n- model_id      : String  - 디바이스 모델 ID\n- branch_id     : String  - 소속 지점 ID\n- user_id       : String  - 담당 사용자 ID\n- device_specs  : String  - 디바이스 제원 정보\n- battery_level : Integer - 배터리 잔량 (%)\n- device_status : String  - 디바이스 상태 (예: 임대대기, 사용중, AS중 등)"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"디바이스 등록 성공\",\n  \"data\": {\n    \"device_id\": \"1\",\n    \"model_id\": \"1\",\n    \"branch_id\": \"1\",\n    \"user_id\": \"1\",\n    \"device_specs\": \"...\",\n    \"battery_level\": 100,\n    \"device_status\": \"임대대기\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "DEV-002 디바이스 목록 조회",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/devices?branch_id=&device_status=",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "devices"
+              ],
+              "query": [
+                {
+                  "key": "branch_id",
+                  "value": "",
+                  "description": "지점 필터"
+                },
+                {
+                  "key": "device_status",
+                  "value": "",
+                  "description": "디바이스 상태 필터 (예: 임대대기, 사용중, AS중)"
+                }
+              ]
+            },
+            "description": "■ 기능: 지점별 디바이스 및 모델 정보 목록 조회\n\n■ 정렬 기준: 입고일, 최근 임대일\n■ 필터: 지점(branch_id), 디바이스 상태(device_status)\n\n■ Query 파라미터\n- branch_id     : String - 지점 ID 필터\n- device_status : String - 디바이스 상태 필터 (임대대기, 사용중, AS중 등)"
+          },
+          "response": [
+            {
+              "name": "DEV-002 성공 응답 예시",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/devices?branch_id=&device_status=",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "devices"
+                  ],
+                  "query": [
+                    {
+                      "key": "branch_id",
+                      "value": "",
+                      "description": "지점 필터"
+                    },
+                    {
+                      "key": "device_status",
+                      "value": "",
+                      "description": "디바이스 상태 필터 (예: 임대대기, 사용중, AS중)"
+                    }
+                  ]
+                },
+                "description": "■ 기능: 지점별 디바이스 및 모델 정보 목록 조회\n\n■ 정렬 기준: 입고일, 최근 임대일\n■ 필터: 지점(branch_id), 디바이스 상태(device_status)\n\n■ Query 파라미터\n- branch_id     : String - 지점 ID 필터\n- device_status : String - 디바이스 상태 필터 (임대대기, 사용중, AS중 등)"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"디바이스 목록 조회 성공\",\n  \"data\": [\n    {\n      \"device_id\": \"1\",\n      \"model_id\": \"1\",\n      \"model_name\": \"XR-100\",\n      \"branch_id\": \"1\",\n      \"device_status\": \"임대대기\",\n      \"battery_level\": 95\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "DEV-003 디바이스 상세 조회",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/devices/:device_id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "devices",
+                ":device_id"
+              ],
+              "variable": [
+                {
+                  "key": "device_id",
+                  "value": "",
+                  "description": "조회할 디바이스 ID"
+                }
+              ]
+            },
+            "description": "■ 기능: 특정 디바이스의 상세 제원 및 상태 정보 조회\n\n■ Path 파라미터\n- device_id : String - 조회할 디바이스 ID"
+          },
+          "response": [
+            {
+              "name": "DEV-003 성공 응답 예시",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/devices/:device_id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "devices",
+                    ":device_id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "device_id",
+                      "value": "",
+                      "description": "조회할 디바이스 ID"
+                    }
+                  ]
+                },
+                "description": "■ 기능: 특정 디바이스의 상세 제원 및 상태 정보 조회\n\n■ Path 파라미터\n- device_id : String - 조회할 디바이스 ID"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"디바이스 상세 조회 성공\",\n  \"data\": {\n    \"device_id\": \"1\",\n    \"model_id\": \"1\",\n    \"model_name\": \"XR-100\",\n    \"branch_id\": \"1\",\n    \"user_id\": \"1\",\n    \"device_specs\": \"...\",\n    \"battery_level\": 95,\n    \"device_status\": \"임대대기\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "DEV-004 디바이스 정보 수정",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_status\": \"\",\n  \"battery_level\": 0,\n  \"branch_id\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/devices/:device_id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "devices",
+                ":device_id"
+              ],
+              "variable": [
+                {
+                  "key": "device_id",
+                  "value": "",
+                  "description": "수정할 디바이스 ID"
+                }
+              ]
+            },
+            "description": "■ 기능: 특정 디바이스 상태 및 정보 부분 업데이트\n\n■ Path 파라미터\n- device_id     : String  - 수정할 디바이스 ID\n\n■ Body 파라미터 (수정할 값만 전달)\n- device_status : String  - 디바이스 상태\n- battery_level : Integer - 배터리 잔량 (%)\n- branch_id     : String  - 소속 지점 ID"
+          },
+          "response": [
+            {
+              "name": "DEV-004 성공 응답 예시",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"device_status\": \"\",\n  \"battery_level\": 0,\n  \"branch_id\": \"\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/devices/:device_id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "devices",
+                    ":device_id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "device_id",
+                      "value": "",
+                      "description": "수정할 디바이스 ID"
+                    }
+                  ]
+                },
+                "description": "■ 기능: 특정 디바이스 상태 및 정보 부분 업데이트\n\n■ Path 파라미터\n- device_id     : String  - 수정할 디바이스 ID\n\n■ Body 파라미터 (수정할 값만 전달)\n- device_status : String  - 디바이스 상태\n- battery_level : Integer - 배터리 잔량 (%)\n- branch_id     : String  - 소속 지점 ID"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"디바이스 정보 수정 성공\",\n  \"data\": {\n    \"device_id\": \"1\",\n    \"device_status\": \"사용중\",\n    \"battery_level\": 80,\n    \"branch_id\": \"2\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "DEV-005 디바이스 삭제",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/devices/:device_id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "devices",
+                ":device_id"
+              ],
+              "variable": [
+                {
+                  "key": "device_id",
+                  "value": "",
+                  "description": "삭제할 디바이스 ID"
+                }
+              ]
+            },
+            "description": "■ 기능: 디바이스 논리적 삭제 처리\n\n■ Path 파라미터\n- device_id : String - 삭제할 디바이스 ID\n\n■ 처리 방식\n- deleted_at 타임스탬프 갱신 (논리적 삭제)"
+          },
+          "response": [
+            {
+              "name": "DEV-005 성공 응답 예시",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/devices/:device_id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "devices",
+                    ":device_id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "device_id",
+                      "value": "",
+                      "description": "삭제할 디바이스 ID"
+                    }
+                  ]
+                },
+                "description": "■ 기능: 디바이스 논리적 삭제 처리\n\n■ Path 파라미터\n- device_id : String - 삭제할 디바이스 ID\n\n■ 처리 방식\n- deleted_at 타임스탬프 갱신 (논리적 삭제)"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"디바이스 삭제 성공\",\n  \"data\": {\n    \"device_id\": \"1\",\n    \"deleted_at\": \"2025-01-01T12:00:00Z\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "DEV-006 디바이스 수량 통계",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/devices/stats/count?branch_id=&model_id=",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "devices",
+                "stats",
+                "count"
+              ],
+              "query": [
+                {
+                  "key": "branch_id",
+                  "value": "",
+                  "description": "지점 필터"
+                },
+                {
+                  "key": "model_id",
+                  "value": "",
+                  "description": "모델 필터"
+                }
+              ]
+            },
+            "description": "■ 기능: 모델별/지점별 디바이스 총수량 및 상태별 수량 집계 반환 (API 분리)\n\n■ 필터: 지점(branch_id), 모델(model_id)\n\n■ Query 파라미터\n- branch_id : String - 지점 ID 필터\n- model_id  : String - 모델 ID 필터\n\n■ 응답 데이터\n- 디바이스 총수량\n- 상태별 수량: 사용중, 임대대기 등"
+          },
+          "response": [
+            {
+              "name": "DEV-006 성공 응답 예시",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/devices/stats/count?branch_id=&model_id=",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "devices",
+                    "stats",
+                    "count"
+                  ],
+                  "query": [
+                    {
+                      "key": "branch_id",
+                      "value": "",
+                      "description": "지점 필터"
+                    },
+                    {
+                      "key": "model_id",
+                      "value": "",
+                      "description": "모델 필터"
+                    }
+                  ]
+                },
+                "description": "■ 기능: 모델별/지점별 디바이스 총수량 및 상태별 수량 집계 반환 (API 분리)\n\n■ 필터: 지점(branch_id), 모델(model_id)\n\n■ Query 파라미터\n- branch_id : String - 지점 ID 필터\n- model_id  : String - 모델 ID 필터\n\n■ 응답 데이터\n- 디바이스 총수량\n- 상태별 수량: 사용중, 임대대기 등"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"디바이스 수량 통계 조회 성공\",\n  \"data\": {\n    \"total\": 30,\n    \"by_status\": {\n      \"임대대기\": 10,\n      \"사용중\": 15,\n      \"AS중\": 3,\n      \"반납완료\": 2\n    }\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5. 디바이스 AS 관리 (AS)",
+      "item": [
+        {
+          "name": "AS-001 AS 내역 등록",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"\",\n  \"user_id\": \"\",\n  \"rental_id\": \"\",\n  \"type_as\": \"\",\n  \"receipt_details\": \"\",\n  \"checker_name\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/as",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "as"
+              ]
+            },
+            "description": "■ 기능: 신규 AS 건 접수\n\n■ Body 파라미터\n- device_id      : String - 대상 디바이스 ID\n- user_id        : String - 접수 사용자 ID\n- rental_id      : String - 연관 임대 이력 ID (선택, 임대 이력 rental_id 맵핑 가능)\n- type_as        : String - AS 유형 (예: 수리, 교체 등)\n- receipt_details: String - 접수 상세 내용\n- checker_name   : String - 접수 담당자명"
+          },
+          "response": [
+            {
+              "name": "AS-001 성공 응답 예시",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"device_id\": \"\",\n  \"user_id\": \"\",\n  \"rental_id\": \"\",\n  \"type_as\": \"\",\n  \"receipt_details\": \"\",\n  \"checker_name\": \"\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/as",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "as"
+                  ]
+                },
+                "description": "■ 기능: 신규 AS 건 접수\n\n■ Body 파라미터\n- device_id      : String - 대상 디바이스 ID\n- user_id        : String - 접수 사용자 ID\n- rental_id      : String - 연관 임대 이력 ID (선택, 임대 이력 rental_id 맵핑 가능)\n- type_as        : String - AS 유형 (예: 수리, 교체 등)\n- receipt_details: String - 접수 상세 내용\n- checker_name   : String - 접수 담당자명"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"AS 내역 등록 성공\",\n  \"data\": {\n    \"as_id\": \"1\",\n    \"device_id\": \"1\",\n    \"user_id\": \"1\",\n    \"rental_id\": \"2\",\n    \"type_as\": \"수리\",\n    \"receipt_details\": \"화면 불량\",\n    \"checker_name\": \"김담당\",\n    \"status_as\": \"접수\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "AS-002 AS 목록 기간 조회",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/as?start_date=&end_date=&branch_id=&status_as=&type_as=",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "as"
+              ],
+              "query": [
+                {
+                  "key": "start_date",
+                  "value": "",
+                  "description": "시작일 (필수, yyyy-MM-dd)"
+                },
+                {
+                  "key": "end_date",
+                  "value": "",
+                  "description": "종료일 (필수, yyyy-MM-dd)"
+                },
+                {
+                  "key": "branch_id",
+                  "value": "",
+                  "description": "지점 필터"
+                },
+                {
+                  "key": "status_as",
+                  "value": "",
+                  "description": "AS 상태 필터 (예: 접수, 진행중, 완료)"
+                },
+                {
+                  "key": "type_as",
+                  "value": "",
+                  "description": "AS 유형 필터 (예: 수리, 교체)"
+                }
+              ]
+            },
+            "description": "■ 기능: 설정한 기간 내의 접수/완료된 AS 목록 조회 (기간 검색)\n\n■ 정렬 기준: 접수일\n■ 필터: AS 상태(status_as), AS 유형(type_as)\n\n■ Query 파라미터\n- start_date : String - 조회 시작일 (필수, yyyy-MM-dd)\n- end_date   : String - 조회 종료일 (필수, yyyy-MM-dd)\n- branch_id  : String - 지점 필터\n- status_as  : String - AS 상태 필터\n- type_as    : String - AS 유형 필터"
+          },
+          "response": [
+            {
+              "name": "AS-002 성공 응답 예시",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/as?start_date=&end_date=&branch_id=&status_as=&type_as=",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "as"
+                  ],
+                  "query": [
+                    {
+                      "key": "start_date",
+                      "value": "",
+                      "description": "시작일 (필수, yyyy-MM-dd)"
+                    },
+                    {
+                      "key": "end_date",
+                      "value": "",
+                      "description": "종료일 (필수, yyyy-MM-dd)"
+                    },
+                    {
+                      "key": "branch_id",
+                      "value": "",
+                      "description": "지점 필터"
+                    },
+                    {
+                      "key": "status_as",
+                      "value": "",
+                      "description": "AS 상태 필터 (예: 접수, 진행중, 완료)"
+                    },
+                    {
+                      "key": "type_as",
+                      "value": "",
+                      "description": "AS 유형 필터 (예: 수리, 교체)"
+                    }
+                  ]
+                },
+                "description": "■ 기능: 설정한 기간 내의 접수/완료된 AS 목록 조회 (기간 검색)\n\n■ 정렬 기준: 접수일\n■ 필터: AS 상태(status_as), AS 유형(type_as)\n\n■ Query 파라미터\n- start_date : String - 조회 시작일 (필수, yyyy-MM-dd)\n- end_date   : String - 조회 종료일 (필수, yyyy-MM-dd)\n- branch_id  : String - 지점 필터\n- status_as  : String - AS 상태 필터\n- type_as    : String - AS 유형 필터"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"AS 목록 조회 성공\",\n  \"data\": [\n    {\n      \"as_id\": \"1\",\n      \"device_id\": \"1\",\n      \"type_as\": \"수리\",\n      \"status_as\": \"접수\",\n      \"receipt_details\": \"화면 불량\",\n      \"checker_name\": \"김담당\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "AS-003 AS 상세 내역 조회",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/as/:as_id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "as",
+                ":as_id"
+              ],
+              "variable": [
+                {
+                  "key": "as_id",
+                  "value": "",
+                  "description": "조회할 AS ID"
+                }
+              ]
+            },
+            "description": "■ 기능: 특정 AS 건의 수리 내역 및 완료일 등 상세 조회\n\n■ Path 파라미터\n- as_id : String - 조회할 AS ID\n\n■ 응답 데이터\n- repair_details  : 수리 내역\n- completion_date : 완료일"
+          },
+          "response": [
+            {
+              "name": "AS-003 성공 응답 예시",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/as/:as_id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "as",
+                    ":as_id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "as_id",
+                      "value": "",
+                      "description": "조회할 AS ID"
+                    }
+                  ]
+                },
+                "description": "■ 기능: 특정 AS 건의 수리 내역 및 완료일 등 상세 조회\n\n■ Path 파라미터\n- as_id : String - 조회할 AS ID\n\n■ 응답 데이터\n- repair_details  : 수리 내역\n- completion_date : 완료일"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"AS 상세 조회 성공\",\n  \"data\": {\n    \"as_id\": \"1\",\n    \"device_id\": \"1\",\n    \"type_as\": \"수리\",\n    \"status_as\": \"완료\",\n    \"receipt_details\": \"화면 불량\",\n    \"repair_details\": \"디스플레이 교체\",\n    \"checker_name\": \"김담당\",\n    \"completion_date\": \"2025-01-10\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "AS-004 AS 진행 상태 수정",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status_as\": \"\",\n  \"repair_details\": \"\",\n  \"completion_date\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/as/:as_id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "as",
+                ":as_id"
+              ],
+              "variable": [
+                {
+                  "key": "as_id",
+                  "value": "",
+                  "description": "수정할 AS ID"
+                }
+              ]
+            },
+            "description": "■ 기능: AS 처리 상태(진행중, 완료 등) 부분 업데이트\n\n■ Path 파라미터\n- as_id : String - 수정할 AS ID\n\n■ Body 파라미터 (수정할 값만 전달)\n- status_as       : String - AS 상태 (예: 접수, 진행중, 완료)\n- repair_details  : String - 수리 내역\n- completion_date : String - 완료일 (yyyy-MM-dd)"
+          },
+          "response": [
+            {
+              "name": "AS-004 성공 응답 예시",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status_as\": \"\",\n  \"repair_details\": \"\",\n  \"completion_date\": \"\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/as/:as_id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "as",
+                    ":as_id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "as_id",
+                      "value": "",
+                      "description": "수정할 AS ID"
+                    }
+                  ]
+                },
+                "description": "■ 기능: AS 처리 상태(진행중, 완료 등) 부분 업데이트\n\n■ Path 파라미터\n- as_id : String - 수정할 AS ID\n\n■ Body 파라미터 (수정할 값만 전달)\n- status_as       : String - AS 상태 (예: 접수, 진행중, 완료)\n- repair_details  : String - 수리 내역\n- completion_date : String - 완료일 (yyyy-MM-dd)"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"AS 상태 수정 성공\",\n  \"data\": {\n    \"as_id\": \"1\",\n    \"status_as\": \"완료\",\n    \"repair_details\": \"디스플레이 교체\",\n    \"completion_date\": \"2025-01-10\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "6. 디바이스 임대 현황 (Rental)",
+      "item": [
+        {
+          "name": "RNT-001 임대 신청 등록",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"\",\n  \"branch_id\": \"\",\n  \"user_id\": \"\",\n  \"exp_start_date\": \"\",\n  \"exp_return_date\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/rentals",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rentals"
+              ]
+            },
+            "description": "■ 기능: 디바이스 임대 신청 정보 생성\n\n■ Body 파라미터\n- device_id       : String - 임대 디바이스 ID\n- branch_id       : String - 임대 지점 ID\n- user_id         : String - 임대 신청 사용자 ID\n- exp_start_date  : String - 임대 예정 시작일 (yyyy-MM-dd)\n- exp_return_date : String - 반납 예정일 (yyyy-MM-dd)"
+          },
+          "response": [
+            {
+              "name": "RNT-001 성공 응답 예시",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"device_id\": \"\",\n  \"branch_id\": \"\",\n  \"user_id\": \"\",\n  \"exp_start_date\": \"\",\n  \"exp_return_date\": \"\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/rentals",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "rentals"
+                  ]
+                },
+                "description": "■ 기능: 디바이스 임대 신청 정보 생성\n\n■ Body 파라미터\n- device_id       : String - 임대 디바이스 ID\n- branch_id       : String - 임대 지점 ID\n- user_id         : String - 임대 신청 사용자 ID\n- exp_start_date  : String - 임대 예정 시작일 (yyyy-MM-dd)\n- exp_return_date : String - 반납 예정일 (yyyy-MM-dd)"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"임대 신청 등록 성공\",\n  \"data\": {\n    \"rental_id\": \"1\",\n    \"device_id\": \"1\",\n    \"branch_id\": \"1\",\n    \"user_id\": \"1\",\n    \"exp_start_date\": \"2025-02-01\",\n    \"exp_return_date\": \"2025-02-28\",\n    \"status_rent\": \"신청\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "RNT-002 임대 현황 목록 조회",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/rentals?status_rent=&branch_id=&model_id=",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rentals"
+              ],
+              "query": [
+                {
+                  "key": "status_rent",
+                  "value": "",
+                  "description": "임대 상태 필터 (예: 신청, 수령, 반납, 완료)"
+                },
+                {
+                  "key": "branch_id",
+                  "value": "",
+                  "description": "지점 필터"
+                },
+                {
+                  "key": "model_id",
+                  "value": "",
+                  "description": "모델별 조회 필터"
+                }
+              ]
+            },
+            "description": "■ 기능: 지점별/상태별/모델별 전체 임대 진행 현황 조회\n\n■ 정렬 기준: 신청일, 반납예정일\n■ 필터: 지점(branch_id), 임대 상태(status_rent)\n\n■ Query 파라미터\n- status_rent : String - 임대 상태 필터 (신청, 수령, 반납, 완료 등)\n- branch_id   : String - 지점 필터\n- model_id    : String - 모델별 조회 필터"
+          },
+          "response": [
+            {
+              "name": "RNT-002 성공 응답 예시",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/rentals?status_rent=&branch_id=&model_id=",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "rentals"
+                  ],
+                  "query": [
+                    {
+                      "key": "status_rent",
+                      "value": "",
+                      "description": "임대 상태 필터 (예: 신청, 수령, 반납, 완료)"
+                    },
+                    {
+                      "key": "branch_id",
+                      "value": "",
+                      "description": "지점 필터"
+                    },
+                    {
+                      "key": "model_id",
+                      "value": "",
+                      "description": "모델별 조회 필터"
+                    }
+                  ]
+                },
+                "description": "■ 기능: 지점별/상태별/모델별 전체 임대 진행 현황 조회\n\n■ 정렬 기준: 신청일, 반납예정일\n■ 필터: 지점(branch_id), 임대 상태(status_rent)\n\n■ Query 파라미터\n- status_rent : String - 임대 상태 필터 (신청, 수령, 반납, 완료 등)\n- branch_id   : String - 지점 필터\n- model_id    : String - 모델별 조회 필터"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"임대 현황 조회 성공\",\n  \"data\": [\n    {\n      \"rental_id\": \"1\",\n      \"device_id\": \"1\",\n      \"model_name\": \"XR-100\",\n      \"branch_id\": \"1\",\n      \"user_id\": \"1\",\n      \"exp_start_date\": \"2025-02-01\",\n      \"exp_return_date\": \"2025-02-28\",\n      \"status_rent\": \"수령\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "RNT-003 신청자별 이력 조회",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/rentals/history/:user_id?status_rent=",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rentals",
+                "history",
+                ":user_id"
+              ],
+              "query": [
+                {
+                  "key": "status_rent",
+                  "value": "",
+                  "description": "임대 상태 필터"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "user_id",
+                  "value": "",
+                  "description": "조회할 사용자 ID"
+                }
+              ]
+            },
+            "description": "■ 기능: 특정 사용자의 과거 및 현재 임대 이력 조회\n\n■ 정렬 기준: 임대일자\n■ 필터: 임대 상태(status_rent)\n\n■ Path 파라미터\n- user_id     : String - 조회할 사용자 ID\n\n■ Query 파라미터\n- status_rent : String - 임대 상태 필터 (선택)"
+          },
+          "response": [
+            {
+              "name": "RNT-003 성공 응답 예시",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/rentals/history/:user_id?status_rent=",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "rentals",
+                    "history",
+                    ":user_id"
+                  ],
+                  "query": [
+                    {
+                      "key": "status_rent",
+                      "value": "",
+                      "description": "임대 상태 필터"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "key": "user_id",
+                      "value": "",
+                      "description": "조회할 사용자 ID"
+                    }
+                  ]
+                },
+                "description": "■ 기능: 특정 사용자의 과거 및 현재 임대 이력 조회\n\n■ 정렬 기준: 임대일자\n■ 필터: 임대 상태(status_rent)\n\n■ Path 파라미터\n- user_id     : String - 조회할 사용자 ID\n\n■ Query 파라미터\n- status_rent : String - 임대 상태 필터 (선택)"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"임대 이력 조회 성공\",\n  \"data\": [\n    {\n      \"rental_id\": \"1\",\n      \"device_id\": \"1\",\n      \"exp_start_date\": \"2025-02-01\",\n      \"exp_return_date\": \"2025-02-28\",\n      \"receipt_date\": \"2025-02-01\",\n      \"return_date\": \"2025-02-20\",\n      \"status_rent\": \"완료\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "RNT-004 임대 상태 수정",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status_rent\": \"\",\n  \"receipt_date\": \"\",\n  \"return_date\": \"\",\n  \"is_worn\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/rentals/:rental_id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rentals",
+                ":rental_id"
+              ],
+              "variable": [
+                {
+                  "key": "rental_id",
+                  "value": "",
+                  "description": "수정할 임대 ID"
+                }
+              ]
+            },
+            "description": "■ 기능: 임대 진행 상태(수령, 반납 등) 변경 및 정보 부분 수정\n\n■ Path 파라미터\n- rental_id   : String  - 수정할 임대 ID\n\n■ Body 파라미터 (수정할 값만 전달)\n- status_rent : String  - 임대 상태 (신청, 수령, 반납, 완료 등)\n- receipt_date: String  - 실제 수령일 (yyyy-MM-dd)\n- return_date : String  - 실제 반납일 (yyyy-MM-dd)\n- is_worn     : Boolean - 착용 여부"
+          },
+          "response": [
+            {
+              "name": "RNT-004 성공 응답 예시",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status_rent\": \"\",\n  \"receipt_date\": \"\",\n  \"return_date\": \"\",\n  \"is_worn\": false\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/rentals/:rental_id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "rentals",
+                    ":rental_id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "rental_id",
+                      "value": "",
+                      "description": "수정할 임대 ID"
+                    }
+                  ]
+                },
+                "description": "■ 기능: 임대 진행 상태(수령, 반납 등) 변경 및 정보 부분 수정\n\n■ Path 파라미터\n- rental_id   : String  - 수정할 임대 ID\n\n■ Body 파라미터 (수정할 값만 전달)\n- status_rent : String  - 임대 상태 (신청, 수령, 반납, 완료 등)\n- receipt_date: String  - 실제 수령일 (yyyy-MM-dd)\n- return_date : String  - 실제 반납일 (yyyy-MM-dd)\n- is_worn     : Boolean - 착용 여부"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"임대 상태 수정 성공\",\n  \"data\": {\n    \"rental_id\": \"1\",\n    \"status_rent\": \"반납\",\n    \"receipt_date\": \"2025-02-01\",\n    \"return_date\": \"2025-02-20\",\n    \"is_worn\": true\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "7. 생체 정보 및 응급 (Log & Emergency)",
+      "item": [
+        {
+          "name": "LOG-001 생체 정보 기록",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": \"\",\n  \"user_id\": \"\",\n  \"usage_time_per_day\": 0,\n  \"resp_rate_per_day\": 0,\n  \"steps_per_day\": 0,\n  \"last_location\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/logs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "logs"
+              ]
+            },
+            "description": "■ 기능: 디바이스에서 측정된 사용자 생체 정보 및 위치 저장\n\n■ Body 파라미터\n- device_id          : String  - 측정 디바이스 ID\n- user_id            : String  - 사용자 ID\n- usage_time_per_day : Integer - 일일 사용 시간 (분)\n- resp_rate_per_day  : Float   - 일일 평균 호흡수\n- steps_per_day      : Integer - 일일 걸음 수\n- last_location      : String  - 마지막 위치 정보 (좌표 또는 주소)"
+          },
+          "response": [
+            {
+              "name": "LOG-001 성공 응답 예시",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"device_id\": \"\",\n  \"user_id\": \"\",\n  \"usage_time_per_day\": 0,\n  \"resp_rate_per_day\": 0,\n  \"steps_per_day\": 0,\n  \"last_location\": \"\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/logs",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "logs"
+                  ]
+                },
+                "description": "■ 기능: 디바이스에서 측정된 사용자 생체 정보 및 위치 저장\n\n■ Body 파라미터\n- device_id          : String  - 측정 디바이스 ID\n- user_id            : String  - 사용자 ID\n- usage_time_per_day : Integer - 일일 사용 시간 (분)\n- resp_rate_per_day  : Float   - 일일 평균 호흡수\n- steps_per_day      : Integer - 일일 걸음 수\n- last_location      : String  - 마지막 위치 정보 (좌표 또는 주소)"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"생체 정보 기록 성공\",\n  \"data\": {\n    \"log_id\": \"1\",\n    \"device_id\": \"1\",\n    \"user_id\": \"1\",\n    \"usage_time_per_day\": 480,\n    \"resp_rate_per_day\": 16.5,\n    \"steps_per_day\": 5200,\n    \"last_location\": \"37.4845,126.9296\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "LOG-002 사용자 생체 목록 조회",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/logs?user_id=&start_date=&end_date=",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "logs"
+              ],
+              "query": [
+                {
+                  "key": "user_id",
+                  "value": "",
+                  "description": "조회할 사용자 ID (선택, 미입력 시 전체 조회)"
+                },
+                {
+                  "key": "start_date",
+                  "value": "",
+                  "description": "기간 필터 시작일 (yyyy-MM-dd)"
+                },
+                {
+                  "key": "end_date",
+                  "value": "",
+                  "description": "기간 필터 종료일 (yyyy-MM-dd)"
+                }
+              ]
+            },
+            "description": "■ 기능: 생체 데이터 조회 (user_id 미입력 시 전체, 입력 시 해당 사용자만 조회)\n\n■ 정렬 기준: 생성일시\n■ 필터: 사용자(user_id), 기간 (start_date ~ end_date)\n\n■ Query 파라미터\n- user_id    : Long   - 조회할 사용자 ID (선택)\n- start_date : String - 조회 시작일 (yyyy-MM-dd)\n- end_date   : String - 조회 종료일 (yyyy-MM-dd)"
+          },
+          "response": [
+            {
+              "name": "LOG-002 성공 응답 예시",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/logs?user_id=1&start_date=2025-01-01&end_date=2025-01-31",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "logs"
+                  ],
+                  "query": [
+                    {
+                      "key": "user_id",
+                      "value": "1",
+                      "description": "조회할 사용자 ID (선택, 미입력 시 전체 조회)"
+                    },
+                    {
+                      "key": "start_date",
+                      "value": "2025-01-01",
+                      "description": "기간 필터 시작일 (yyyy-MM-dd)"
+                    },
+                    {
+                      "key": "end_date",
+                      "value": "2025-01-31",
+                      "description": "기간 필터 종료일 (yyyy-MM-dd)"
+                    }
+                  ]
+                },
+                "description": "■ 기능: 생체 데이터 조회 (user_id 미입력 시 전체, 입력 시 해당 사용자만 조회)\n\n■ 정렬 기준: 생성일시\n■ 필터: 사용자(user_id), 기간 (start_date ~ end_date)\n\n■ Query 파라미터\n- user_id    : Long   - 조회할 사용자 ID (선택)\n- start_date : String - 조회 시작일 (yyyy-MM-dd)\n- end_date   : String - 조회 종료일 (yyyy-MM-dd)"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"생체 목록 조회 성공\",\n  \"data\": [\n    {\n      \"log_id\": \"1\",\n      \"user_id\": \"1\",\n      \"usage_time_per_day\": 480,\n      \"resp_rate_per_day\": 16.5,\n      \"steps_per_day\": 5200,\n      \"last_location\": \"37.4845,126.9296\",\n      \"created_at\": \"2025-01-15T10:00:00Z\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "EMG-001 응급 상황 등록",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"\",\n  \"device_id\": \"\",\n  \"type_emergency\": \"\",\n  \"location_address\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/emergencies",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "emergencies"
+              ]
+            },
+            "description": "■ 기능: 과호흡, 낙상 등 응급 상황 발생 시 기록 생성\n\n■ Body 파라미터\n- user_id          : String - 응급 대상 사용자 ID\n- device_id        : String - 감지 디바이스 ID\n- type_emergency   : String - 응급 유형 (예: 과호흡, 낙상, 심박이상 등)\n- location_address : String - 발생 위치 주소"
+          },
+          "response": [
+            {
+              "name": "EMG-001 성공 응답 예시",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"user_id\": \"\",\n  \"device_id\": \"\",\n  \"type_emergency\": \"\",\n  \"location_address\": \"\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/emergencies",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "emergencies"
+                  ]
+                },
+                "description": "■ 기능: 과호흡, 낙상 등 응급 상황 발생 시 기록 생성\n\n■ Body 파라미터\n- user_id          : String - 응급 대상 사용자 ID\n- device_id        : String - 감지 디바이스 ID\n- type_emergency   : String - 응급 유형 (예: 과호흡, 낙상, 심박이상 등)\n- location_address : String - 발생 위치 주소"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"응급 상황 등록 성공\",\n  \"data\": {\n    \"emergency_id\": \"1\",\n    \"user_id\": \"1\",\n    \"device_id\": \"1\",\n    \"type_emergency\": \"낙상\",\n    \"location_address\": \"경기도 안산시 단원구 xxx\",\n    \"status_emergency\": \"접수\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "EMG-002 응급 상황 처리 수정",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status_emergency\": \"\",\n  \"severity_emergency\": \"\",\n  \"resolved_time\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/emergencies/:emergency_id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "emergencies",
+                ":emergency_id"
+              ],
+              "variable": [
+                {
+                  "key": "emergency_id",
+                  "value": "",
+                  "description": "수정할 응급 상황 ID"
+                }
+              ]
+            },
+            "description": "■ 기능: 응급 상황 확인 및 조치 결과(완료, 오탐) 부분 수정\n\n■ Path 파라미터\n- emergency_id       : String - 수정할 응급 상황 ID\n\n■ Body 파라미터 (수정할 값만 전달)\n- status_emergency   : String - 처리 상태 (예: 접수, 처리중, 완료, 오탐)\n- severity_emergency : String - 심각도 (예: 경증, 중증, 위험)\n- resolved_time      : String - 조치 완료 시각 (yyyy-MM-ddTHH:mm:ssZ)"
+          },
+          "response": [
+            {
+              "name": "EMG-002 성공 응답 예시",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status_emergency\": \"\",\n  \"severity_emergency\": \"\",\n  \"resolved_time\": \"\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/emergencies/:emergency_id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "emergencies",
+                    ":emergency_id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "emergency_id",
+                      "value": "",
+                      "description": "수정할 응급 상황 ID"
+                    }
+                  ]
+                },
+                "description": "■ 기능: 응급 상황 확인 및 조치 결과(완료, 오탐) 부분 수정\n\n■ Path 파라미터\n- emergency_id       : String - 수정할 응급 상황 ID\n\n■ Body 파라미터 (수정할 값만 전달)\n- status_emergency   : String - 처리 상태 (예: 접수, 처리중, 완료, 오탐)\n- severity_emergency : String - 심각도 (예: 경증, 중증, 위험)\n- resolved_time      : String - 조치 완료 시각 (yyyy-MM-ddTHH:mm:ssZ)"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"응급 상황 수정 성공\",\n  \"data\": {\n    \"emergency_id\": \"1\",\n    \"status_emergency\": \"완료\",\n    \"severity_emergency\": \"경증\",\n    \"resolved_time\": \"2025-01-15T11:30:00Z\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "8. 지점 관리 (Branch)",
+      "item": [
+        {
+          "name": "BCH-001 지점 등록",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"branch_name\": \"\",\n  \"main_phone\": \"\",\n  \"address\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/branches",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "branches"
+              ]
+            },
+            "description": "■ 기능: 신규 임대 지점 생성\n\n■ Body 파라미터\n- branch_name : String - 지점명\n- main_phone  : String - 지점 대표 전화번호\n- address     : String - 지점 주소"
+          },
+          "response": [
+            {
+              "name": "BCH-001 성공 응답 예시",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"branch_name\": \"\",\n  \"main_phone\": \"\",\n  \"address\": \"\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/branches",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "branches"
+                  ]
+                },
+                "description": "■ 기능: 신규 임대 지점 생성\n\n■ Body 파라미터\n- branch_name : String - 지점명\n- main_phone  : String - 지점 대표 전화번호\n- address     : String - 지점 주소"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"지점 등록 성공\",\n  \"data\": {\n    \"branch_id\": \"1\",\n    \"branch_name\": \"안산 지점\",\n    \"main_phone\": \"031-000-0000\",\n    \"address\": \"경기도 안산시 단원구 xxx\",\n    \"status_center\": \"운영중\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "BCH-002 지점 목록 조회",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/branches?status_center=",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "branches"
+              ],
+              "query": [
+                {
+                  "key": "status_center",
+                  "value": "",
+                  "description": "지점 상태 필터 (예: 운영중, 휴업, 폐점)"
+                }
+              ]
+            },
+            "description": "■ 기능: 운영 중인 지점 목록 정보 조회\n\n■ 정렬 기준: 지점번호\n■ 필터: 지점 상태(status_center)\n\n■ Query 파라미터\n- status_center : String - 지점 상태 필터 (운영중, 휴업, 폐점 등)"
+          },
+          "response": [
+            {
+              "name": "BCH-002 성공 응답 예시",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/branches?status_center=",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "branches"
+                  ],
+                  "query": [
+                    {
+                      "key": "status_center",
+                      "value": "",
+                      "description": "지점 상태 필터 (예: 운영중, 휴업, 폐점)"
+                    }
+                  ]
+                },
+                "description": "■ 기능: 운영 중인 지점 목록 정보 조회\n\n■ 정렬 기준: 지점번호\n■ 필터: 지점 상태(status_center)\n\n■ Query 파라미터\n- status_center : String - 지점 상태 필터 (운영중, 휴업, 폐점 등)"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"지점 목록 조회 성공\",\n  \"data\": [\n    {\n      \"branch_id\": \"1\",\n      \"branch_name\": \"안산 지점\",\n      \"main_phone\": \"031-000-0000\",\n      \"address\": \"경기도 안산시 단원구 xxx\",\n      \"status_center\": \"운영중\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "BCH-003 지점 정보 수정",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"branch_name\": \"\",\n  \"status_center\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/branches/:branch_id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "branches",
+                ":branch_id"
+              ],
+              "variable": [
+                {
+                  "key": "branch_id",
+                  "value": "",
+                  "description": "수정할 지점 ID"
+                }
+              ]
+            },
+            "description": "■ 기능: 지점 상태 및 기본 정보 부분 업데이트\n\n■ Path 파라미터\n- branch_id     : String - 수정할 지점 ID\n\n■ Body 파라미터 (수정할 값만 전달)\n- branch_name   : String - 지점명\n- status_center : String - 지점 운영 상태 (운영중, 휴업, 폐점 등)"
+          },
+          "response": [
+            {
+              "name": "BCH-003 성공 응답 예시",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"branch_name\": \"\",\n  \"status_center\": \"\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/branches/:branch_id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "branches",
+                    ":branch_id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "branch_id",
+                      "value": "",
+                      "description": "수정할 지점 ID"
+                    }
+                  ]
+                },
+                "description": "■ 기능: 지점 상태 및 기본 정보 부분 업데이트\n\n■ Path 파라미터\n- branch_id     : String - 수정할 지점 ID\n\n■ Body 파라미터 (수정할 값만 전달)\n- branch_name   : String - 지점명\n- status_center : String - 지점 운영 상태 (운영중, 휴업, 폐점 등)"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"지점 정보 수정 성공\",\n  \"data\": {\n    \"branch_id\": \"1\",\n    \"branch_name\": \"안산 지점(수정)\",\n    \"status_center\": \"휴업\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "9. 센터 정보 (Center)",
+      "item": [
+        {
+          "name": "SYS-001 센터 등록",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"center_name\": \"\",\n  \"biz_reg_no\": \"\",\n  \"director_name\": \"\",\n  \"address\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/centers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "centers"
+              ]
+            },
+            "description": "■ 기능: 신규 센터 정보 및 사업자 등록 내역 생성\n\n■ Body 파라미터\n- center_name   : String - 센터명\n- biz_reg_no    : String - 사업자 등록번호\n- director_name : String - 대표자 이름\n- address       : String - 센터 주소"
+          },
+          "response": [
+            {
+              "name": "SYS-001 성공 응답 예시",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"center_name\": \"\",\n  \"biz_reg_no\": \"\",\n  \"director_name\": \"\",\n  \"address\": \"\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/centers",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "centers"
+                  ]
+                },
+                "description": "■ 기능: 신규 센터 정보 및 사업자 등록 내역 생성\n\n■ Body 파라미터\n- center_name   : String - 센터명\n- biz_reg_no    : String - 사업자 등록번호\n- director_name : String - 대표자 이름\n- address       : String - 센터 주소"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"센터 등록 성공\",\n  \"data\": {\n    \"center_id\": \"1\",\n    \"center_name\": \"안산 복지 센터\",\n    \"biz_reg_no\": \"123-45-67890\",\n    \"director_name\": \"홍길동\",\n    \"address\": \"경기도 안산시 단원구 xxx\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "SYS-002 센터 정보 상세 조회",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/centers/:center_id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "centers",
+                ":center_id"
+              ],
+              "variable": [
+                {
+                  "key": "center_id",
+                  "value": "",
+                  "description": "조회할 센터 ID"
+                }
+              ]
+            },
+            "description": "■ 기능: 특정 센터의 기본 정보 및 상세 정보 조회\n\n■ Path 파라미터\n- center_id : String - 조회할 센터 ID"
+          },
+          "response": [
+            {
+              "name": "SYS-002 성공 응답 예시",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/centers/:center_id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "centers",
+                    ":center_id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "center_id",
+                      "value": "",
+                      "description": "조회할 센터 ID"
+                    }
+                  ]
+                },
+                "description": "■ 기능: 특정 센터의 기본 정보 및 상세 정보 조회\n\n■ Path 파라미터\n- center_id : String - 조회할 센터 ID"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"센터 상세 조회 성공\",\n  \"data\": {\n    \"center_id\": \"1\",\n    \"center_name\": \"안산 복지 센터\",\n    \"biz_reg_no\": \"123-45-67890\",\n    \"director_name\": \"홍길동\",\n    \"address\": \"경기도 안산시 단원구 xxx\",\n    \"main_phone\": \"031-000-0000\",\n    \"biz_category\": \"사회복지\",\n    \"logo_img_url\": \"https://example.com/logo.png\",\n    \"seal_img_url\": \"https://example.com/seal.png\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "SYS-003 센터 정보 수정",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"main_phone\": \"\",\n  \"biz_category\": \"\",\n  \"logo_img_url\": \"\",\n  \"seal_img_url\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/centers/:center_id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "centers",
+                ":center_id"
+              ],
+              "variable": [
+                {
+                  "key": "center_id",
+                  "value": "",
+                  "description": "수정할 센터 ID"
+                }
+              ]
+            },
+            "description": "■ 기능: 센터의 연락처 등 정보 부분 업데이트\n\n■ Path 파라미터\n- center_id     : String - 수정할 센터 ID\n\n■ Body 파라미터 (수정할 값만 전달)\n- main_phone    : String - 대표 전화번호\n- biz_category  : String - 업종 분류\n- logo_img_url  : String - 로고 이미지 URL\n- seal_img_url  : String - 직인 이미지 URL"
+          },
+          "response": [
+            {
+              "name": "SYS-003 성공 응답 예시",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"main_phone\": \"\",\n  \"biz_category\": \"\",\n  \"logo_img_url\": \"\",\n  \"seal_img_url\": \"\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/centers/:center_id",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "centers",
+                    ":center_id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "center_id",
+                      "value": "",
+                      "description": "수정할 센터 ID"
+                    }
+                  ]
+                },
+                "description": "■ 기능: 센터의 연락처 등 정보 부분 업데이트\n\n■ Path 파라미터\n- center_id     : String - 수정할 센터 ID\n\n■ Body 파라미터 (수정할 값만 전달)\n- main_phone    : String - 대표 전화번호\n- biz_category  : String - 업종 분류\n- logo_img_url  : String - 로고 이미지 URL\n- seal_img_url  : String - 직인 이미지 URL"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"센터 정보 수정 성공\",\n  \"data\": {\n    \"center_id\": \"1\",\n    \"main_phone\": \"031-111-2222\",\n    \"biz_category\": \"사회복지\",\n    \"logo_img_url\": \"https://example.com/logo_new.png\",\n    \"seal_img_url\": \"https://example.com/seal_new.png\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "SYS-004 이미지 파일 업로드",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "center_id",
+                  "value": "",
+                  "type": "text",
+                  "description": "대상 센터 ID"
+                },
+                {
+                  "key": "image_file",
+                  "value": "",
+                  "type": "file",
+                  "description": "업로드할 이미지 파일 (로고, 직인 등)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/centers/upload",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "centers",
+                "upload"
+              ]
+            },
+            "description": "■ 기능: 센터 직인, 로고 등 이미지 파일 업로드\n\n■ Body (multipart/form-data)\n- center_id  : String - 대상 센터 ID\n- image_file : File   - 업로드할 이미지 파일 (로고, 직인 등)\n\n※ Content-Type: multipart/form-data (자동 설정됨)"
+          },
+          "response": [
+            {
+              "name": "SYS-004 성공 응답 예시",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "center_id",
+                      "value": "",
+                      "type": "text",
+                      "description": "대상 센터 ID"
+                    },
+                    {
+                      "key": "image_file",
+                      "value": "",
+                      "type": "file",
+                      "description": "업로드할 이미지 파일 (로고, 직인 등)"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/centers/upload",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "centers",
+                    "upload"
+                  ]
+                },
+                "description": "■ 기능: 센터 직인, 로고 등 이미지 파일 업로드\n\n■ Body (multipart/form-data)\n- center_id  : String - 대상 센터 ID\n- image_file : File   - 업로드할 이미지 파일 (로고, 직인 등)\n\n※ Content-Type: multipart/form-data (자동 설정됨)"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"status\": 200,\n  \"message\": \"이미지 업로드 성공\",\n  \"data\": {\n    \"center_id\": \"1\",\n    \"uploaded_url\": \"https://example.com/uploads/center1_logo.png\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:9085/api"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "description": "AUTH-001 로그인 후 발급된 JWT Bearer 토큰 값을 여기에 입력하세요."
+    }
+  ]
+}

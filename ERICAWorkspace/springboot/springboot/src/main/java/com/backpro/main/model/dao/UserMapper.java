@@ -13,6 +13,8 @@ public interface UserMapper {
                              @Param("department") String department,
                              @Param("team") String team);
     Optional<User> findById(@Param("userId") Long userId);
+    Optional<User> findByEmail(@Param("email") String email);
     int insert(User user);
     int update(User user);
+    int softDelete(@Param("userId") Long userId);
 }

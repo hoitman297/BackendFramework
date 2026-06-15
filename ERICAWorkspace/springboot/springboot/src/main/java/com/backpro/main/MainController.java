@@ -103,18 +103,18 @@ public class MainController {
         return ApiResponse.ok(mainService.getDevices(branch_id));
     }
 
-    // DEV-003
-    @GetMapping("/devices/{id}")
-    public ApiResponse<DeviceResponseDto> getDeviceById(@PathVariable Long id) {
-        return ApiResponse.ok(mainService.getDeviceById(id));
-    }
-
-    // DEV-006
+    // DEV-006: 리터럴 경로가 경로변수보다 우선하므로 반드시 /{id} 앞에 선언
     @GetMapping("/devices/stats/count")
     public ApiResponse<DeviceStatsDto> getDeviceStats(
             @RequestParam(required = false) Long branch_id,
             @RequestParam(required = false) Long model_id) {
         return ApiResponse.ok(mainService.getDeviceStats(branch_id, model_id));
+    }
+
+    // DEV-003
+    @GetMapping("/devices/{id}")
+    public ApiResponse<DeviceResponseDto> getDeviceById(@PathVariable Long id) {
+        return ApiResponse.ok(mainService.getDeviceById(id));
     }
 
     @PostMapping("/devices")
@@ -214,6 +214,13 @@ public class MainController {
         return ApiResponse.ok(mainService.saveUser(user));
     }
 
+    // USR-004
+    @DeleteMapping("/users/{id}")
+    public ApiResponse<String> deleteUser(@PathVariable Long id) {
+        mainService.deleteUser(id);
+        return ApiResponse.ok("Deleted");
+    }
+
     // ========== Center (SYS) ==========
 
     // SYS-001
@@ -243,18 +250,13 @@ public class MainController {
 
     // ========== Log (LOG) ==========
 
+    // LOG-002: user_id 미입력 시 전체 조회, 입력 시 해당 사용자 조회
     @GetMapping("/logs")
-    public ApiResponse<List<DeviceLogResponseDto>> getLogs() {
-        return ApiResponse.ok(mainService.getLogs());
-    }
-
-    // LOG-002
-    @GetMapping("/logs/{user_id}")
-    public ApiResponse<List<DeviceLogResponseDto>> getLogsByUser(
-            @PathVariable Long user_id,
+    public ApiResponse<List<DeviceLogResponseDto>> getLogs(
+            @RequestParam(required = false) Long user_id,
             @RequestParam(required = false) String start_date,
             @RequestParam(required = false) String end_date) {
-        return ApiResponse.ok(mainService.getLogsByUser(user_id, start_date, end_date));
+        return ApiResponse.ok(mainService.getLogs(user_id, start_date, end_date));
     }
 
     // LOG-001

@@ -6,6 +6,7 @@ import SummaryCard from '../../components/common/SummaryCard'
 import StatusBadge from '../../components/common/StatusBadge'
 import Modal from '../../components/common/Modal'
 import { api } from '../../services/api'
+import Toast, { useToast } from '../../components/common/Toast'
 import './DeviceBiometric.css'
 
 interface DeviceLog {
@@ -75,6 +76,7 @@ const EMPTY_LOG_FORM = {
 }
 
 export default function DeviceBiometric() {
+  const { toast, showToast } = useToast()
   const [logs, setLogs] = useState<DeviceLog[]>([])
   const [models, setModels] = useState<DeviceModel[]>([])
   const [devices, setDevices] = useState<DeviceOption[]>([])
@@ -158,18 +160,18 @@ export default function DeviceBiometric() {
 
   const handleRegisterLog = async () => {
     if (!logForm.device_id || !logForm.user_id) {
-      alert('디바이스와 사용자는 필수입니다.')
+      showToast('디바이스와 사용자는 필수입니다.', 'error')
       return
     }
     if (logForm.usage_time_per_day && logForm.total_usage_time) {
       if (Number(logForm.total_usage_time) < Number(logForm.usage_time_per_day)) {
-        alert('총사용시간은 사용시간/일보다 작을 수 없습니다.')
+        showToast('총사용시간은 사용시간/일보다 작을 수 없습니다.', 'error')
         return
       }
     }
     if (logForm.steps_per_day && logForm.total_steps) {
       if (Number(logForm.total_steps) < Number(logForm.steps_per_day)) {
-        alert('총 걸음수는 걸음수/일보다 작을 수 없습니다.')
+        showToast('총 걸음수는 걸음수/일보다 작을 수 없습니다.', 'error')
         return
       }
     }
@@ -189,7 +191,7 @@ export default function DeviceBiometric() {
       setLogForm({ ...EMPTY_LOG_FORM })
       await fetchLogs()
     } catch (err: any) {
-      alert(err.message || '생체 데이터 등록에 실패했습니다.')
+      showToast(err.message || '생체 데이터 등록에 실패했습니다.', 'error')
     } finally {
       setLogSaving(false)
     }
@@ -207,7 +209,7 @@ export default function DeviceBiometric() {
 
   const handleRegisterEmergency = async () => {
     if (!emgForm.device_id || !emgForm.user_id) {
-      alert('디바이스와 사용자는 필수입니다.')
+      showToast('디바이스와 사용자는 필수입니다.', 'error')
       return
     }
     setEmgSaving(true)
@@ -222,7 +224,7 @@ export default function DeviceBiometric() {
       setEmgForm({ device_id: '', user_id: '', type_emergency: '0', location_address: '' })
       await fetchLogs()
     } catch (err: any) {
-      alert(err.message || '응급 신고에 실패했습니다.')
+      showToast(err.message || '응급 신고에 실패했습니다.', 'error')
     } finally {
       setEmgSaving(false)
     }
@@ -449,6 +451,8 @@ export default function DeviceBiometric() {
           </div>
         </Modal>
       )}
+
+      <Toast {...toast} />
 
       {/* 응급 신고 모달 */}
       {showEmergency && (

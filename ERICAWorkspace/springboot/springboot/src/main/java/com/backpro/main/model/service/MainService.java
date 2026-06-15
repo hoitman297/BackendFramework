@@ -18,6 +18,7 @@ import com.backpro.main.model.dto.*;
 import com.backpro.main.model.vo.*;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Service
 @Transactional
@@ -36,6 +37,7 @@ public class MainService {
     private final DepartmentMapper departmentMapper;
     private final TeamMapper teamMapper;
     private final EmergencyMapper emergencyMapper;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Value("${app.upload.dir:uploads}")
     private String uploadDir;
@@ -98,7 +100,7 @@ public class MainService {
         } else {
             branchMapper.update(branch);
         }
-        return branch;
+        return branchMapper.findById(branch.getBranchId()).orElse(branch);
     }
 
     public void deleteBranch(Long id) {
@@ -282,11 +284,20 @@ public class MainService {
 
     public User saveUser(User user) {
         if (user.getUserId() == null) {
+            if (user.getUserPassword() != null) {
+                user.setUserPassword(passwordEncoder.encode(user.getUserPassword()));
+            }
             userMapper.insert(user);
         } else {
             userMapper.update(user);
         }
-        return user;
+        return userMapper.findById(user.getUserId()).orElse(user);
+    }
+
+    public void deleteUser(Long id) {
+        userMapper.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + id));
+        userMapper.softDelete(id);
     }
 
     // ========== Center (SYS) ==========
@@ -349,13 +360,11 @@ public class MainService {
     // ========== Log (LOG) ==========
 
     @Transactional(readOnly = true)
-    public List<DeviceLogResponseDto> getLogs() {
+    public List<DeviceLogResponseDto> getLogs(Long userId, String startDate, String endDate) {
+        if (userId != null) {
+            return deviceLogMapper.findByUserIdAndDateRange(userId, startDate, endDate);
+        }
         return deviceLogMapper.findAllWithDetails();
-    }
-
-    @Transactional(readOnly = true)
-    public List<DeviceLogResponseDto> getLogsByUser(Long userId, String startDate, String endDate) {
-        return deviceLogMapper.findByUserIdAndDateRange(userId, startDate, endDate);
     }
 
     public DeviceLog saveLog(DeviceLog log) {
