@@ -2,6 +2,20 @@ import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import './Login.css'
 
+type LoginResponseData = {
+  token?: string
+  user_id?: number | string
+  userId?: number | string
+  user_name?: string
+  userName?: string
+  username?: string
+  name?: string
+  email?: string
+  rank?: number | string
+  department?: string
+  team?: string
+}
+
 export default function Login() {
   const navigate = useNavigate()
   const location = useLocation()
@@ -27,10 +41,25 @@ export default function Login() {
         setError(result.message || '로그인에 실패했습니다.')
         return
       }
-      const { token, user_id, user_name } = result.data
-      localStorage.setItem('token', token)
-      localStorage.setItem('userId', String(user_id))
-      localStorage.setItem('userName', user_name)
+
+      const data: LoginResponseData = result.data || result
+      const token = data.token
+      const userId = data.user_id ?? data.userId
+      const userName = data.user_name ?? data.userName ?? data.username ?? data.name ?? data.email ?? username
+
+      if (token) localStorage.setItem('token', token)
+      if (userId != null) localStorage.setItem('userId', String(userId))
+      localStorage.setItem('userName', String(userName))
+
+      // Layout과 권한 처리 화면에서 객체 형태가 필요할 때도 사용할 수 있게 함께 저장한다.
+      localStorage.setItem('loginUser', JSON.stringify({
+        ...data,
+        user_id: userId,
+        userId,
+        user_name: userName,
+        userName,
+      }))
+
       navigate(from, { replace: true })
     } catch {
       setError('서버에 연결할 수 없습니다.')

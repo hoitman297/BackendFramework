@@ -113,3 +113,36 @@
   color: var(--text-light);
   margin-top: 8px;
 }
+
+.employee-actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.employee-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.employee-modal-actions {
+  margin-top: 20px;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+@media (max-width: 900px) {
+  .employee-layout {
+    flex-direction: column;
+  }
+
+  .tree-panel {
+    width: 100%;
+  }
+
+  .employee-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
