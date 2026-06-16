@@ -238,8 +238,25 @@ public class MainService {
     public Rental saveRental(Rental rental) {
         if (rental.getRentalId() == null) {
             rentalMapper.insert(rental);
+            if (rental.getDeviceId() != null) {
+                deviceMapper.updateStatus(rental.getDeviceId(), 1);
+            }
         } else {
+            Long deviceId = rental.getDeviceId();
+            if (deviceId == null) {
+                deviceId = rentalMapper.findById(rental.getRentalId())
+                        .map(RentalResponseDto::getDeviceId)
+                        .orElse(null);
+            }
             rentalMapper.update(rental);
+            if (deviceId != null && rental.getStatusRent() != null) {
+                int st = rental.getStatusRent();
+                if (st == 3 || st == 9) {
+                    deviceMapper.updateStatus(deviceId, 0);
+                } else if (st == 2) {
+                    deviceMapper.updateStatus(deviceId, 1);
+                }
+            }
         }
         return rental;
     }
@@ -266,8 +283,29 @@ public class MainService {
     public DeviceAS saveAS(DeviceAS asData) {
         if (asData.getAsId() == null) {
             deviceASMapper.insert(asData);
+            if (asData.getDeviceId() != null) {
+                deviceMapper.updateStatus(asData.getDeviceId(), 3);
+            }
         } else {
+            Long deviceId = asData.getDeviceId();
+            if (deviceId == null) {
+                deviceId = deviceASMapper.findById(asData.getAsId())
+                        .map(DeviceAsDto::getDeviceId)
+                        .orElse(null);
+            }
             deviceASMapper.update(asData);
+            if (deviceId != null && asData.getStatusAs() != null) {
+                int st = asData.getStatusAs();
+                if (st == 1 || st == 2) {
+                    deviceMapper.updateStatus(deviceId, 3);
+                } else if (st == 3) {
+                    deviceMapper.updateStatus(deviceId, 4);
+                } else if (st == 9) {
+                    deviceMapper.updateStatus(deviceId, 0);
+                } else if (st == 4) {
+                    deviceMapper.updateStatus(deviceId, 9);
+                }
+            }
         }
         return asData;
     }

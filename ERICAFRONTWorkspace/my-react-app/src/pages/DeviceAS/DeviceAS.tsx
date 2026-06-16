@@ -46,7 +46,7 @@ interface UserOption {
 }
 
 const AS_STATUS_MAP: Record<number, string> = {
-  0: '이상무', 1: '접수', 2: '진행중', 3: '완료', 9: '취소',
+  0: '이상무', 1: '접수', 2: '진행중', 3: '완료', 4: '폐기', 9: '취소',
 }
 
 const AS_TYPE_MAP: Record<number, string> = {

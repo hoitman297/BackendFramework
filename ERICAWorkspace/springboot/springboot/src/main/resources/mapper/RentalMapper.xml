@@ -42,6 +42,11 @@
         ORDER BY r.created_at DESC
     </select>
 
+    <select id="findById" resultMap="RentalResponseDtoMap">
+        <include refid="rentalJoinSelect"/>
+        WHERE r.rental_id = #{rentalId}
+    </select>
+
     <select id="findByUserIdWithDetails" resultMap="RentalResponseDtoMap">
         <include refid="rentalJoinSelect"/>
         WHERE r.user_id = #{userId}

@@ -16,5 +16,6 @@ public interface DeviceMapper {
     DeviceStatsDto findStats(@Param("branchId") Long branchId, @Param("modelId") Long modelId);
     int insert(Device device);
     int update(Device device);
+    int updateStatus(@Param("deviceId") Long deviceId, @Param("deviceStatus") Integer deviceStatus);
     int deleteById(@Param("deviceId") Long deviceId);
 }
