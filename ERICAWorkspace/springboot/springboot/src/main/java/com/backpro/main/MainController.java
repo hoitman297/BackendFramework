@@ -4,12 +4,37 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.backpro.main.model.dto.*;
+import com.backpro.main.model.dto.ApiResponse;
+import com.backpro.main.model.dto.DeviceAsDto;
+import com.backpro.main.model.dto.DeviceLogResponseDto;
+import com.backpro.main.model.dto.DeviceRequestDto;
+import com.backpro.main.model.dto.DeviceResponseDto;
+import com.backpro.main.model.dto.DeviceStatsDto;
+import com.backpro.main.model.dto.RentalResponseDto;
 import com.backpro.main.model.service.MainService;
-import com.backpro.main.model.vo.*;
+import com.backpro.main.model.vo.Branch;
+import com.backpro.main.model.vo.Center;
+import com.backpro.main.model.vo.Department;
+import com.backpro.main.model.vo.DeviceAS;
+import com.backpro.main.model.vo.DeviceLog;
+import com.backpro.main.model.vo.DeviceModel;
+import com.backpro.main.model.vo.Emergency;
+import com.backpro.main.model.vo.Manager;
+import com.backpro.main.model.vo.Rental;
+import com.backpro.main.model.vo.Team;
+import com.backpro.main.model.vo.User;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -193,25 +218,30 @@ public class MainController {
         return ApiResponse.ok(mainService.saveAS(asData));
     }
 
+    
     // ========== User (USR) ==========
 
     @GetMapping("/users")
-    public ApiResponse<List<User>> getUsers(
-            @RequestParam(required = false) String is_company,
+    public ApiResponse<List<User>> getUser(
+            @RequestParam(name = "is_company", required = false) String isCompany,
             @RequestParam(required = false) String department,
             @RequestParam(required = false) String team) {
-        return ApiResponse.ok(mainService.getUsers(is_company, department, team));
+        return ApiResponse.ok(mainService.getUsers(isCompany, department, team));
+    }
+
+    @GetMapping("/users/{id}")
+    public ApiResponse<User> getUser(@PathVariable Long id) {
+        return ApiResponse.ok(mainService.getUserById(id));
     }
 
     @PostMapping("/users")
     public ApiResponse<User> registerUser(@RequestBody User user) {
-        return ApiResponse.ok(mainService.saveUser(user));
+        return ApiResponse.ok(mainService.createUser(user));
     }
 
     @PatchMapping("/users/{id}")
     public ApiResponse<User> updateUser(@PathVariable Long id, @RequestBody User user) {
-        user.setUserId(id);
-        return ApiResponse.ok(mainService.saveUser(user));
+        return ApiResponse.ok(mainService.updateUser(id, user));
     }
 
     // USR-004
@@ -221,6 +251,7 @@ public class MainController {
         return ApiResponse.ok("Deleted");
     }
 
+    
     // ========== Center (SYS) ==========
 
     // SYS-001
@@ -322,4 +353,6 @@ public class MainController {
         mainService.deleteTeam(id);
         return ApiResponse.ok("Deleted");
     }
+
+    
 }

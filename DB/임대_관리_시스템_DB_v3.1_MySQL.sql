@@ -28,14 +28,15 @@ CREATE TABLE `user` (
     `is_company`    CHAR(1)       NOT NULL DEFAULT 'N' COMMENT 'Y : 기업, N: 개인',
     `department`    VARCHAR(100)  NULL     COMMENT '부서명',
     `team`          VARCHAR(100)  NULL     COMMENT '팀명',
-    `rank`          VARCHAR(50)   NULL     COMMENT '직급',
+    `rank`          TINYINT       NULL     COMMENT '직급 (0:고객, 1:직원, 2:지점장, 3:어드민)',
     `work_status`   VARCHAR(50)   NULL     COMMENT '재직 상태 (재직/휴직/퇴직 등)',
     `created_at`    DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성 시점',
     `deleted_at`    DATETIME      NULL     COMMENT '삭제 시점',
     PRIMARY KEY (`user_id`),
     UNIQUE KEY `uq_user_email` (`email`),
     CONSTRAINT `chk_user_is_deleted` CHECK (`is_deleted` IN ('Y', 'N')),
-    CONSTRAINT `chk_user_is_company` CHECK (`is_company` IN ('Y', 'N'))
+    CONSTRAINT `chk_user_is_company` CHECK (`is_company` IN ('Y', 'N')),
+    CONSTRAINT `chk_user_rank` CHECK (`rank` IN (0, 1, 2, 3))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='사용자';
 
 -- 2. 센터 정보 테이블

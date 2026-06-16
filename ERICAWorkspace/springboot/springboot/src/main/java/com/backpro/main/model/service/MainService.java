@@ -314,30 +314,136 @@ public class MainService {
 
     @Transactional(readOnly = true)
     public List<User> getUsers(String isCompany, String department, String team) {
-        if (isCompany == null && department == null && team == null) {
+        boolean hasCompany = hasText(isCompany);
+        boolean hasDepartment = hasText(department);
+        boolean hasTeam = hasText(team);
+
+        if (!hasCompany && !hasDepartment && !hasTeam) {
             return userMapper.findAll();
         }
-        return userMapper.findByFilters(isCompany, department, team);
+
+        return userMapper.findByFilters(
+                hasCompany ? isCompany : null,
+                hasDepartment ? department : null,
+                hasTeam ? team : null
+        );
     }
 
-    public User saveUser(User user) {
-        if (user.getUserId() == null) {
-            if (user.getUserPassword() != null) {
-                user.setUserPassword(passwordEncoder.encode(user.getUserPassword()));
-            }
-            userMapper.insert(user);
-        } else {
-            userMapper.update(user);
+    @Transactional(readOnly = true)
+    public User getUserById(Long userId) {
+        User user = userMapper.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+
+        if ("Y".equalsIgnoreCase(user.getIsDeleted())) {
+            throw new IllegalArgumentException("User not found: " + userId);
         }
-        return userMapper.findById(user.getUserId()).orElse(user);
+
+        return user;
+    }
+    
+    public User createUser(User request) {
+        validateRequiredUserFields(request);
+        validateDuplicateEmail(request.getEmail(), null);
+
+        if (!hasText(request.getUserPassword())) {
+            request.setUserPassword("1234");
+        }
+
+        request.setUserPassword(passwordEncoder.encode(request.getUserPassword()));
+        request.setIsCompany(normalizeYn(request.getIsCompany(), "N"));
+        request.setWorkStatus(hasText(request.getWorkStatus()) ? request.getWorkStatus() : "재직");
+        request.setIsDeleted("N");
+
+        userMapper.insert(request);
+        return userMapper.findById(request.getUserId()).orElse(request);
+    }
+
+    public User updateUser(Long userId, User request) {
+        User user = getUserById(userId);
+
+        if (request.getUserName() != null) {
+            if (!hasText(request.getUserName())) {
+                throw new IllegalArgumentException("직원명을 입력해 주세요.");
+            }
+            user.setUserName(request.getUserName());
+        }
+
+        if (request.getUserPassword() != null && hasText(request.getUserPassword())) {
+            user.setUserPassword(passwordEncoder.encode(request.getUserPassword()));
+        }
+
+        if (request.getEmail() != null) {
+            if (!hasText(request.getEmail())) {
+                throw new IllegalArgumentException("이메일을 입력해 주세요.");
+            }
+            validateDuplicateEmail(request.getEmail(), userId);
+            user.setEmail(request.getEmail());
+        }
+
+        if (request.getPhone() != null) {
+            if (!hasText(request.getPhone())) {
+                throw new IllegalArgumentException("전화번호를 입력해 주세요.");
+            }
+            user.setPhone(request.getPhone());
+        }
+
+        if (request.getCenterId() != null) user.setCenterId(request.getCenterId());
+        if (request.getIsCompany() != null) user.setIsCompany(normalizeYn(request.getIsCompany(), user.getIsCompany()));
+        if (request.getDepartment() != null) user.setDepartment(request.getDepartment());
+        if (request.getTeam() != null) user.setTeam(request.getTeam());
+        if (request.getRank() != null) user.setRank(request.getRank());
+        if (request.getWorkStatus() != null) user.setWorkStatus(request.getWorkStatus());
+
+        userMapper.update(user);
+        return userMapper.findById(userId).orElse(user);
     }
 
     public void deleteUser(Long id) {
-        userMapper.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + id));
+        getUserById(id);
         userMapper.softDelete(id);
     }
 
+    private void validateRequiredUserFields(User user) {
+        if (user == null) {
+            throw new IllegalArgumentException("직원 정보를 입력해 주세요.");
+        }
+        if (!hasText(user.getUserName())) {
+            throw new IllegalArgumentException("직원명을 입력해 주세요.");
+        }
+        if (!hasText(user.getEmail())) {
+            throw new IllegalArgumentException("이메일을 입력해 주세요.");
+        }
+        if (!hasText(user.getPhone())) {
+            throw new IllegalArgumentException("전화번호를 입력해 주세요.");
+        }
+    }
+
+    private void validateDuplicateEmail(String email, Long currentUserId) {
+        if (!hasText(email)) {
+            return;
+        }
+
+        boolean duplicated = userMapper.findAll().stream()
+                .filter(user -> !"Y".equalsIgnoreCase(user.getIsDeleted()))
+                .filter(user -> email.equals(user.getEmail()))
+                .anyMatch(user -> currentUserId == null || !currentUserId.equals(user.getUserId()));
+
+        if (duplicated) {
+            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+        }
+    }
+    
+    private String normalizeYn(String value, String defaultValue) {
+        if ("Y".equalsIgnoreCase(value)) return "Y";
+        if ("N".equalsIgnoreCase(value)) return "N";
+        return defaultValue;
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.isBlank();
+    }
+    
+    
     // ========== Center (SYS) ==========
 
     @Transactional(readOnly = true)
