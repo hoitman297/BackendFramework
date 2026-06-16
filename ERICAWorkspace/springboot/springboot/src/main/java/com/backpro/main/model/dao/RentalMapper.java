@@ -10,6 +10,7 @@ import java.util.List;
 public interface RentalMapper {
     List<RentalResponseDto> findAllWithDetails();
     List<RentalResponseDto> findByUserIdWithDetails(@Param("userId") Long userId);
+    java.util.Optional<RentalResponseDto> findById(@Param("rentalId") Long rentalId);
     int insert(Rental rental);
     int update(Rental rental);
     int deleteById(@Param("rentalId") Long rentalId);

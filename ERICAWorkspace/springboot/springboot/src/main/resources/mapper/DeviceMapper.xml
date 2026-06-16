@@ -80,7 +80,6 @@
             COUNT(*)                                              AS total,
             SUM(CASE WHEN device_status = 0 THEN 1 ELSE 0 END)  AS in_stock,
             SUM(CASE WHEN device_status = 1 THEN 1 ELSE 0 END)  AS renting,
-            SUM(CASE WHEN device_status = 2 THEN 1 ELSE 0 END)  AS waiting,
             SUM(CASE WHEN device_status = 3 THEN 1 ELSE 0 END)  AS as_received,
             SUM(CASE WHEN device_status = 4 THEN 1 ELSE 0 END)  AS as_completed,
             SUM(CASE WHEN device_status = 9 THEN 1 ELSE 0 END)  AS discarded
@@ -89,6 +88,10 @@
           <if test="branchId != null">AND branch_id = #{branchId}</if>
           <if test="modelId  != null">AND model_id  = #{modelId}</if>
     </select>
+
+    <update id="updateStatus">
+        UPDATE device SET device_status = #{deviceStatus} WHERE device_id = #{deviceId}
+    </update>
 
     <update id="deleteById">
         UPDATE device SET deleted_at = NOW() WHERE device_id = #{deviceId}

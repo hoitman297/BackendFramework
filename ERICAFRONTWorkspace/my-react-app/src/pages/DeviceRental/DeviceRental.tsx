@@ -366,7 +366,7 @@ export default function DeviceRental() {
                 setForm({ ...form, device_id: e.target.value, branch_id: d ? String(d.branch_id ?? '') : form.branch_id })
               }}>
                 <option value="">-- 디바이스 선택 --</option>
-                {devices.filter((d) => d.device_status === 0 || d.device_status === 2).map((d) => (
+                {devices.filter((d) => d.device_status === 0 || d.device_status === 4).map((d) => (
                   <option key={d.device_id} value={d.device_id}>
                     [{d.device_id}] {d.model_name} — {d.branch_name}
                   </option>

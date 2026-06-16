@@ -57,10 +57,10 @@ interface AsRecord {
 }
 
 const STATUS_MAP: Record<number, string> = {
-  0: '입고', 1: '임대중', 2: '임대대기', 3: 'AS접수', 4: 'AS완료', 9: '폐기',
+  0: '입고', 1: '임대중', 3: 'AS접수', 4: 'AS완료', 9: '폐기',
 }
 const AS_STATUS_MAP: Record<number, string> = {
-  0: '이상무', 1: '접수', 2: '진행중', 3: '완료', 9: '취소',
+  0: '이상무', 1: '접수', 2: '진행중', 3: '완료', 4: '폐기', 9: '취소',
 }
 const AS_TYPE_MAP: Record<number, string> = {
   0: '파손', 1: '침수', 2: '소프트웨어', 3: '기타', 9: '불명',
@@ -364,8 +364,8 @@ export default function DeviceStatus() {
               { label: '전체', value: devices.length },
               { label: '입고', value: devices.filter((d) => d.device_status === 0).length },
               { label: '임대중', value: devices.filter((d) => d.device_status === 1).length, color: 'var(--success)' },
-              { label: '임대대기', value: devices.filter((d) => d.device_status === 2).length, color: 'var(--warning)' },
               { label: 'AS접수', value: devices.filter((d) => d.device_status === 3).length, color: '#8b5cf6' },
+              { label: 'AS완료', value: devices.filter((d) => d.device_status === 4).length, color: 'var(--info)' },
               { label: '폐기', value: devices.filter((d) => d.device_status === 9).length, color: 'var(--danger)' },
             ]}
           />
@@ -379,7 +379,7 @@ export default function DeviceStatus() {
                   value={statusFilter}
                   onChange={(e) => { setStatusFilter(e.target.value); setSelected(new Set()) }}
                 >
-                  {['전체', '입고', '임대중', '임대대기', 'AS접수', 'AS완료', '폐기'].map((s) => (
+                  {['전체', '입고', '임대중', 'AS접수', 'AS완료', '폐기'].map((s) => (
                     <option key={s}>{s}</option>
                   ))}
                 </select>
