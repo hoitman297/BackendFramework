@@ -102,4 +102,9 @@
         WHERE as_id = #{asId}
     </update>
 
+    <update id="cancelActiveByDeviceId">
+        UPDATE device_as SET status_as = 9
+        WHERE device_id = #{deviceId} AND status_as NOT IN (3, 4, 9)
+    </update>
+
 </mapper>

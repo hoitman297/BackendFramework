@@ -53,7 +53,7 @@ type UserForm = {
 
 const EMPTY_USER: UserForm = {
   user_name: '',
-  user_password: '1234',
+  user_password: '',
   email: '',
   phone: '',
   center_id: null,
@@ -345,7 +345,7 @@ export default function CenterEmployee() {
             </div>
             <div>
               <label className="form-label">비밀번호{editUserId ? ' 변경' : ''}</label>
-              <input className="form-input" type="password" placeholder={editUserId ? '변경 시에만 입력' : '기본값 1234'} value={userForm.user_password} onChange={e => setUserForm(p => ({ ...p, user_password: e.target.value }))} />
+              <input className="form-input" type="password" placeholder={editUserId ? '변경 시에만 입력' : '미입력 시 임시 비밀번호 자동 발급'} value={userForm.user_password} onChange={e => setUserForm(p => ({ ...p, user_password: e.target.value }))} />
             </div>
             <div>
               <label className="form-label">전화번호 <span style={{color:'red'}}>*</span></label>

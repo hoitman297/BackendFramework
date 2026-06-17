@@ -228,6 +228,8 @@ public class MainService {
     }
 
     public void deleteDevice(Long id) {
+        rentalMapper.cancelActiveByDeviceId(id);
+        deviceASMapper.cancelActiveByDeviceId(id);
         deviceMapper.deleteById(id);
     }
 
@@ -307,7 +309,7 @@ public class MainService {
                 if (st == 1 || st == 2) {
                     deviceMapper.updateStatus(deviceId, 3);
                 } else if (st == 3) {
-                    deviceMapper.updateStatus(deviceId, 4);
+                    deviceMapper.updateStatus(deviceId, 0);
                 } else if (st == 9) {
                     deviceMapper.updateStatus(deviceId, 0);
                 } else if (st == 4) {
@@ -356,7 +358,7 @@ public class MainService {
         validateDuplicateEmail(request.getEmail(), null);
 
         if (!hasText(request.getUserPassword())) {
-            request.setUserPassword("1234");
+            request.setUserPassword(generateTempPassword());
         }
 
         request.setUserPassword(passwordEncoder.encode(request.getUserPassword()));
@@ -447,6 +449,14 @@ public class MainService {
         if ("Y".equalsIgnoreCase(value)) return "Y";
         if ("N".equalsIgnoreCase(value)) return "N";
         return defaultValue;
+    }
+
+    private String generateTempPassword() {
+        String chars = "ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#";
+        java.util.Random random = new java.util.Random();
+        StringBuilder sb = new StringBuilder(10);
+        for (int i = 0; i < 10; i++) sb.append(chars.charAt(random.nextInt(chars.length())));
+        return sb.toString();
     }
 
     private boolean hasText(String value) {
