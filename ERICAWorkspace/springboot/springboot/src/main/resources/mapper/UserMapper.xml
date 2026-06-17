@@ -16,6 +16,8 @@
         <result property="team"        column="team"/>
         <result property="rank"        column="rank"/>
         <result property="workStatus"  column="work_status"/>
+        <result property="role"        column="role"/>
+        <result property="branchId"    column="branch_id"/>
         <result property="createdAt"   column="created_at"/>
         <result property="deletedAt"   column="deleted_at"/>
     </resultMap>
@@ -28,6 +30,7 @@
         SELECT * FROM user
         WHERE is_deleted = 'N'
         <if test="isCompany != null">AND is_company  = #{isCompany}</if>
+        <if test="centerId != null">AND center_id   = #{centerId}</if>
         <if test="department != null">AND department = #{department}</if>
         <if test="team != null">AND team           = #{team}</if>
     </select>
@@ -43,11 +46,11 @@
     <insert id="insert" useGeneratedKeys="true" keyProperty="userId">
         INSERT INTO user (user_name, is_deleted, user_password, email, phone,
                           center_id, is_company, department, team,
-                          `rank`, work_status, created_at)
+                          `rank`, work_status, role, branch_id, created_at)
         VALUES (#{userName}, IFNULL(#{isDeleted}, 'N'), #{userPassword},
                 #{email}, #{phone}, #{centerId},
                 IFNULL(#{isCompany}, 'N'), #{department}, #{team},
-                #{rank}, #{workStatus}, NOW())
+                #{rank}, #{workStatus}, IFNULL(#{role}, 'ADMIN'), #{branchId}, NOW())
     </insert>
 
     <update id="update">
@@ -63,6 +66,8 @@
             <if test="team         != null">team         = #{team},</if>
             <if test="rank         != null">`rank`       = #{rank},</if>
             <if test="workStatus   != null">work_status  = #{workStatus},</if>
+            <if test="role         != null">role         = #{role},</if>
+            <if test="branchId     != null">branch_id    = #{branchId},</if>
             <if test="isDeleted    != null">is_deleted   = #{isDeleted},</if>
             <if test="deletedAt    != null">deleted_at   = #{deletedAt},</if>
         </set>

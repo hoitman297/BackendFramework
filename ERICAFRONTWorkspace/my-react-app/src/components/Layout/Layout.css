@@ -47,6 +47,22 @@
   border: 1px solid var(--border);
 }
 
+.logout-btn {
+  font-size: 13px;
+  color: var(--text-light);
+  background: transparent;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.logout-btn:hover {
+  background: var(--danger);
+  color: #fff;
+  border-color: var(--danger);
+}
+
 .layout-content {
   flex: 1;
   padding: 24px;

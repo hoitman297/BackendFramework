@@ -14,6 +14,8 @@ type LoginResponseData = {
   rank?: number | string
   department?: string
   team?: string
+  role?: string
+  branch_id?: number | string | null
 }
 
 export default function Login() {
@@ -47,17 +49,24 @@ export default function Login() {
       const userId = data.user_id ?? data.userId
       const userName = data.user_name ?? data.userName ?? data.username ?? data.name ?? data.email ?? username
 
+      const role = data.role ?? 'ADMIN'
+      const branchId = data.branch_id != null ? data.branch_id : null
+
       if (token) localStorage.setItem('token', token)
       if (userId != null) localStorage.setItem('userId', String(userId))
       localStorage.setItem('userName', String(userName))
+      localStorage.setItem('role', role)
+      if (branchId != null) localStorage.setItem('branchId', String(branchId))
+      else localStorage.removeItem('branchId')
 
-      // Layout과 권한 처리 화면에서 객체 형태가 필요할 때도 사용할 수 있게 함께 저장한다.
       localStorage.setItem('loginUser', JSON.stringify({
         ...data,
         user_id: userId,
         userId,
         user_name: userName,
         userName,
+        role,
+        branch_id: branchId,
       }))
 
       navigate(from, { replace: true })

@@ -49,6 +49,11 @@ public class MainService {
         return departmentMapper.findAll();
     }
 
+    @Transactional(readOnly = true)
+    public List<Department> getDepartmentsByBranch(Long branchId) {
+        return departmentMapper.findByBranchId(branchId);
+    }
+
     public Department saveDepartment(Department dept) {
         departmentMapper.insert(dept);
         return dept;
@@ -134,7 +139,10 @@ public class MainService {
     // ========== DeviceModel (MDL) ==========
 
     @Transactional(readOnly = true)
-    public List<DeviceModel> getAllDeviceModels() {
+    public List<DeviceModel> getAllDeviceModels(Long branchId) {
+        if (branchId != null) {
+            return deviceModelMapper.findByBranchId(branchId);
+        }
         return deviceModelMapper.findAll();
     }
 
@@ -313,19 +321,21 @@ public class MainService {
     // ========== User (USR) ==========
 
     @Transactional(readOnly = true)
-    public List<User> getUsers(String isCompany, String department, String team) {
+    public List<User> getUsers(String isCompany, String department, String team, Long centerId) {
         boolean hasCompany = hasText(isCompany);
         boolean hasDepartment = hasText(department);
         boolean hasTeam = hasText(team);
+        boolean hasCenter = centerId != null;
 
-        if (!hasCompany && !hasDepartment && !hasTeam) {
+        if (!hasCompany && !hasDepartment && !hasTeam && !hasCenter) {
             return userMapper.findAll();
         }
 
         return userMapper.findByFilters(
                 hasCompany ? isCompany : null,
                 hasDepartment ? department : null,
-                hasTeam ? team : null
+                hasTeam ? team : null,
+                hasCenter ? centerId : null
         );
     }
 
@@ -445,6 +455,11 @@ public class MainService {
     
     
     // ========== Center (SYS) ==========
+
+    @Transactional(readOnly = true)
+    public List<Center> getAllCenters() {
+        return centerMapper.findAll();
+    }
 
     @Transactional(readOnly = true)
     public Center getCenter(Long centerId) {

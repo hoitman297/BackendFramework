@@ -91,15 +91,15 @@ public class MainController {
 
     // ========== DeviceModel (MDL) ==========
 
-    // MDL-002: /models (기존 /device-models 유지 + 신규 /models 추가)
+    // MDL-002: 지점 직원이면 branch_id 파라미터로 해당 지점 모델만 반환
     @GetMapping("/models")
-    public ApiResponse<List<DeviceModel>> getModels() {
-        return ApiResponse.ok(mainService.getAllDeviceModels());
+    public ApiResponse<List<DeviceModel>> getModels(@RequestParam(required = false) Long branch_id) {
+        return ApiResponse.ok(mainService.getAllDeviceModels(branch_id));
     }
 
     @GetMapping("/device-models")
-    public ApiResponse<List<DeviceModel>> getDeviceModels() {
-        return ApiResponse.ok(mainService.getAllDeviceModels());
+    public ApiResponse<List<DeviceModel>> getDeviceModels(@RequestParam(required = false) Long branch_id) {
+        return ApiResponse.ok(mainService.getAllDeviceModels(branch_id));
     }
 
     // MDL-001
@@ -225,8 +225,9 @@ public class MainController {
     public ApiResponse<List<User>> getUser(
             @RequestParam(name = "is_company", required = false) String isCompany,
             @RequestParam(required = false) String department,
-            @RequestParam(required = false) String team) {
-        return ApiResponse.ok(mainService.getUsers(isCompany, department, team));
+            @RequestParam(required = false) String team,
+            @RequestParam(name = "center_id", required = false) Long centerId) {
+        return ApiResponse.ok(mainService.getUsers(isCompany, department, team, centerId));
     }
 
     @GetMapping("/users/{id}")
@@ -253,6 +254,11 @@ public class MainController {
 
     
     // ========== Center (SYS) ==========
+
+    @GetMapping("/centers")
+    public ApiResponse<List<Center>> getCenters() {
+        return ApiResponse.ok(mainService.getAllCenters());
+    }
 
     // SYS-001
     @PostMapping("/centers")
@@ -313,7 +319,10 @@ public class MainController {
     // ========== Organization (DEPT/TEAM) ==========
 
     @GetMapping("/depts")
-    public ApiResponse<List<Department>> getDepts() {
+    public ApiResponse<List<Department>> getDepts(@RequestParam(required = false) Long branch_id) {
+        if (branch_id != null) {
+            return ApiResponse.ok(mainService.getDepartmentsByBranch(branch_id));
+        }
         return ApiResponse.ok(mainService.getAllDepartments());
     }
 

@@ -8,6 +8,7 @@ import java.util.List;
 @Mapper
 public interface DepartmentMapper {
     List<Department> findAll();
+    List<Department> findByBranchId(@Param("branchId") Long branchId);
     int insert(Department department);
     int update(Department department);
     int softDelete(@Param("deptId") Long deptId);

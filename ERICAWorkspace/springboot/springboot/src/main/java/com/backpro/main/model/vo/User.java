@@ -63,6 +63,15 @@ public class User {
     @JsonProperty("work_status")
     private String workStatus = "재직";
 
+    @Column(name = "role", length = 20, columnDefinition = "VARCHAR(20) DEFAULT 'ADMIN'")
+    @Builder.Default
+    @JsonProperty("role")
+    private String role = "ADMIN";
+
+    @Column(name = "branch_id")
+    @JsonProperty("branch_id")
+    private Long branchId;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     @Builder.Default
     @JsonProperty("created_at")

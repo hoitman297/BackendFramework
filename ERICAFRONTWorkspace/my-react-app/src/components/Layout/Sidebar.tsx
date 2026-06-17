@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import './Sidebar.css'
-import faviconSvg from '../../assets/favicon.svg';
+import faviconSvg from '../../assets/favicon.svg'
+import { isStaff } from '../../services/auth'
 
 const menuGroups = [
   {
@@ -30,13 +31,18 @@ const menuGroups = [
 ]
 
 export default function Sidebar() {
+  const staff = isStaff()
+  const visibleGroups = staff
+    ? menuGroups.filter((g) => g.label === '디바이스 관리')
+    : menuGroups
+
   return (
     <nav className="sidebar">
       <div className="sidebar-logo">
           <img className="sidebar-logo-icon" src={faviconSvg} alt="" />
         <span>ERICA</span>
       </div>
-      {menuGroups.map((group) => (
+      {visibleGroups.map((group) => (
         <div className="sidebar-group" key={group.label}>
           <p className="sidebar-group-label">{group.label}</p>
           <ul className="sidebar-menu">

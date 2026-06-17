@@ -32,11 +32,13 @@ public class AuthController {
         }
 
         String token = jwtUtil.generateToken(user.getEmail(), user.getUserId());
-        return ApiResponse.ok(Map.of(
-                "token", token,
-                "user_id", user.getUserId(),
-                "user_name", user.getUserName(),
-                "email", user.getEmail()
-        ));
+        java.util.Map<String, Object> data = new java.util.HashMap<>();
+        data.put("token", token);
+        data.put("user_id", user.getUserId());
+        data.put("user_name", user.getUserName());
+        data.put("email", user.getEmail());
+        data.put("role", user.getRole() != null ? user.getRole() : "ADMIN");
+        data.put("branch_id", user.getBranchId());
+        return ApiResponse.ok(data);
     }
 }

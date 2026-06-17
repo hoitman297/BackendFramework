@@ -15,11 +15,17 @@ interface User {
   user_password?: string;
   email: string;
   phone: string;
+  center_id: number | null;
   department: string;
   team: string;
   rank: number | null;
   work_status: string;
   is_company: string;
+}
+
+interface Center {
+  center_id: number;
+  center_name: string;
 }
 
 interface Department {
@@ -32,16 +38,12 @@ interface Team {
   team_name: string;
 }
 
-type TreeSelection =
-  | { type: 'all' }
-  | { type: 'dept'; deptId: number; deptName: string }
-  | { type: 'team'; deptId: number; teamName: string }
-
 type UserForm = {
   user_name: string;
   user_password: string;
   email: string;
   phone: string;
+  center_id: number | null;
   department: string;
   team: string;
   rank: number | null;
@@ -54,6 +56,7 @@ const EMPTY_USER: UserForm = {
   user_password: '1234',
   email: '',
   phone: '',
+  center_id: null,
   department: '',
   team: '',
   rank: 1,
@@ -76,16 +79,29 @@ export default function CenterEmployee() {
   const { toast, showToast } = useToast()
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(false)
+  const [centers, setCenters] = useState<Center[]>([])
   const [depts, setDepts] = useState<Department[]>([])
   const [teamsByDept, setTeamsByDept] = useState<Record<number, Team[]>>({})
-  const [expandedDepts, setExpandedDepts] = useState<Set<number>>(new Set())
-  const [treeSelection, setTreeSelection] = useState<TreeSelection>({ type: 'all' })
-  const [isCompanyFilter, setIsCompanyFilter] = useState('전체')
   const [search, setSearch] = useState('')
+
+  // 조회 필터
+  const [filterCenter, setFilterCenter] = useState<number | ''>('')
+  const [filterDept, setFilterDept] = useState('')
+  const [filterTeam, setFilterTeam] = useState('')
+  const [filterTeams, setFilterTeams] = useState<Team[]>([])
+
+  // 모달
   const [showUserModal, setShowUserModal] = useState(false)
   const [editUserId, setEditUserId] = useState<number | null>(null)
   const [userForm, setUserForm] = useState<UserForm>(EMPTY_USER)
   const [modalTeams, setModalTeams] = useState<Team[]>([])
+
+  const fetchCenters = async () => {
+    try {
+      const res = await api.get<Center[]>('/centers')
+      setCenters(res.data)
+    } catch (err) { console.error(err) }
+  }
 
   const fetchDepts = async () => {
     try {
@@ -107,32 +123,38 @@ export default function CenterEmployee() {
     setLoading(true)
     try {
       const query = new URLSearchParams()
-      if (isCompanyFilter === '기업') query.append('is_company', 'Y')
-      else if (isCompanyFilter === '개인') query.append('is_company', 'N')
-
-      if (treeSelection.type === 'dept') {
-        query.append('department', treeSelection.deptName)
-      } else if (treeSelection.type === 'team') {
-        query.append('team', treeSelection.teamName)
-      }
-
+      if (filterCenter !== '') query.append('center_id', String(filterCenter))
+      if (filterDept) query.append('department', filterDept)
+      if (filterTeam) query.append('team', filterTeam)
       const res = await api.get<User[]>(`/users?${query.toString()}`)
       setUsers(res.data)
     } catch (err) { console.error(err) } finally { setLoading(false) }
   }
 
-  useEffect(() => { fetchDepts() }, [])
-  useEffect(() => { fetchUsers() }, [isCompanyFilter, treeSelection])
+  useEffect(() => { fetchCenters(); fetchDepts() }, [])
+  useEffect(() => { fetchUsers() }, [filterCenter, filterDept, filterTeam])
 
-  const toggleDept = (deptId: number) => {
-    setExpandedDepts(prev => {
-      const next = new Set(prev)
-      if (next.has(deptId)) { next.delete(deptId) } else {
-        next.add(deptId)
-        fetchTeams(deptId)
+  // 센터 필터 변경 → 부서/팀 초기화
+  const handleCenterFilter = (value: string) => {
+    setFilterCenter(value === '' ? '' : Number(value))
+    setFilterDept('')
+    setFilterTeam('')
+    setFilterTeams([])
+  }
+
+  // 부서 필터 변경 → 팀 목록 로드, 팀 초기화
+  const handleDeptFilter = async (deptName: string) => {
+    setFilterDept(deptName)
+    setFilterTeam('')
+    if (deptName) {
+      const dept = depts.find(d => d.dept_name === deptName)
+      if (dept) {
+        const teams = await fetchTeams(dept.dept_id)
+        setFilterTeams(teams || [])
       }
-      return next
-    })
+    } else {
+      setFilterTeams([])
+    }
   }
 
   const filtered = users.filter(u =>
@@ -144,14 +166,10 @@ export default function CenterEmployee() {
 
   const openCreate = () => {
     const nextForm = { ...EMPTY_USER }
-    if (treeSelection.type === 'dept') nextForm.department = treeSelection.deptName
-    if (treeSelection.type === 'team') {
-      const dept = depts.find(d => d.dept_id === treeSelection.deptId)
-      nextForm.department = dept?.dept_name || ''
-      nextForm.team = treeSelection.teamName
-    }
-    if (isCompanyFilter === '기업') nextForm.is_company = 'Y'
-    if (isCompanyFilter === '개인') nextForm.is_company = 'N'
+    if (centers.length === 1) nextForm.center_id = centers[0].center_id
+    if (filterCenter !== '') nextForm.center_id = Number(filterCenter)
+    if (filterDept) nextForm.department = filterDept
+    if (filterTeam) nextForm.team = filterTeam
     setEditUserId(null)
     setUserForm(nextForm)
     setShowUserModal(true)
@@ -165,6 +183,7 @@ export default function CenterEmployee() {
       user_password: '',
       email: user.email || '',
       phone: user.phone || '',
+      center_id: user.center_id ?? null,
       department: user.department || '',
       team: user.team || '',
       rank: user.rank ?? 1,
@@ -181,6 +200,11 @@ export default function CenterEmployee() {
     if (!dept) { setModalTeams([]); return }
     const teams = await fetchTeams(dept.dept_id)
     setModalTeams(teams || [])
+  }
+
+  const changeCenter = (centerId: number | null) => {
+    setUserForm(prev => ({ ...prev, center_id: centerId, department: '', team: '' }))
+    setModalTeams([])
   }
 
   const changeDepartment = async (deptName: string) => {
@@ -236,82 +260,70 @@ export default function CenterEmployee() {
     ) },
   ]
 
-  const isSelected = (sel: TreeSelection) => {
-    if (treeSelection.type !== sel.type) return false
-    if (sel.type === 'all') return true
-    if (sel.type === 'dept' && treeSelection.type === 'dept') return treeSelection.deptId === sel.deptId
-    if (sel.type === 'team' && treeSelection.type === 'team') return treeSelection.teamName === sel.teamName
-    return false
-  }
-
   return (
     <div>
       <PageHeader breadcrumb={['조직 관리', '센터 담당직원']} title="센터 담당직원" description="센터 직원 정보를 관리합니다." />
-      <div className="employee-layout">
-        <aside className="tree-panel">
-          <div className="filter-group" style={{padding: '10px', borderBottom: '1px solid #eee'}}>
-            <p style={{fontSize: '12px', fontWeight: 'bold', marginBottom: '8px'}}>사용자 구분</p>
-            {['전체', '개인', '기업'].map(f => (
-              <label key={f} style={{display: 'block', fontSize: '13px', marginBottom: '4px', cursor: 'pointer'}}>
-                <input type="radio" checked={isCompanyFilter === f} onChange={() => setIsCompanyFilter(f)} /> {f}
-              </label>
-            ))}
-          </div>
-          <p className="panel-title">부서 &gt; 팀</p>
-          <div
-            className={`tree-node${isSelected({ type: 'all' }) ? ' active' : ''}`}
-            style={{ paddingLeft: '12px' }}
-            onClick={() => setTreeSelection({ type: 'all' })}>
-            전체
-          </div>
-          {depts.map(dept => (
-            <div key={dept.dept_id}>
-              <div
-                className={`tree-node${isSelected({ type: 'dept', deptId: dept.dept_id, deptName: dept.dept_name }) ? ' active' : ''}`}
-                style={{ paddingLeft: '12px' }}
-                onClick={() => {
-                  setTreeSelection({ type: 'dept', deptId: dept.dept_id, deptName: dept.dept_name })
-                  toggleDept(dept.dept_id)
-                }}>
-                <span style={{ marginRight: '4px' }}>{expandedDepts.has(dept.dept_id) ? '▾' : '▸'}</span>
-                {dept.dept_name}
-              </div>
-              {expandedDepts.has(dept.dept_id) && (teamsByDept[dept.dept_id] || []).map(team => (
-                <div
-                  key={team.team_id}
-                  className={`tree-node${isSelected({ type: 'team', deptId: dept.dept_id, teamName: team.team_name }) ? ' active' : ''}`}
-                  style={{ paddingLeft: '28px' }}
-                  onClick={() => setTreeSelection({ type: 'team', deptId: dept.dept_id, teamName: team.team_name })}>
-                  {team.team_name}
-                </div>
-              ))}
-            </div>
-          ))}
-        </aside>
-        <div className="employee-main">
-          <ToolBar
-            left={<input className="search-input" placeholder="이름, 아이디, 전화번호 검색..." value={search} onChange={e => setSearch(e.target.value)} />}
-            buttons={[
-              { label: '신규 등록', variant: 'primary', onClick: openCreate },
-              { label: '새로고침', variant: 'secondary', onClick: fetchUsers },
-            ]}
-          />
-          {loading ? (
-            <div>로딩 중...</div>
-          ) : (
-            <DataTable
-              columns={columns as any}
-              data={filtered.map((u, i) => ({
-                ...u,
-                no: i + 1,
-                is_company_label: u.is_company === 'Y' ? '기업' : '개인',
-                rank_label: getRankLabel(u.rank),
-              })) as any}
-            />
-          )}
-          <p style={{ fontSize: '12px', color: 'var(--text-light)', marginTop: '8px', textAlign: 'right' }}>총 {filtered.length}건</p>
+
+      {/* 조회 필터 */}
+      <div className="employee-filter-bar">
+        <div className="employee-filter-item">
+          <label className="employee-filter-label">센터별 조회</label>
+          <select
+            className="employee-filter-select"
+            value={filterCenter}
+            onChange={e => handleCenterFilter(e.target.value)}
+          >
+            <option value="">전체</option>
+            {centers.map(c => <option key={c.center_id} value={c.center_id}>{c.center_name}</option>)}
+          </select>
+        </div>
+        <div className="employee-filter-item">
+          <label className="employee-filter-label">부서별 조회</label>
+          <select
+            className="employee-filter-select"
+            value={filterDept}
+            onChange={e => handleDeptFilter(e.target.value)}
+          >
+            <option value="">전체</option>
+            {depts.map(d => <option key={d.dept_id} value={d.dept_name}>{d.dept_name}</option>)}
+          </select>
+        </div>
+        <div className="employee-filter-item">
+          <label className="employee-filter-label">팀별 조회</label>
+          <select
+            className="employee-filter-select"
+            value={filterTeam}
+            onChange={e => setFilterTeam(e.target.value)}
+            disabled={!filterDept}
+          >
+            <option value="">{filterDept ? '전체' : '부서를 먼저 선택하세요'}</option>
+            {filterTeams.map(t => <option key={t.team_id} value={t.team_name}>{t.team_name}</option>)}
+          </select>
         </div>
       </div>
+
+      <ToolBar
+        left={<input className="search-input" placeholder="이름, 아이디, 전화번호 검색..." value={search} onChange={e => setSearch(e.target.value)} />}
+        buttons={[
+          { label: '신규 등록', variant: 'primary', onClick: openCreate },
+          { label: '새로고침', variant: 'secondary', onClick: fetchUsers },
+        ]}
+      />
+
+      {loading ? (
+        <div className="loading-state">로딩 중...</div>
+      ) : (
+        <DataTable
+          columns={columns as any}
+          data={filtered.map((u, i) => ({
+            ...u,
+            no: i + 1,
+            is_company_label: u.is_company === 'Y' ? '기업' : '개인',
+            rank_label: getRankLabel(u.rank),
+          })) as any}
+        />
+      )}
+      <p style={{ fontSize: '12px', color: 'var(--text-light)', marginTop: '8px', textAlign: 'right' }}>총 {filtered.length}건</p>
 
       {showUserModal && (
         <Modal title={editUserId ? '직원 정보 수정' : '직원 신규 등록'} onClose={() => setShowUserModal(false)} width="560px">
@@ -351,23 +363,44 @@ export default function CenterEmployee() {
                 ))}
               </select>
             </div>
+            <div style={{ gridColumn: '1 / -1' }}>
+              <label className="form-label">센터</label>
+              <select
+                className="form-input"
+                value={userForm.center_id ?? ''}
+                onChange={e => changeCenter(e.target.value ? Number(e.target.value) : null)}
+              >
+                <option value="">센터 선택</option>
+                {centers.map(c => <option key={c.center_id} value={c.center_id}>{c.center_name}</option>)}
+              </select>
+            </div>
             <div>
               <label className="form-label">부서</label>
-              <select className="form-input" value={userForm.department} onChange={e => changeDepartment(e.target.value)}>
-                <option value="">부서 선택</option>
+              <select
+                className="form-input"
+                value={userForm.department}
+                onChange={e => changeDepartment(e.target.value)}
+                disabled={!userForm.center_id}
+              >
+                <option value="">{userForm.center_id ? '부서 선택' : '센터를 먼저 선택하세요'}</option>
                 {depts.map(dept => <option key={dept.dept_id} value={dept.dept_name}>{dept.dept_name}</option>)}
               </select>
             </div>
             <div>
               <label className="form-label">팀</label>
-              <select className="form-input" value={userForm.team} onChange={e => setUserForm(p => ({ ...p, team: e.target.value }))}>
-                <option value="">팀 선택</option>
+              <select
+                className="form-input"
+                value={userForm.team}
+                onChange={e => setUserForm(p => ({ ...p, team: e.target.value }))}
+                disabled={!userForm.department}
+              >
+                <option value="">{userForm.department ? '팀 선택' : '부서를 먼저 선택하세요'}</option>
                 {modalTeams.map(team => <option key={team.team_id} value={team.team_name}>{team.team_name}</option>)}
               </select>
             </div>
-            <div>
+            <div style={{ gridColumn: '1 / -1' }}>
               <label className="form-label">재직 상태</label>
-              <select className="form-input" value={userForm.work_status} onChange={e => setUserForm(p => ({ ...p, work_status: e.target.value }))}>
+              <select className="form-input" style={{ maxWidth: 'calc(50% - 6px)' }} value={userForm.work_status} onChange={e => setUserForm(p => ({ ...p, work_status: e.target.value }))}>
                 <option value="재직">재직</option>
                 <option value="휴직">휴직</option>
                 <option value="퇴직">퇴직</option>
