@@ -7,7 +7,6 @@ import DeviceRental from './pages/DeviceRental/DeviceRental'
 import DeviceBiometric from './pages/DeviceBiometric/DeviceBiometric'
 import DeviceAS from './pages/DeviceAS/DeviceAS'
 import BranchManagement from './pages/BranchManagement/BranchManagement'
-import CenterInfo from './pages/CenterInfo/CenterInfo'
 import DepartmentTeam from './pages/DepartmentTeam/DepartmentTeam'
 import CenterEmployee from './pages/CenterEmployee/CenterEmployee'
 import DeviceModelPage from './pages/DeviceModel/DeviceModel'
@@ -40,7 +39,6 @@ export default function App() {
           <Route path="device/as" element={<DeviceAS />} />
           <Route path="device/model" element={<DeviceModelPage />} />
           <Route path="branch" element={<AdminRoute><BranchManagement /></AdminRoute>} />
-          <Route path="center" element={<AdminRoute><CenterInfo /></AdminRoute>} />
           <Route path="department" element={<AdminRoute><DepartmentTeam /></AdminRoute>} />
           <Route path="employee" element={<AdminRoute><CenterEmployee /></AdminRoute>} />
         </Route>
