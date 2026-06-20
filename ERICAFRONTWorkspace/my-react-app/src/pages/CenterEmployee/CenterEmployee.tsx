@@ -38,6 +38,7 @@ interface Team {
   team_name: string;
 }
 
+
 type UserForm = {
   user_name: string;
   user_password: string;
@@ -49,6 +50,7 @@ type UserForm = {
   rank: number | null;
   work_status: string;
   is_company: string;
+  branch_id: number | null;
 }
 
 const EMPTY_USER: UserForm = {
@@ -62,6 +64,7 @@ const EMPTY_USER: UserForm = {
   rank: 1,
   work_status: '재직',
   is_company: 'Y',
+  branch_id: null,
 }
 
 const RANK_OPTIONS = [
@@ -81,6 +84,7 @@ export default function CenterEmployee() {
   const [loading, setLoading] = useState(false)
   const [branches, setBranches] = useState<Branch[]>([])
   const [depts, setDepts] = useState<Department[]>([])
+  const [branches, setBranches] = useState<Branch[]>([])
   const [teamsByDept, setTeamsByDept] = useState<Record<number, Team[]>>({})
   const [search, setSearch] = useState('')
 
@@ -108,6 +112,13 @@ export default function CenterEmployee() {
     } catch (err) { console.error(err) }
   }
 
+  const fetchBranches = async () => {
+    try {
+      const res = await api.get<Branch[]>('/branches')
+      setBranches(res.data)
+    } catch (err) { console.error(err) }
+  }
+
   const fetchTeams = async (deptId: number) => {
     if (teamsByDept[deptId]) return teamsByDept[deptId]
     try {
@@ -129,8 +140,10 @@ export default function CenterEmployee() {
     } catch (err) { console.error(err) } finally { setLoading(false) }
   }
 
+
   useEffect(() => { fetchBranches(); fetchDepts() }, [])
   useEffect(() => { fetchUsers() }, [filterBranch, filterDept, filterTeam])
+
 
   const handleBranchFilter = (value: string) => {
     setFilterBranch(value === '' ? '' : Number(value))
@@ -184,6 +197,7 @@ export default function CenterEmployee() {
       rank: user.rank ?? 1,
       work_status: user.work_status || '재직',
       is_company: user.is_company || 'Y',
+      branch_id: (user as any).branch_id ?? null,
     }
     setUserForm(nextForm)
     setShowUserModal(true)
@@ -360,6 +374,13 @@ export default function CenterEmployee() {
                 value={userForm.branch_id ?? ''}
                 onChange={e => setUserForm(p => ({ ...p, branch_id: e.target.value ? Number(e.target.value) : null }))}
               >
+                <option value="">지점 선택</option>
+                {branches.map(b => <option key={b.branch_id} value={b.branch_id}>{b.branch_name}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="form-label">지점</label>
+              <select className="form-input" value={userForm.branch_id ?? ''} onChange={e => setUserForm(p => ({ ...p, branch_id: e.target.value ? Number(e.target.value) : null }))}>
                 <option value="">지점 선택</option>
                 {branches.map(b => <option key={b.branch_id} value={b.branch_id}>{b.branch_name}</option>)}
               </select>

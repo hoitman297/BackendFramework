@@ -330,6 +330,7 @@ public class MainService {
         boolean hasCenter = centerId != null;
 
         if (!hasCompany && !hasDepartment && !hasTeam && !hasCenter) {
+
             return userMapper.findAll();
         }
 
@@ -338,6 +339,7 @@ public class MainService {
                 hasDepartment ? department : null,
                 hasTeam ? team : null,
                 hasCenter ? centerId : null
+
         );
     }
 
@@ -400,6 +402,7 @@ public class MainService {
         }
 
         if (request.getCenterId() != null) user.setCenterId(request.getCenterId());
+        if (request.getBranchId() != null) user.setBranchId(request.getBranchId());
         if (request.getIsCompany() != null) user.setIsCompany(normalizeYn(request.getIsCompany(), user.getIsCompany()));
         if (request.getDepartment() != null) user.setDepartment(request.getDepartment());
         if (request.getTeam() != null) user.setTeam(request.getTeam());
