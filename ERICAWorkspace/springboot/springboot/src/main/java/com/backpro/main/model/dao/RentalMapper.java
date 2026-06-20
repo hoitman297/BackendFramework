@@ -9,6 +9,7 @@ import java.util.List;
 @Mapper
 public interface RentalMapper {
     List<RentalResponseDto> findAllWithDetails();
+    List<RentalResponseDto> findByBranchIdWithDetails(@Param("branchId") Long branchId);
     List<RentalResponseDto> findByUserIdWithDetails(@Param("userId") Long userId);
     java.util.Optional<RentalResponseDto> findById(@Param("rentalId") Long rentalId);
     int insert(Rental rental);

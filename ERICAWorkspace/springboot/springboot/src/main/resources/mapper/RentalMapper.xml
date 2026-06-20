@@ -47,6 +47,13 @@
         WHERE r.rental_id = #{rentalId}
     </select>
 
+    <select id="findByBranchIdWithDetails" resultMap="RentalResponseDtoMap">
+        <include refid="rentalJoinSelect"/>
+        WHERE r.branch_id = #{branchId}
+          AND r.deleted_at IS NULL
+        ORDER BY r.created_at DESC
+    </select>
+
     <select id="findByUserIdWithDetails" resultMap="RentalResponseDtoMap">
         <include refid="rentalJoinSelect"/>
         WHERE r.user_id = #{userId}
@@ -83,7 +90,9 @@
 
     <update id="cancelActiveByDeviceId">
         UPDATE rental SET status_rent = 9
-        WHERE device_id = #{deviceId} AND status_rent NOT IN (3, 9)
+        WHERE device_id = #{deviceId}
+          AND status_rent NOT IN (3, 9)
+          AND deleted_at IS NULL
     </update>
 
 </mapper>

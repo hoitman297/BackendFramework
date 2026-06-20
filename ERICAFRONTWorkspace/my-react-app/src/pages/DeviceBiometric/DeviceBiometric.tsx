@@ -132,7 +132,8 @@ export default function DeviceBiometric() {
   const fetchLogs = async () => {
     setLoading(true)
     try {
-      const res = await api.get<DeviceLog[]>('/logs')
+      const url = staff && staffBranchId ? `/logs?branch_id=${staffBranchId}` : '/logs'
+      const res = await api.get<DeviceLog[]>(url)
       setLogs(res.data)
     } catch (err) {
       console.error(err)

@@ -119,7 +119,8 @@ export default function DeviceAS() {
 
   const fetchDevices = async () => {
     try {
-      const res = await api.get<Device[]>('/devices')
+      const url = staff && staffBranchId ? `/devices?branch_id=${staffBranchId}` : '/devices'
+      const res = await api.get<Device[]>(url)
       setDevices(res.data)
     } catch (err) { console.error(err) }
   }
@@ -133,6 +134,7 @@ export default function DeviceAS() {
 
   const buildQuery = () => {
     const params: string[] = []
+    if (staff && staffBranchId) params.push(`branch_id=${staffBranchId}`)
     if (startDate) params.push(`start_date=${startDate}`)
     if (endDate) params.push(`end_date=${endDate}`)
     return params.length ? `?${params.join('&')}` : ''

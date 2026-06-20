@@ -49,6 +49,7 @@
     <select id="findByIdWithDetails" resultMap="DeviceResponseMap">
         <include refid="deviceJoinSelect"/>
         WHERE d.device_id = #{deviceId}
+          AND d.deleted_at IS NULL
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="deviceId">
@@ -66,6 +67,7 @@
         <set>
             <if test="modelId       != null">model_id        = #{modelId},</if>
             <if test="branchId      != null">branch_id       = #{branchId},</if>
+            <if test="userId        != null">user_id         = #{userId},</if>
             <if test="deviceStatus  != null">device_status   = #{deviceStatus},</if>
             <if test="batteryLevel  != null">battery_level   = #{batteryLevel},</if>
             <if test="receiveDate   != null">receive_date    = #{receiveDate},</if>

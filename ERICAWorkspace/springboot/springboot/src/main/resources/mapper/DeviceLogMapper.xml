@@ -56,6 +56,37 @@
         ORDER BY dl.created_at DESC
     </select>
 
+    <select id="findByBranchId" resultMap="DeviceLogResponseDtoMap">
+        SELECT dl.log_id, dl.device_id, dl.user_id,
+               u.user_name,
+               b.branch_name,
+               d.model_id, dm.model_name,
+               d.battery_level,
+               dl.last_used_date, dl.usage_time_per_day, dl.total_usage_time,
+               dl.resp_rate_per_day, dl.steps_per_day, dl.total_steps, dl.last_location, dl.created_at,
+               e.emergency_id, e.type_emergency, e.event_time AS emergency_time, e.status_emergency
+        FROM device_log dl
+        LEFT JOIN user u          ON dl.user_id = u.user_id
+        LEFT JOIN device d        ON dl.device_id = d.device_id
+        LEFT JOIN branch b        ON d.branch_id = b.branch_id
+        LEFT JOIN device_model dm ON d.model_id = dm.model_id
+        LEFT JOIN (
+            SELECT e1.emergency_id, e1.device_id, e1.type_emergency,
+                   e1.event_time, e1.status_emergency
+            FROM emergency e1
+            INNER JOIN (
+                SELECT device_id, MAX(created_at) AS max_created
+                FROM emergency
+                WHERE deleted_at IS NULL
+                GROUP BY device_id
+            ) e2 ON e1.device_id = e2.device_id AND e1.created_at = e2.max_created
+            WHERE e1.deleted_at IS NULL
+        ) e ON dl.device_id = e.device_id
+        WHERE d.branch_id = #{branchId}
+          AND dl.deleted_at IS NULL
+        ORDER BY dl.created_at DESC
+    </select>
+
     <select id="findByUserIdAndDateRange" resultMap="DeviceLogResponseDtoMap">
         SELECT dl.log_id, dl.device_id, dl.user_id,
                u.user_name,

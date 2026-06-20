@@ -132,7 +132,8 @@ export default function DeviceStatus() {
   const fetchDevices = async () => {
     setLoading(true)
     try {
-      const res = await api.get<Device[]>('/devices')
+      const url = staff && staffBranchId ? `/devices?branch_id=${staffBranchId}` : '/devices'
+      const res = await api.get<Device[]>(url)
       setDevices(res.data)
     } catch (err) {
       console.error(err)

@@ -99,7 +99,8 @@ export default function DeviceRental() {
 
   const fetchDevices = async () => {
     try {
-      const res = await api.get<Device[]>('/devices')
+      const url = staff && staffBranchId ? `/devices?branch_id=${staffBranchId}` : '/devices'
+      const res = await api.get<Device[]>(url)
       setDevices(res.data)
     } catch (err) { console.error(err) }
   }
@@ -114,7 +115,8 @@ export default function DeviceRental() {
   const fetchRentals = async () => {
     setLoading(true)
     try {
-      const res = await api.get<Rental[]>('/rentals')
+      const url = staff && staffBranchId ? `/rentals?branch_id=${staffBranchId}` : '/rentals'
+      const res = await api.get<Rental[]>(url)
       setRentals(res.data)
     } catch (err) {
       console.error(err)
