@@ -15,17 +15,16 @@ const menuGroups = [
     ],
   },
   {
-    label: '지점/센터',
+    label: '지점 관리',
     items: [
       { path: '/branch', label: '지점 관리' },
-      { path: '/center', label: '센터정보' },
     ],
   },
   {
     label: '조직 관리',
     items: [
       { path: '/department', label: '부서/팀' },
-      { path: '/employee', label: '센터 담당직원' },
+      { path: '/employee', label: '담당직원' },
     ],
   },
 ]

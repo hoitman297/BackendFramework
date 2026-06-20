@@ -15,7 +15,7 @@ interface User {
   user_password?: string;
   email: string;
   phone: string;
-  center_id: number | null;
+  branch_id: number | null;
   department: string;
   team: string;
   rank: number | null;
@@ -23,9 +23,9 @@ interface User {
   is_company: string;
 }
 
-interface Center {
-  center_id: number;
-  center_name: string;
+interface Branch {
+  branch_id: number;
+  branch_name: string;
 }
 
 interface Department {
@@ -43,7 +43,7 @@ type UserForm = {
   user_password: string;
   email: string;
   phone: string;
-  center_id: number | null;
+  branch_id: number | null;
   department: string;
   team: string;
   rank: number | null;
@@ -56,7 +56,7 @@ const EMPTY_USER: UserForm = {
   user_password: '',
   email: '',
   phone: '',
-  center_id: null,
+  branch_id: null,
   department: '',
   team: '',
   rank: 1,
@@ -79,27 +79,25 @@ export default function CenterEmployee() {
   const { toast, showToast } = useToast()
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(false)
-  const [centers, setCenters] = useState<Center[]>([])
+  const [branches, setBranches] = useState<Branch[]>([])
   const [depts, setDepts] = useState<Department[]>([])
   const [teamsByDept, setTeamsByDept] = useState<Record<number, Team[]>>({})
   const [search, setSearch] = useState('')
 
-  // 조회 필터
-  const [filterCenter, setFilterCenter] = useState<number | ''>('')
+  const [filterBranch, setFilterBranch] = useState<number | ''>('')
   const [filterDept, setFilterDept] = useState('')
   const [filterTeam, setFilterTeam] = useState('')
   const [filterTeams, setFilterTeams] = useState<Team[]>([])
 
-  // 모달
   const [showUserModal, setShowUserModal] = useState(false)
   const [editUserId, setEditUserId] = useState<number | null>(null)
   const [userForm, setUserForm] = useState<UserForm>(EMPTY_USER)
   const [modalTeams, setModalTeams] = useState<Team[]>([])
 
-  const fetchCenters = async () => {
+  const fetchBranches = async () => {
     try {
-      const res = await api.get<Center[]>('/centers')
-      setCenters(res.data)
+      const res = await api.get<Branch[]>('/branches')
+      setBranches(res.data)
     } catch (err) { console.error(err) }
   }
 
@@ -123,7 +121,7 @@ export default function CenterEmployee() {
     setLoading(true)
     try {
       const query = new URLSearchParams()
-      if (filterCenter !== '') query.append('center_id', String(filterCenter))
+      if (filterBranch !== '') query.append('branch_id', String(filterBranch))
       if (filterDept) query.append('department', filterDept)
       if (filterTeam) query.append('team', filterTeam)
       const res = await api.get<User[]>(`/users?${query.toString()}`)
@@ -131,18 +129,16 @@ export default function CenterEmployee() {
     } catch (err) { console.error(err) } finally { setLoading(false) }
   }
 
-  useEffect(() => { fetchCenters(); fetchDepts() }, [])
-  useEffect(() => { fetchUsers() }, [filterCenter, filterDept, filterTeam])
+  useEffect(() => { fetchBranches(); fetchDepts() }, [])
+  useEffect(() => { fetchUsers() }, [filterBranch, filterDept, filterTeam])
 
-  // 센터 필터 변경 → 부서/팀 초기화
-  const handleCenterFilter = (value: string) => {
-    setFilterCenter(value === '' ? '' : Number(value))
+  const handleBranchFilter = (value: string) => {
+    setFilterBranch(value === '' ? '' : Number(value))
     setFilterDept('')
     setFilterTeam('')
     setFilterTeams([])
   }
 
-  // 부서 필터 변경 → 팀 목록 로드, 팀 초기화
   const handleDeptFilter = async (deptName: string) => {
     setFilterDept(deptName)
     setFilterTeam('')
@@ -166,8 +162,7 @@ export default function CenterEmployee() {
 
   const openCreate = () => {
     const nextForm = { ...EMPTY_USER }
-    if (centers.length === 1) nextForm.center_id = centers[0].center_id
-    if (filterCenter !== '') nextForm.center_id = Number(filterCenter)
+    if (filterBranch !== '') nextForm.branch_id = Number(filterBranch)
     if (filterDept) nextForm.department = filterDept
     if (filterTeam) nextForm.team = filterTeam
     setEditUserId(null)
@@ -183,7 +178,7 @@ export default function CenterEmployee() {
       user_password: '',
       email: user.email || '',
       phone: user.phone || '',
-      center_id: user.center_id ?? null,
+      branch_id: user.branch_id ?? null,
       department: user.department || '',
       team: user.team || '',
       rank: user.rank ?? 1,
@@ -200,11 +195,6 @@ export default function CenterEmployee() {
     if (!dept) { setModalTeams([]); return }
     const teams = await fetchTeams(dept.dept_id)
     setModalTeams(teams || [])
-  }
-
-  const changeCenter = (centerId: number | null) => {
-    setUserForm(prev => ({ ...prev, center_id: centerId, department: '', team: '' }))
-    setModalTeams([])
   }
 
   const changeDepartment = async (deptName: string) => {
@@ -262,19 +252,18 @@ export default function CenterEmployee() {
 
   return (
     <div>
-      <PageHeader breadcrumb={['조직 관리', '센터 담당직원']} title="센터 담당직원" description="센터 직원 정보를 관리합니다." />
+      <PageHeader breadcrumb={['조직 관리', '담당직원']} title="담당직원" description="직원 정보를 관리합니다." />
 
-      {/* 조회 필터 */}
       <div className="employee-filter-bar">
         <div className="employee-filter-item">
-          <label className="employee-filter-label">센터별 조회</label>
+          <label className="employee-filter-label">지점별 조회</label>
           <select
             className="employee-filter-select"
-            value={filterCenter}
-            onChange={e => handleCenterFilter(e.target.value)}
+            value={filterBranch}
+            onChange={e => handleBranchFilter(e.target.value)}
           >
             <option value="">전체</option>
-            {centers.map(c => <option key={c.center_id} value={c.center_id}>{c.center_name}</option>)}
+            {branches.map(b => <option key={b.branch_id} value={b.branch_id}>{b.branch_name}</option>)}
           </select>
         </div>
         <div className="employee-filter-item">
@@ -364,14 +353,15 @@ export default function CenterEmployee() {
               </select>
             </div>
             <div style={{ gridColumn: '1 / -1' }}>
-              <label className="form-label">센터</label>
+              <label className="form-label">지점</label>
               <select
                 className="form-input"
-                value={userForm.center_id ?? ''}
-                onChange={e => changeCenter(e.target.value ? Number(e.target.value) : null)}
+                style={{ maxWidth: 'calc(50% - 6px)' }}
+                value={userForm.branch_id ?? ''}
+                onChange={e => setUserForm(p => ({ ...p, branch_id: e.target.value ? Number(e.target.value) : null }))}
               >
-                <option value="">센터 선택</option>
-                {centers.map(c => <option key={c.center_id} value={c.center_id}>{c.center_name}</option>)}
+                <option value="">지점 선택</option>
+                {branches.map(b => <option key={b.branch_id} value={b.branch_id}>{b.branch_name}</option>)}
               </select>
             </div>
             <div>
@@ -380,9 +370,8 @@ export default function CenterEmployee() {
                 className="form-input"
                 value={userForm.department}
                 onChange={e => changeDepartment(e.target.value)}
-                disabled={!userForm.center_id}
               >
-                <option value="">{userForm.center_id ? '부서 선택' : '센터를 먼저 선택하세요'}</option>
+                <option value="">부서 선택</option>
                 {depts.map(dept => <option key={dept.dept_id} value={dept.dept_name}>{dept.dept_name}</option>)}
               </select>
             </div>
