@@ -1,9 +1,17 @@
 package com.backpro.main.model.service;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.backpro.main.model.dao.*;
 import com.backpro.main.model.dto.*;
@@ -22,6 +30,7 @@ public class MainService {
     private final DeviceASMapper deviceASMapper;
     private final UserMapper userMapper;
     private final DeviceLogMapper deviceLogMapper;
+    private final CenterMapper centerMapper;
     private final BranchMapper branchMapper;
     private final ManagerMapper managerMapper;
     private final DeviceModelMapper deviceModelMapper;
@@ -29,6 +38,9 @@ public class MainService {
     private final TeamMapper teamMapper;
     private final EmergencyMapper emergencyMapper;
     private final BCryptPasswordEncoder passwordEncoder;
+
+    @Value("${app.upload.dir:uploads}")
+    private String uploadDir;
 
     // ========== Organization (DEPT/TEAM) ==========
 
@@ -452,6 +464,68 @@ public class MainService {
     }
     
     
+    // ========== Center (SYS) ==========
+
+    @Transactional(readOnly = true)
+    public List<Center> getAllCenters() {
+        return centerMapper.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public Center getCenter(Long centerId) {
+        return centerMapper.findById(centerId).orElse(null);
+    }
+
+    public Center createCenter(Center center) {
+        centerMapper.insert(center);
+        return centerMapper.findById(center.getCenterId()).orElse(center);
+    }
+
+    public Center updateCenter(Long centerId, Center centerData) {
+        centerData = Center.builder()
+                .centerId(centerId)
+                .centerName(centerData.getCenterName())
+                .centerShortName(centerData.getCenterShortName())
+                .engName(centerData.getEngName())
+                .bizRegNo(centerData.getBizRegNo())
+                .directorName(centerData.getDirectorName())
+                .address(centerData.getAddress())
+                .mainPhone(centerData.getMainPhone())
+                .mainFax(centerData.getMainFax())
+                .bizType(centerData.getBizType())
+                .bizCategory(centerData.getBizCategory())
+                .taxMgrName(centerData.getTaxMgrName())
+                .logoImgUrl(centerData.getLogoImgUrl())
+                .sealImgUrl(centerData.getSealImgUrl())
+                .build();
+        centerMapper.update(centerData);
+        return centerMapper.findById(centerId).orElse(centerData);
+    }
+
+    public String saveCenterImage(Long centerId, MultipartFile file) {
+        try {
+            String ext = "";
+            String originalFilename = file.getOriginalFilename();
+            if (originalFilename != null && originalFilename.contains(".")) {
+                ext = originalFilename.substring(originalFilename.lastIndexOf("."));
+            }
+            String filename = UUID.randomUUID() + ext;
+
+            Path dir = Paths.get(uploadDir, "centers", String.valueOf(centerId));
+            Files.createDirectories(dir);
+            Files.copy(file.getInputStream(), dir.resolve(filename), StandardCopyOption.REPLACE_EXISTING);
+
+            String imageUrl = "/uploads/centers/" + centerId + "/" + filename;
+
+            Center patch = Center.builder().centerId(centerId).logoImgUrl(imageUrl).build();
+            centerMapper.update(patch);
+
+            return imageUrl;
+        } catch (IOException e) {
+            throw new RuntimeException("파일 저장 실패: " + e.getMessage(), e);
+        }
+    }
+
     // ========== Log (LOG) ==========
 
     @Transactional(readOnly = true)

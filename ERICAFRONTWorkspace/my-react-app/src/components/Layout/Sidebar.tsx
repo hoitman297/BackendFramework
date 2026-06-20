@@ -18,6 +18,7 @@ const menuGroups = [
     label: '지점/센터',
     items: [
       { path: '/branch', label: '지점 관리' },
+      { path: '/center', label: '센터정보' },
     ],
   },
   {
