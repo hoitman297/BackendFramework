@@ -81,4 +81,9 @@
         UPDATE rental SET deleted_at = NOW() WHERE rental_id = #{rentalId}
     </update>
 
+    <update id="cancelActiveByDeviceId">
+        UPDATE rental SET status_rent = 9
+        WHERE device_id = #{deviceId} AND status_rent NOT IN (3, 9)
+    </update>
+
 </mapper>

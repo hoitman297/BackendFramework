@@ -5,6 +5,7 @@ import DataTable from '../../components/common/DataTable'
 import SummaryCard from '../../components/common/SummaryCard'
 import Modal from '../../components/common/Modal'
 import { api } from '../../services/api'
+import { isStaff, getStaffBranchId } from '../../services/auth'
 import Toast, { useToast } from '../../components/common/Toast'
 import './DeviceModel.css'
 
@@ -27,6 +28,8 @@ const EMPTY_FORM = {
 
 export default function DeviceModel() {
   const { toast, showToast } = useToast()
+  const staff = isStaff()
+  const staffBranchId = getStaffBranchId()
   const [models, setModels] = useState<DeviceModel[]>([])
   const [loading, setLoading] = useState(false)
   const [search, setSearch] = useState('')
@@ -41,7 +44,9 @@ export default function DeviceModel() {
   const fetchModels = async () => {
     setLoading(true)
     try {
-      const res = await api.get<DeviceModel[]>('/models')
+      // 직원(STAFF)은 소속 지점에 배정된 모델만 조회
+      const url = staff && staffBranchId ? `/models?branch_id=${staffBranchId}` : '/models'
+      const res = await api.get<DeviceModel[]>(url)
       setModels(res.data)
     } catch (err) {
       console.error(err)
@@ -51,7 +56,9 @@ export default function DeviceModel() {
     }
   }
 
-  useEffect(() => { fetchModels() }, [])
+  useEffect(() => {
+    fetchModels()
+  }, [])
 
   const filtered = models.filter((m) => {
     if (!search) return true

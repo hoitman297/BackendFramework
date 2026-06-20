@@ -21,4 +21,5 @@ public interface DeviceASMapper {
     Optional<DeviceAsDto> findById(@Param("asId") Long asId);
     int insert(DeviceAS deviceAS);
     int update(DeviceAS deviceAS);
+    int cancelActiveByDeviceId(@Param("deviceId") Long deviceId);
 }

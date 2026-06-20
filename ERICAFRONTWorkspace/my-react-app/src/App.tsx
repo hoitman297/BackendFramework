@@ -7,16 +7,22 @@ import DeviceRental from './pages/DeviceRental/DeviceRental'
 import DeviceBiometric from './pages/DeviceBiometric/DeviceBiometric'
 import DeviceAS from './pages/DeviceAS/DeviceAS'
 import BranchManagement from './pages/BranchManagement/BranchManagement'
-import CenterInfo from './pages/CenterInfo/CenterInfo'
 import DepartmentTeam from './pages/DepartmentTeam/DepartmentTeam'
 import CenterEmployee from './pages/CenterEmployee/CenterEmployee'
 import DeviceModelPage from './pages/DeviceModel/DeviceModel'
+import { isStaff } from './services/auth'
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const location = useLocation()
   if (!localStorage.getItem('token')) {
     return <Navigate to="/login" state={{ from: location }} replace />
   }
+  return <>{children}</>
+}
+
+// 직원(STAFF)은 접근 불가 — 디바이스 현황으로 리다이렉트
+function AdminRoute({ children }: { children: React.ReactNode }) {
+  if (isStaff()) return <Navigate to="/device/status" replace />
   return <>{children}</>
 }
 
@@ -32,10 +38,9 @@ export default function App() {
           <Route path="device/biometric" element={<DeviceBiometric />} />
           <Route path="device/as" element={<DeviceAS />} />
           <Route path="device/model" element={<DeviceModelPage />} />
-          <Route path="branch" element={<BranchManagement />} />
-          <Route path="center" element={<CenterInfo />} />
-          <Route path="department" element={<DepartmentTeam />} />
-          <Route path="employee" element={<CenterEmployee />} />
+          <Route path="branch" element={<AdminRoute><BranchManagement /></AdminRoute>} />
+          <Route path="department" element={<AdminRoute><DepartmentTeam /></AdminRoute>} />
+          <Route path="employee" element={<AdminRoute><CenterEmployee /></AdminRoute>} />
         </Route>
       </Routes>
     </BrowserRouter>

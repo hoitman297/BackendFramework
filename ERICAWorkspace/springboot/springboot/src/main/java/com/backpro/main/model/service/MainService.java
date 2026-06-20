@@ -49,6 +49,11 @@ public class MainService {
         return departmentMapper.findAll();
     }
 
+    @Transactional(readOnly = true)
+    public List<Department> getDepartmentsByBranch(Long branchId) {
+        return departmentMapper.findByBranchId(branchId);
+    }
+
     public Department saveDepartment(Department dept) {
         departmentMapper.insert(dept);
         return dept;
@@ -134,7 +139,10 @@ public class MainService {
     // ========== DeviceModel (MDL) ==========
 
     @Transactional(readOnly = true)
-    public List<DeviceModel> getAllDeviceModels() {
+    public List<DeviceModel> getAllDeviceModels(Long branchId) {
+        if (branchId != null) {
+            return deviceModelMapper.findByBranchId(branchId);
+        }
         return deviceModelMapper.findAll();
     }
 
@@ -220,6 +228,8 @@ public class MainService {
     }
 
     public void deleteDevice(Long id) {
+        rentalMapper.cancelActiveByDeviceId(id);
+        deviceASMapper.cancelActiveByDeviceId(id);
         deviceMapper.deleteById(id);
     }
 
@@ -299,7 +309,7 @@ public class MainService {
                 if (st == 1 || st == 2) {
                     deviceMapper.updateStatus(deviceId, 3);
                 } else if (st == 3) {
-                    deviceMapper.updateStatus(deviceId, 4);
+                    deviceMapper.updateStatus(deviceId, 0);
                 } else if (st == 9) {
                     deviceMapper.updateStatus(deviceId, 0);
                 } else if (st == 4) {
@@ -313,13 +323,14 @@ public class MainService {
     // ========== User (USR) ==========
 
     @Transactional(readOnly = true)
-    public List<User> getUsers(String isCompany, String department, String team, Long branchId) {
+    public List<User> getUsers(String isCompany, String department, String team, Long centerId) {
         boolean hasCompany = hasText(isCompany);
         boolean hasDepartment = hasText(department);
         boolean hasTeam = hasText(team);
-        boolean hasBranch = branchId != null;
+        boolean hasCenter = centerId != null;
 
-        if (!hasCompany && !hasDepartment && !hasTeam && !hasBranch) {
+        if (!hasCompany && !hasDepartment && !hasTeam && !hasCenter) {
+
             return userMapper.findAll();
         }
 
@@ -327,7 +338,8 @@ public class MainService {
                 hasCompany ? isCompany : null,
                 hasDepartment ? department : null,
                 hasTeam ? team : null,
-                hasBranch ? branchId : null
+                hasCenter ? centerId : null
+
         );
     }
 
@@ -348,7 +360,7 @@ public class MainService {
         validateDuplicateEmail(request.getEmail(), null);
 
         if (!hasText(request.getUserPassword())) {
-            request.setUserPassword("1234");
+            request.setUserPassword(generateTempPassword());
         }
 
         request.setUserPassword(passwordEncoder.encode(request.getUserPassword()));
@@ -442,12 +454,25 @@ public class MainService {
         return defaultValue;
     }
 
+    private String generateTempPassword() {
+        String chars = "ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#";
+        java.util.Random random = new java.util.Random();
+        StringBuilder sb = new StringBuilder(10);
+        for (int i = 0; i < 10; i++) sb.append(chars.charAt(random.nextInt(chars.length())));
+        return sb.toString();
+    }
+
     private boolean hasText(String value) {
         return value != null && !value.isBlank();
     }
     
     
     // ========== Center (SYS) ==========
+
+    @Transactional(readOnly = true)
+    public List<Center> getAllCenters() {
+        return centerMapper.findAll();
+    }
 
     @Transactional(readOnly = true)
     public Center getCenter(Long centerId) {

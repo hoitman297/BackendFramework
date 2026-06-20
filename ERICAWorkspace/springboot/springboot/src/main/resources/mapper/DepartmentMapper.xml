@@ -5,6 +5,7 @@
 
     <resultMap id="DepartmentResultMap" type="com.backpro.main.model.vo.Department">
         <id     property="deptId"    column="dept_id"/>
+        <result property="branchId"  column="branch_id"/>
         <result property="deptName"  column="dept_name"/>
         <result property="sortOrder" column="sort_order"/>
         <result property="isUsed"    column="is_used"/>
@@ -17,15 +18,21 @@
         ORDER BY sort_order
     </select>
 
+    <select id="findByBranchId" resultMap="DepartmentResultMap">
+        SELECT * FROM department WHERE branch_id = #{branchId} AND is_used = 'Y'
+        ORDER BY sort_order
+    </select>
+
     <insert id="insert" useGeneratedKeys="true" keyProperty="deptId">
-        INSERT INTO department (dept_name, sort_order, is_used, apply_date, created_at)
-        VALUES (#{deptName}, IFNULL(#{sortOrder}, 1), IFNULL(#{isUsed}, 'Y'),
+        INSERT INTO department (branch_id, dept_name, sort_order, is_used, apply_date, created_at)
+        VALUES (#{branchId}, #{deptName}, IFNULL(#{sortOrder}, 1), IFNULL(#{isUsed}, 'Y'),
                 #{applyDate}, NOW())
     </insert>
 
     <update id="update">
         UPDATE department
         <set>
+            <if test="branchId  != null">branch_id  = #{branchId},</if>
             <if test="deptName  != null">dept_name  = #{deptName},</if>
             <if test="sortOrder != null">sort_order = #{sortOrder},</if>
             <if test="isUsed    != null">is_used    = #{isUsed},</if>

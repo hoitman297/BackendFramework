@@ -6,6 +6,7 @@ import SummaryCard from '../../components/common/SummaryCard'
 import StatusBadge from '../../components/common/StatusBadge'
 import Modal from '../../components/common/Modal'
 import { api } from '../../services/api'
+import { isStaff, getStaffBranchId } from '../../services/auth'
 import Toast, { useToast } from '../../components/common/Toast'
 import './DeviceStatus.css'
 
@@ -81,11 +82,13 @@ const EMPTY_FORM = {
 
 export default function DeviceStatus() {
   const { toast, showToast } = useToast()
+  const staff = isStaff()
+  const staffBranchId = getStaffBranchId()
   const [devices, setDevices] = useState<Device[]>([])
   const [branches, setBranches] = useState<{ id: number; name: string }[]>([])
   const [models, setModels] = useState<DeviceModel[]>([])
   const [users, setUsers] = useState<UserOption[]>([])
-  const [selectedBranchId, setSelectedBranchId] = useState<number | null>(null)
+  const [selectedBranchId, setSelectedBranchId] = useState<number | null>(staff ? staffBranchId : null)
   const [statusFilter, setStatusFilter] = useState('전체')
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(false)
@@ -162,7 +165,7 @@ export default function DeviceStatus() {
   })
 
   const openCreate = () => {
-    setForm({ ...EMPTY_FORM })
+    setForm({ ...EMPTY_FORM, branch_id: staff && staffBranchId ? String(staffBranchId) : '' })
     setEditTarget(null)
     setFormMode('create')
   }
@@ -321,39 +324,46 @@ export default function DeviceStatus() {
             <span className="branch-col-label">폐기</span>
           </div>
           <ul className="branch-list">
-            <li
-              className={`branch-item${selectedBranchId === null ? ' active' : ''}`}
-              onClick={() => { setSelectedBranchId(null); setSelected(new Set()) }}
-            >
-              <span className="branch-name-cell">전체</span>
-              <span className="branch-count">{devices.length}</span>
-              <span className="branch-count">{devices.filter((d) => d.dispatch_date).length}</span>
-              <span className="branch-count">{devices.filter((d) => d.device_status === 9).length}</span>
-            </li>
-            <li
-              className={`branch-item${selectedBranchId === -1 ? ' active' : ''}`}
-              onClick={() => { setSelectedBranchId(-1); setSelected(new Set()) }}
-            >
-              <span className="branch-name-cell">미발송</span>
-              <span className="branch-count">{undispatchedCount}</span>
-              <span className="branch-count">0</span>
-              <span className="branch-count">-</span>
-            </li>
-            {branches.map((b) => {
-              const branchDevs = devices.filter((d) => d.branch_id === b.id)
-              return (
+            {!staff && (
+              <>
                 <li
-                  key={b.id}
-                  className={`branch-item${selectedBranchId === b.id ? ' active' : ''}`}
-                  onClick={() => { setSelectedBranchId(b.id); setSelected(new Set()) }}
+                  className={`branch-item${selectedBranchId === null ? ' active' : ''}`}
+                  onClick={() => { setSelectedBranchId(null); setSelected(new Set()) }}
                 >
-                  <span className="branch-name-cell">{b.name}</span>
-                  <span className="branch-count">{branchDevs.length}</span>
-                  <span className="branch-count">{branchDevs.filter((d) => d.dispatch_date).length}</span>
-                  <span className="branch-count">{branchDevs.filter((d) => d.device_status === 9).length}</span>
+                  <span className="branch-name-cell">전체</span>
+                  <span className="branch-count">{devices.length}</span>
+                  <span className="branch-count">{devices.filter((d) => d.dispatch_date).length}</span>
+                  <span className="branch-count">{devices.filter((d) => d.device_status === 9).length}</span>
                 </li>
-              )
-            })}
+                <li
+                  className={`branch-item${selectedBranchId === -1 ? ' active' : ''}`}
+                  onClick={() => { setSelectedBranchId(-1); setSelected(new Set()) }}
+                >
+                  <span className="branch-name-cell">미발송</span>
+                  <span className="branch-count">{undispatchedCount}</span>
+                  <span className="branch-count">0</span>
+                  <span className="branch-count">-</span>
+                </li>
+              </>
+            )}
+            {branches
+              .filter((b) => !staff || b.id === staffBranchId)
+              .map((b) => {
+                const branchDevs = devices.filter((d) => d.branch_id === b.id)
+                return (
+                  <li
+                    key={b.id}
+                    className={`branch-item${selectedBranchId === b.id ? ' active' : ''}`}
+                    onClick={() => { if (!staff) { setSelectedBranchId(b.id); setSelected(new Set()) } }}
+                    style={staff ? { cursor: 'default' } : undefined}
+                  >
+                    <span className="branch-name-cell">{b.name}</span>
+                    <span className="branch-count">{branchDevs.length}</span>
+                    <span className="branch-count">{branchDevs.filter((d) => d.dispatch_date).length}</span>
+                    <span className="branch-count">{branchDevs.filter((d) => d.device_status === 9).length}</span>
+                  </li>
+                )
+              })}
           </ul>
         </aside>
 
@@ -451,6 +461,7 @@ export default function DeviceStatus() {
                 className="form-control"
                 value={form.branch_id}
                 onChange={(e) => setForm({ ...form, branch_id: e.target.value })}
+                disabled={staff}
               >
                 <option value="">-- 지점 선택 --</option>
                 {branches.map((b) => (

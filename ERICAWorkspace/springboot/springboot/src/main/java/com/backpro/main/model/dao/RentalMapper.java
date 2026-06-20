@@ -14,4 +14,5 @@ public interface RentalMapper {
     int insert(Rental rental);
     int update(Rental rental);
     int deleteById(@Param("rentalId") Long rentalId);
+    int cancelActiveByDeviceId(@Param("deviceId") Long deviceId);
 }

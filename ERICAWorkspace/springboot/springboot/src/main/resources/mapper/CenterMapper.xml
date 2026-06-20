@@ -22,6 +22,10 @@
         <result property="deletedAt"       column="deleted_at"/>
     </resultMap>
 
+    <select id="findAll" resultMap="CenterResultMap">
+        SELECT * FROM center ORDER BY center_id
+    </select>
+
     <select id="findById" resultMap="CenterResultMap">
         SELECT * FROM center WHERE center_id = #{centerId}
     </select>

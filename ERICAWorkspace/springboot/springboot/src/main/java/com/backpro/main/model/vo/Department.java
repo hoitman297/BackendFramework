@@ -22,6 +22,9 @@ public class Department {
     @Column(name = "dept_id")
     private Long deptId;
 
+    @Column(name = "branch_id")
+    private Long branchId;
+
     @Column(name = "dept_name", nullable = false, length = 100)
     private String deptName;
 

@@ -9,6 +9,7 @@ import java.util.Optional;
 @Mapper
 public interface DeviceModelMapper {
     List<DeviceModel> findAll();
+    List<DeviceModel> findByBranchId(@Param("branchId") Long branchId);
     Optional<DeviceModel> findById(@Param("modelId") Long modelId);
     int insert(DeviceModel model);
     int update(DeviceModel model);

@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet, useNavigate } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import './Layout.css'
 
@@ -38,8 +38,16 @@ function getLoginUserName() {
   return '사용자'
 }
 
+function logout(navigate: ReturnType<typeof useNavigate>) {
+  ['token', 'userId', 'userName', 'role', 'branchId', 'loginUser'].forEach((k) =>
+    localStorage.removeItem(k)
+  )
+  navigate('/login', { replace: true })
+}
+
 export default function Layout() {
   const userName = getLoginUserName()
+  const navigate = useNavigate()
 
   return (
     <div className="layout">
@@ -49,6 +57,7 @@ export default function Layout() {
           <h1 className="header-title">임대관리시스템</h1>
           <div className="header-right">
             <span className="header-user">{userName}님</span>
+            <button className="logout-btn" onClick={() => logout(navigate)}>로그아웃</button>
           </div>
         </header>
         <main className="layout-content">

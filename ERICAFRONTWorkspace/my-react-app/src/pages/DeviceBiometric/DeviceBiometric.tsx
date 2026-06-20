@@ -6,6 +6,7 @@ import SummaryCard from '../../components/common/SummaryCard'
 import StatusBadge from '../../components/common/StatusBadge'
 import Modal from '../../components/common/Modal'
 import { api } from '../../services/api'
+import { isStaff, getStaffBranchId } from '../../services/auth'
 import Toast, { useToast } from '../../components/common/Toast'
 import './DeviceBiometric.css'
 
@@ -40,6 +41,7 @@ interface DeviceModel {
 interface DeviceOption {
   device_id: number
   model_name: string
+  branch_id: number
   branch_name: string
   user_id: number
   device_status: number
@@ -77,6 +79,8 @@ const EMPTY_LOG_FORM = {
 
 export default function DeviceBiometric() {
   const { toast, showToast } = useToast()
+  const staff = isStaff()
+  const staffBranchId = getStaffBranchId()
   const [logs, setLogs] = useState<DeviceLog[]>([])
   const [models, setModels] = useState<DeviceModel[]>([])
   const [devices, setDevices] = useState<DeviceOption[]>([])
@@ -112,7 +116,8 @@ export default function DeviceBiometric() {
 
   const fetchDevices = async () => {
     try {
-      const res = await api.get<DeviceOption[]>('/devices')
+      const url = staff && staffBranchId ? `/devices?branch_id=${staffBranchId}` : '/devices'
+      const res = await api.get<DeviceOption[]>(url)
       setDevices(res.data)
     } catch (err) { console.error(err) }
   }
@@ -139,9 +144,10 @@ export default function DeviceBiometric() {
   useEffect(() => { fetchModels(); fetchDevices(); fetchUsers(); fetchLogs() }, [])
 
   const filtered = logs.filter((row) => {
+    const matchBranch = !staff || devices.some((d) => d.device_id === row.device_id)
     const matchModel = !selectedModelId || row.model_id === selectedModelId
     const matchSearch = !search || [row.user_name, row.branch_name, row.model_name, String(row.device_id)].some((v) => v?.includes(search))
-    return matchModel && matchSearch
+    return matchBranch && matchModel && matchSearch
   })
 
   const modelLogCount = (modelId: number) => logs.filter((l) => l.model_id === modelId).length
@@ -462,7 +468,7 @@ export default function DeviceBiometric() {
               <label className="form-label">디바이스 <span className="required">*</span></label>
               <select className="form-control" value={emgForm.device_id} onChange={(e) => handleEmgDeviceChange(e.target.value)}>
                 <option value="">-- 디바이스 선택 --</option>
-                {devices.filter((d) => d.device_status === 1 || d.device_status === 2).map((d) => (
+                {devices.filter((d) => d.device_status === 1).map((d) => (
                   <option key={d.device_id} value={d.device_id}>
                     [{d.device_id}] {d.model_name} — {d.branch_name}
                   </option>

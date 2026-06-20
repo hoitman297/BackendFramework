@@ -18,6 +18,15 @@
         SELECT * FROM device_model WHERE is_deleted = 'N'
     </select>
 
+    <!-- 지점에 실제 디바이스가 배정된 모델만 반환 -->
+    <select id="findByBranchId" resultMap="DeviceModelResultMap">
+        SELECT DISTINCT dm.*
+        FROM device_model dm
+        INNER JOIN device d ON d.model_id = dm.model_id
+        WHERE dm.is_deleted = 'N'
+          AND d.branch_id = #{branchId}
+    </select>
+
     <select id="findById" resultMap="DeviceModelResultMap">
         SELECT * FROM device_model WHERE model_id = #{modelId}
     </select>

@@ -6,6 +6,7 @@ import SummaryCard from '../../components/common/SummaryCard'
 import StatusBadge from '../../components/common/StatusBadge'
 import Modal from '../../components/common/Modal'
 import { api } from '../../services/api'
+import { isStaff, getStaffBranchId } from '../../services/auth'
 import Toast, { useToast } from '../../components/common/Toast'
 import './DeviceRental.css'
 
@@ -61,11 +62,13 @@ const EMPTY_FORM = {
 
 export default function DeviceRental() {
   const { toast, showToast } = useToast()
+  const staff = isStaff()
+  const staffBranchId = getStaffBranchId()
   const [rentals, setRentals] = useState<Rental[]>([])
   const [branches, setBranches] = useState<{ id: number; name: string }[]>([])
   const [devices, setDevices] = useState<Device[]>([])
   const [users, setUsers] = useState<UserOption[]>([])
-  const [selectedBranchId, setSelectedBranchId] = useState<number | null>(null)
+  const [selectedBranchId, setSelectedBranchId] = useState<number | null>(staff ? staffBranchId : null)
   const [statusFilter, setStatusFilter] = useState('전체')
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(false)
@@ -268,35 +271,40 @@ export default function DeviceRental() {
         <aside className="branch-panel">
           <p className="panel-title">지점</p>
           <ul className="branch-list">
-            <li
-              className={`branch-item${selectedBranchId === null ? ' active' : ''}`}
-              onClick={() => setSelectedBranchId(null)}
-            >
-              <div className="branch-item-info">
-                <span className="branch-name">전체</span>
-                <div className="branch-stats">
-                  <span className="stat-item total">{rentals.length}</span>
-                  <span className="stat-sep">/</span>
-                  <span className="stat-item active-cnt">{rentals.filter((r) => r.status_rent === 2).length}</span>
-                </div>
-              </div>
-            </li>
-            {branches.map((b) => (
+            {!staff && (
               <li
-                key={b.id}
-                className={`branch-item${selectedBranchId === b.id ? ' active' : ''}`}
-                onClick={() => setSelectedBranchId(b.id)}
+                className={`branch-item${selectedBranchId === null ? ' active' : ''}`}
+                onClick={() => setSelectedBranchId(null)}
               >
                 <div className="branch-item-info">
-                  <span className="branch-name">{b.name}</span>
+                  <span className="branch-name">전체</span>
                   <div className="branch-stats">
-                    <span className="stat-item total">{branchRentalCount(b.id)}</span>
+                    <span className="stat-item total">{rentals.length}</span>
                     <span className="stat-sep">/</span>
-                    <span className="stat-item active-cnt">{branchActiveCount(b.id)}</span>
+                    <span className="stat-item active-cnt">{rentals.filter((r) => r.status_rent === 2).length}</span>
                   </div>
                 </div>
               </li>
-            ))}
+            )}
+            {branches
+              .filter((b) => !staff || b.id === staffBranchId)
+              .map((b) => (
+                <li
+                  key={b.id}
+                  className={`branch-item${selectedBranchId === b.id ? ' active' : ''}`}
+                  onClick={() => { if (!staff) setSelectedBranchId(b.id) }}
+                  style={staff ? { cursor: 'default' } : undefined}
+                >
+                  <div className="branch-item-info">
+                    <span className="branch-name">{b.name}</span>
+                    <div className="branch-stats">
+                      <span className="stat-item total">{branchRentalCount(b.id)}</span>
+                      <span className="stat-sep">/</span>
+                      <span className="stat-item active-cnt">{branchActiveCount(b.id)}</span>
+                    </div>
+                  </div>
+                </li>
+              ))}
           </ul>
           <div className="panel-legend">
             <span className="legend-total">총</span>
@@ -327,7 +335,7 @@ export default function DeviceRental() {
               </>
             }
             buttons={[
-              { label: '신규 등록', variant: 'primary', onClick: () => { setForm({ ...EMPTY_FORM }); setShowRegister(true) } },
+              { label: '신규 등록', variant: 'primary', onClick: () => { setForm({ ...EMPTY_FORM, branch_id: staff && staffBranchId ? String(staffBranchId) : '' }); setShowRegister(true) } },
               { label: '삭제', variant: 'danger', onClick: handleDelete, disabled: selected.size === 0 },
             ]}
           />
@@ -366,16 +374,18 @@ export default function DeviceRental() {
                 setForm({ ...form, device_id: e.target.value, branch_id: d ? String(d.branch_id ?? '') : form.branch_id })
               }}>
                 <option value="">-- 디바이스 선택 --</option>
-                {devices.filter((d) => d.device_status === 0 || d.device_status === 4).map((d) => (
-                  <option key={d.device_id} value={d.device_id}>
-                    [{d.device_id}] {d.model_name} — {d.branch_name}
-                  </option>
-                ))}
+                {devices
+                  .filter((d) => (d.device_status === 0 || d.device_status === 4) && (!staff || d.branch_id === staffBranchId))
+                  .map((d) => (
+                    <option key={d.device_id} value={d.device_id}>
+                      [{d.device_id}] {d.model_name} — {d.branch_name}
+                    </option>
+                  ))}
               </select>
             </div>
             <div className="form-row">
               <label className="form-label">지점 <span className="required">*</span></label>
-              <select className="form-control" value={form.branch_id} onChange={(e) => setForm({ ...form, branch_id: e.target.value })}>
+              <select className="form-control" value={form.branch_id} onChange={(e) => setForm({ ...form, branch_id: e.target.value })} disabled={staff}>
                 <option value="">-- 지점 선택 --</option>
                 {branches.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
               </select>
