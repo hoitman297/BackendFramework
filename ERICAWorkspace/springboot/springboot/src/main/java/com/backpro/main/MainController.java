@@ -161,8 +161,9 @@ public class MainController {
     // ========== Rental (RNT) ==========
 
     @GetMapping("/rentals")
-    public ApiResponse<List<RentalResponseDto>> getRentals() {
-        return ApiResponse.ok(mainService.getRentals());
+    public ApiResponse<List<RentalResponseDto>> getRentals(
+            @RequestParam(required = false) Long branch_id) {
+        return ApiResponse.ok(mainService.getRentals(branch_id));
     }
 
     @GetMapping("/rentals/history/{user_id}")
@@ -226,8 +227,9 @@ public class MainController {
             @RequestParam(name = "is_company", required = false) String isCompany,
             @RequestParam(required = false) String department,
             @RequestParam(required = false) String team,
-            @RequestParam(name = "center_id", required = false) Long centerId) {
-        return ApiResponse.ok(mainService.getUsers(isCompany, department, team, centerId));
+            @RequestParam(name = "center_id", required = false) Long centerId,
+            @RequestParam(name = "branch_id", required = false) Long branchId) {
+        return ApiResponse.ok(mainService.getUsers(isCompany, department, team, centerId, branchId));
     }
 
     @GetMapping("/users/{id}")
@@ -280,20 +282,21 @@ public class MainController {
     @PostMapping(value = "/centers/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<Map<String, String>> uploadCenterImage(
             @RequestParam Long center_id,
+            @RequestParam(name = "image_type", defaultValue = "logo") String imageType,
             @RequestPart("image_file") MultipartFile imageFile) {
-        String url = mainService.saveCenterImage(center_id, imageFile);
+        String url = mainService.saveCenterImage(center_id, imageFile, imageType);
         return ApiResponse.ok(Map.of("image_url", url));
     }
 
     // ========== Log (LOG) ==========
 
-    // LOG-002: user_id 미입력 시 전체 조회, 입력 시 해당 사용자 조회
     @GetMapping("/logs")
     public ApiResponse<List<DeviceLogResponseDto>> getLogs(
             @RequestParam(required = false) Long user_id,
+            @RequestParam(required = false) Long branch_id,
             @RequestParam(required = false) String start_date,
             @RequestParam(required = false) String end_date) {
-        return ApiResponse.ok(mainService.getLogs(user_id, start_date, end_date));
+        return ApiResponse.ok(mainService.getLogs(user_id, branch_id, start_date, end_date));
     }
 
     // LOG-001

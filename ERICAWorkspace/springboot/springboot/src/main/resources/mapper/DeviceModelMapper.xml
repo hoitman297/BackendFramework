@@ -25,6 +25,7 @@
         INNER JOIN device d ON d.model_id = dm.model_id
         WHERE dm.is_deleted = 'N'
           AND d.branch_id = #{branchId}
+          AND d.deleted_at IS NULL
     </select>
 
     <select id="findById" resultMap="DeviceModelResultMap">

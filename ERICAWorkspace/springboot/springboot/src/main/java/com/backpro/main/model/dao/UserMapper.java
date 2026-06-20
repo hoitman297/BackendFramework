@@ -12,8 +12,8 @@ public interface UserMapper {
     List<User> findByFilters(@Param("isCompany") String isCompany,
                              @Param("department") String department,
                              @Param("team") String team,
-
-                             @Param("centerId") Long centerId);
+                             @Param("centerId") Long centerId,
+                             @Param("branchId") Long branchId);
     Optional<User> findById(@Param("userId") Long userId);
     Optional<User> findByEmail(@Param("email") String email);
     int insert(User user);

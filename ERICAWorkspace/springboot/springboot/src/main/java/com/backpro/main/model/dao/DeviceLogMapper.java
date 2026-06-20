@@ -9,6 +9,7 @@ import java.util.List;
 @Mapper
 public interface DeviceLogMapper {
     List<DeviceLogResponseDto> findAllWithDetails();
+    List<DeviceLogResponseDto> findByBranchId(@Param("branchId") Long branchId);
     List<DeviceLogResponseDto> findByUserIdAndDateRange(
             @Param("userId") Long userId,
             @Param("startDate") String startDate,

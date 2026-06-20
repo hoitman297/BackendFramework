@@ -21,6 +21,7 @@ interface User {
   rank: number | null;
   work_status: string;
   is_company: string;
+  role?: string;
 }
 
 interface Branch {
@@ -38,7 +39,6 @@ interface Team {
   team_name: string;
 }
 
-
 type UserForm = {
   user_name: string;
   user_password: string;
@@ -50,7 +50,6 @@ type UserForm = {
   rank: number | null;
   work_status: string;
   is_company: string;
-  branch_id: number | null;
 }
 
 const EMPTY_USER: UserForm = {
@@ -64,7 +63,6 @@ const EMPTY_USER: UserForm = {
   rank: 1,
   work_status: '재직',
   is_company: 'Y',
-  branch_id: null,
 }
 
 const RANK_OPTIONS = [
@@ -78,13 +76,16 @@ const getRankLabel = (rank: number | null | undefined) => {
   return option ? option.label : '-'
 }
 
+const getRoleLabel = (rank: number | null | undefined) => {
+  return Number(rank) >= 3 ? 'ADMIN' : 'STAFF'
+}
+
 export default function CenterEmployee() {
   const { toast, showToast } = useToast()
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(false)
   const [branches, setBranches] = useState<Branch[]>([])
   const [depts, setDepts] = useState<Department[]>([])
-  const [branches, setBranches] = useState<Branch[]>([])
   const [teamsByDept, setTeamsByDept] = useState<Record<number, Team[]>>({})
   const [search, setSearch] = useState('')
 
@@ -112,13 +113,6 @@ export default function CenterEmployee() {
     } catch (err) { console.error(err) }
   }
 
-  const fetchBranches = async () => {
-    try {
-      const res = await api.get<Branch[]>('/branches')
-      setBranches(res.data)
-    } catch (err) { console.error(err) }
-  }
-
   const fetchTeams = async (deptId: number) => {
     if (teamsByDept[deptId]) return teamsByDept[deptId]
     try {
@@ -140,10 +134,8 @@ export default function CenterEmployee() {
     } catch (err) { console.error(err) } finally { setLoading(false) }
   }
 
-
   useEffect(() => { fetchBranches(); fetchDepts() }, [])
   useEffect(() => { fetchUsers() }, [filterBranch, filterDept, filterTeam])
-
 
   const handleBranchFilter = (value: string) => {
     setFilterBranch(value === '' ? '' : Number(value))
@@ -186,7 +178,7 @@ export default function CenterEmployee() {
 
   const openEdit = (user: User) => {
     setEditUserId(user.user_id)
-    const nextForm = {
+    setUserForm({
       user_name: user.user_name || '',
       user_password: '',
       email: user.email || '',
@@ -197,11 +189,9 @@ export default function CenterEmployee() {
       rank: user.rank ?? 1,
       work_status: user.work_status || '재직',
       is_company: user.is_company || 'Y',
-      branch_id: (user as any).branch_id ?? null,
-    }
-    setUserForm(nextForm)
+    })
     setShowUserModal(true)
-    loadModalTeams(nextForm.department)
+    loadModalTeams(user.department || '')
   }
 
   const loadModalTeams = async (deptName: string) => {
@@ -234,7 +224,7 @@ export default function CenterEmployee() {
       }
       setShowUserModal(false)
       fetchUsers()
-    } catch (err) { console.error(err); showToast('저장 실패', 'error') }
+    } catch (err: any) { console.error(err); showToast(err.message || '저장 실패', 'error') }
   }
 
   const deleteUser = async (user: User) => {
@@ -243,25 +233,34 @@ export default function CenterEmployee() {
       await api.delete(`/users/${user.user_id}`)
       showToast('삭제되었습니다.', 'success')
       fetchUsers()
-    } catch (err) { console.error(err); showToast('삭제 실패', 'error') }
+    } catch (err: any) { console.error(err); showToast(err.message || '삭제 실패', 'error') }
   }
 
   const columns = [
     { key: 'no', label: 'No', width: '50px' },
     { key: 'user_name', label: '이름' },
-    { key: 'department', label: '부서' },
-    { key: 'team', label: '팀' },
+    { key: 'department', label: '부서', render: (v: any) => v || '-' },
+    { key: 'team', label: '팀', render: (v: any) => v || '-' },
     { key: 'rank_label', label: '직급' },
+    {
+      key: 'role_label', label: '권한',
+      render: (v: any) => (
+        <StatusBadge status={v === 'ADMIN' ? '어드민' : '직원'} />
+      ),
+    },
     { key: 'work_status', label: '상태', render: (v: any) => <StatusBadge status={String(v || '재직')} /> },
     { key: 'email', label: '아이디' },
     { key: 'phone', label: '전화번호' },
     { key: 'is_company_label', label: '구분' },
-    { key: 'actions', label: '관리', width: '110px', render: (_: any, row: any) => (
-      <div className="employee-actions">
-        <button className="btn btn-secondary btn-sm" onClick={() => openEdit(row)}>수정</button>
-        <button className="btn btn-danger btn-sm" onClick={() => deleteUser(row)}>삭제</button>
-      </div>
-    ) },
+    {
+      key: 'actions', label: '관리', width: '110px',
+      render: (_: any, row: any) => (
+        <div className="employee-actions">
+          <button className="btn btn-secondary btn-sm" onClick={() => openEdit(row)}>수정</button>
+          <button className="btn btn-danger btn-sm" onClick={() => deleteUser(row)}>삭제</button>
+        </div>
+      ),
+    },
   ]
 
   return (
@@ -323,6 +322,7 @@ export default function CenterEmployee() {
             no: i + 1,
             is_company_label: u.is_company === 'Y' ? '기업' : '개인',
             rank_label: getRankLabel(u.rank),
+            role_label: getRoleLabel(u.rank),
           })) as any}
         />
       )}
@@ -332,7 +332,7 @@ export default function CenterEmployee() {
         <Modal title={editUserId ? '직원 정보 수정' : '직원 신규 등록'} onClose={() => setShowUserModal(false)} width="560px">
           <div className="employee-form-grid">
             <div>
-              <label className="form-label">직원명 <span style={{color:'red'}}>*</span></label>
+              <label className="form-label">직원명 <span style={{ color: 'red' }}>*</span></label>
               <input className="form-input" value={userForm.user_name} onChange={e => setUserForm(p => ({ ...p, user_name: e.target.value }))} />
             </div>
             <div>
@@ -343,26 +343,34 @@ export default function CenterEmployee() {
               </select>
             </div>
             <div>
-              <label className="form-label">아이디/이메일 <span style={{color:'red'}}>*</span></label>
+              <label className="form-label">아이디/이메일 <span style={{ color: 'red' }}>*</span></label>
               <input className="form-input" value={userForm.email} onChange={e => setUserForm(p => ({ ...p, email: e.target.value }))} />
             </div>
             <div>
               <label className="form-label">비밀번호{editUserId ? ' 변경' : ''}</label>
-              <input className="form-input" type="password" placeholder={editUserId ? '변경 시에만 입력' : '미입력 시 임시 비밀번호 자동 발급'} value={userForm.user_password} onChange={e => setUserForm(p => ({ ...p, user_password: e.target.value }))} />
+              <input
+                className="form-input"
+                type="password"
+                placeholder={editUserId ? '변경 시에만 입력' : '미입력 시 임시 비밀번호 자동 발급'}
+                value={userForm.user_password}
+                onChange={e => setUserForm(p => ({ ...p, user_password: e.target.value }))}
+              />
             </div>
             <div>
-              <label className="form-label">전화번호 <span style={{color:'red'}}>*</span></label>
+              <label className="form-label">전화번호 <span style={{ color: 'red' }}>*</span></label>
               <input className="form-input" value={userForm.phone} onChange={e => setUserForm(p => ({ ...p, phone: e.target.value }))} />
             </div>
             <div>
-              <label className="form-label">직급</label>
+              <label className="form-label">직급 <span style={{ color: 'var(--info)', fontSize: '11px' }}>※ 권한 자동 설정</span></label>
               <select
                 className="form-input"
                 value={userForm.rank ?? 1}
                 onChange={e => setUserForm(p => ({ ...p, rank: Number(e.target.value) }))}
               >
                 {RANK_OPTIONS.map(option => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
+                  <option key={option.value} value={option.value}>
+                    {option.label} ({option.value >= 3 ? 'ADMIN' : 'STAFF'})
+                  </option>
                 ))}
               </select>
             </div>
@@ -374,13 +382,6 @@ export default function CenterEmployee() {
                 value={userForm.branch_id ?? ''}
                 onChange={e => setUserForm(p => ({ ...p, branch_id: e.target.value ? Number(e.target.value) : null }))}
               >
-                <option value="">지점 선택</option>
-                {branches.map(b => <option key={b.branch_id} value={b.branch_id}>{b.branch_name}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="form-label">지점</label>
-              <select className="form-input" value={userForm.branch_id ?? ''} onChange={e => setUserForm(p => ({ ...p, branch_id: e.target.value ? Number(e.target.value) : null }))}>
                 <option value="">지점 선택</option>
                 {branches.map(b => <option key={b.branch_id} value={b.branch_id}>{b.branch_name}</option>)}
               </select>
@@ -410,7 +411,12 @@ export default function CenterEmployee() {
             </div>
             <div style={{ gridColumn: '1 / -1' }}>
               <label className="form-label">재직 상태</label>
-              <select className="form-input" style={{ maxWidth: 'calc(50% - 6px)' }} value={userForm.work_status} onChange={e => setUserForm(p => ({ ...p, work_status: e.target.value }))}>
+              <select
+                className="form-input"
+                style={{ maxWidth: 'calc(50% - 6px)' }}
+                value={userForm.work_status}
+                onChange={e => setUserForm(p => ({ ...p, work_status: e.target.value }))}
+              >
                 <option value="재직">재직</option>
                 <option value="휴직">휴직</option>
                 <option value="퇴직">퇴직</option>

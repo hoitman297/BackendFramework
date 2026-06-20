@@ -216,6 +216,7 @@ public class MainService {
                 .deviceId(id)
                 .modelId(req.getModelId())
                 .branchId(req.getBranchId())
+                .userId(req.getUserId())
                 .deviceStatus(req.getDeviceStatus())
                 .batteryLevel(req.getBatteryLevel())
                 .receiveDate(req.getReceiveDate())
@@ -236,7 +237,10 @@ public class MainService {
     // ========== Rental (RNT) ==========
 
     @Transactional(readOnly = true)
-    public List<RentalResponseDto> getRentals() {
+    public List<RentalResponseDto> getRentals(Long branchId) {
+        if (branchId != null) {
+            return rentalMapper.findByBranchIdWithDetails(branchId);
+        }
         return rentalMapper.findAllWithDetails();
     }
 
@@ -323,14 +327,14 @@ public class MainService {
     // ========== User (USR) ==========
 
     @Transactional(readOnly = true)
-    public List<User> getUsers(String isCompany, String department, String team, Long centerId) {
+    public List<User> getUsers(String isCompany, String department, String team, Long centerId, Long branchId) {
         boolean hasCompany = hasText(isCompany);
         boolean hasDepartment = hasText(department);
         boolean hasTeam = hasText(team);
         boolean hasCenter = centerId != null;
+        boolean hasBranch = branchId != null;
 
-        if (!hasCompany && !hasDepartment && !hasTeam && !hasCenter) {
-
+        if (!hasCompany && !hasDepartment && !hasTeam && !hasCenter && !hasBranch) {
             return userMapper.findAll();
         }
 
@@ -338,8 +342,8 @@ public class MainService {
                 hasCompany ? isCompany : null,
                 hasDepartment ? department : null,
                 hasTeam ? team : null,
-                hasCenter ? centerId : null
-
+                hasCenter ? centerId : null,
+                hasBranch ? branchId : null
         );
     }
 
@@ -367,6 +371,10 @@ public class MainService {
         request.setIsCompany(normalizeYn(request.getIsCompany(), "N"));
         request.setWorkStatus(hasText(request.getWorkStatus()) ? request.getWorkStatus() : "재직");
         request.setIsDeleted("N");
+
+        // rank에 따라 role 자동 결정: 어드민(3) → ADMIN, 직원/지점장(1,2) → STAFF
+        int rank = request.getRank() != null ? request.getRank() : 1;
+        request.setRole(rank >= 3 ? "ADMIN" : "STAFF");
 
         userMapper.insert(request);
         return userMapper.findById(request.getUserId()).orElse(request);
@@ -406,7 +414,11 @@ public class MainService {
         if (request.getIsCompany() != null) user.setIsCompany(normalizeYn(request.getIsCompany(), user.getIsCompany()));
         if (request.getDepartment() != null) user.setDepartment(request.getDepartment());
         if (request.getTeam() != null) user.setTeam(request.getTeam());
-        if (request.getRank() != null) user.setRank(request.getRank());
+        if (request.getRank() != null) {
+            user.setRank(request.getRank());
+            // rank 변경 시 role 자동 갱신: 어드민(3) → ADMIN, 직원/지점장(1,2) → STAFF
+            user.setRole(request.getRank() >= 3 ? "ADMIN" : "STAFF");
+        }
         if (request.getWorkStatus() != null) user.setWorkStatus(request.getWorkStatus());
 
         userMapper.update(user);
@@ -505,7 +517,7 @@ public class MainService {
         return centerMapper.findById(centerId).orElse(centerData);
     }
 
-    public String saveCenterImage(Long centerId, MultipartFile file) {
+    public String saveCenterImage(Long centerId, MultipartFile file, String imageType) {
         try {
             String ext = "";
             String originalFilename = file.getOriginalFilename();
@@ -520,7 +532,12 @@ public class MainService {
 
             String imageUrl = "/uploads/centers/" + centerId + "/" + filename;
 
-            Center patch = Center.builder().centerId(centerId).logoImgUrl(imageUrl).build();
+            Center patch;
+            if ("seal".equalsIgnoreCase(imageType)) {
+                patch = Center.builder().centerId(centerId).sealImgUrl(imageUrl).build();
+            } else {
+                patch = Center.builder().centerId(centerId).logoImgUrl(imageUrl).build();
+            }
             centerMapper.update(patch);
 
             return imageUrl;
@@ -532,9 +549,12 @@ public class MainService {
     // ========== Log (LOG) ==========
 
     @Transactional(readOnly = true)
-    public List<DeviceLogResponseDto> getLogs(Long userId, String startDate, String endDate) {
+    public List<DeviceLogResponseDto> getLogs(Long userId, Long branchId, String startDate, String endDate) {
         if (userId != null) {
             return deviceLogMapper.findByUserIdAndDateRange(userId, startDate, endDate);
+        }
+        if (branchId != null) {
+            return deviceLogMapper.findByBranchId(branchId);
         }
         return deviceLogMapper.findAllWithDetails();
     }

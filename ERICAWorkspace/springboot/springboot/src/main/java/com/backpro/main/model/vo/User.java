@@ -31,7 +31,7 @@ public class User {
     private String isDeleted = "N";
 
     @Column(name = "user_password", nullable = false, length = 255)
-    @JsonProperty("user_password")
+    @JsonProperty(value = "user_password", access = JsonProperty.Access.WRITE_ONLY)
     private String userPassword;
 
     @Column(name = "email", nullable = false, unique = true, length = 100)
@@ -71,10 +71,6 @@ public class User {
     @Builder.Default
     @JsonProperty("role")
     private String role = "ADMIN";
-
-    @Column(name = "branch_id")
-    @JsonProperty("branch_id")
-    private Long branchId;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     @Builder.Default

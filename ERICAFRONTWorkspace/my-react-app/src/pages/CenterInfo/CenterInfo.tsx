@@ -75,7 +75,7 @@ export default function CenterInfo() {
       formData.append('image_file', file)
 
       const token = localStorage.getItem('token')
-      const response = await fetch(`/api/centers/upload?center_id=${centerId}`, {
+      const response = await fetch(`/api/centers/upload?center_id=${centerId}&image_type=${type}`, {
         method: 'POST',
         headers: token ? { 'Authorization': `Bearer ${token}` } : {},
         body: formData,
