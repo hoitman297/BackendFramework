@@ -44,6 +44,10 @@ public class User {
     @JsonProperty("center_id")
     private Long centerId;
 
+    @Column(name = "branch_id")
+    @JsonProperty("branch_id")
+    private Long branchId;
+
     @Column(name = "is_company", nullable = false, length = 1)
     @Builder.Default
     @JsonProperty("is_company")

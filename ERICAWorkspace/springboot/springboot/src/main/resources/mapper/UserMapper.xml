@@ -11,6 +11,7 @@
         <result property="email"       column="email"/>
         <result property="phone"       column="phone"/>
         <result property="centerId"    column="center_id"/>
+        <result property="branchId"    column="branch_id"/>
         <result property="isCompany"   column="is_company"/>
         <result property="department"  column="department"/>
         <result property="team"        column="team"/>
@@ -30,6 +31,7 @@
         <if test="isCompany != null">AND is_company  = #{isCompany}</if>
         <if test="department != null">AND department = #{department}</if>
         <if test="team != null">AND team           = #{team}</if>
+        <if test="branchId != null">AND branch_id   = #{branchId}</if>
     </select>
 
     <select id="findById" resultMap="UserResultMap">
@@ -42,10 +44,10 @@
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="userId">
         INSERT INTO user (user_name, is_deleted, user_password, email, phone,
-                          center_id, is_company, department, team,
+                          center_id, branch_id, is_company, department, team,
                           `rank`, work_status, created_at)
         VALUES (#{userName}, IFNULL(#{isDeleted}, 'N'), #{userPassword},
-                #{email}, #{phone}, #{centerId},
+                #{email}, #{phone}, #{centerId}, #{branchId},
                 IFNULL(#{isCompany}, 'N'), #{department}, #{team},
                 #{rank}, #{workStatus}, NOW())
     </insert>
@@ -58,6 +60,7 @@
             <if test="email        != null">email        = #{email},</if>
             <if test="phone        != null">phone        = #{phone},</if>
             <if test="centerId     != null">center_id    = #{centerId},</if>
+            <if test="branchId     != null">branch_id    = #{branchId},</if>
             <if test="isCompany    != null">is_company   = #{isCompany},</if>
             <if test="department   != null">department   = #{department},</if>
             <if test="team         != null">team         = #{team},</if>

@@ -32,6 +32,11 @@ interface Team {
   team_name: string;
 }
 
+interface Branch {
+  branch_id: number;
+  branch_name: string;
+}
+
 type TreeSelection =
   | { type: 'all' }
   | { type: 'dept'; deptId: number; deptName: string }
@@ -47,6 +52,7 @@ type UserForm = {
   rank: number | null;
   work_status: string;
   is_company: string;
+  branch_id: number | null;
 }
 
 const EMPTY_USER: UserForm = {
@@ -59,6 +65,7 @@ const EMPTY_USER: UserForm = {
   rank: 1,
   work_status: '재직',
   is_company: 'Y',
+  branch_id: null,
 }
 
 const RANK_OPTIONS = [
@@ -77,6 +84,7 @@ export default function CenterEmployee() {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(false)
   const [depts, setDepts] = useState<Department[]>([])
+  const [branches, setBranches] = useState<Branch[]>([])
   const [teamsByDept, setTeamsByDept] = useState<Record<number, Team[]>>({})
   const [expandedDepts, setExpandedDepts] = useState<Set<number>>(new Set())
   const [treeSelection, setTreeSelection] = useState<TreeSelection>({ type: 'all' })
@@ -91,6 +99,13 @@ export default function CenterEmployee() {
     try {
       const res = await api.get<Department[]>('/depts')
       setDepts(res.data)
+    } catch (err) { console.error(err) }
+  }
+
+  const fetchBranches = async () => {
+    try {
+      const res = await api.get<Branch[]>('/branches')
+      setBranches(res.data)
     } catch (err) { console.error(err) }
   }
 
@@ -121,7 +136,7 @@ export default function CenterEmployee() {
     } catch (err) { console.error(err) } finally { setLoading(false) }
   }
 
-  useEffect(() => { fetchDepts() }, [])
+  useEffect(() => { fetchDepts(); fetchBranches() }, [])
   useEffect(() => { fetchUsers() }, [isCompanyFilter, treeSelection])
 
   const toggleDept = (deptId: number) => {
@@ -170,6 +185,7 @@ export default function CenterEmployee() {
       rank: user.rank ?? 1,
       work_status: user.work_status || '재직',
       is_company: user.is_company || 'Y',
+      branch_id: (user as any).branch_id ?? null,
     }
     setUserForm(nextForm)
     setShowUserModal(true)
@@ -349,6 +365,13 @@ export default function CenterEmployee() {
                 {RANK_OPTIONS.map(option => (
                   <option key={option.value} value={option.value}>{option.label}</option>
                 ))}
+              </select>
+            </div>
+            <div>
+              <label className="form-label">지점</label>
+              <select className="form-input" value={userForm.branch_id ?? ''} onChange={e => setUserForm(p => ({ ...p, branch_id: e.target.value ? Number(e.target.value) : null }))}>
+                <option value="">지점 선택</option>
+                {branches.map(b => <option key={b.branch_id} value={b.branch_id}>{b.branch_name}</option>)}
               </select>
             </div>
             <div>

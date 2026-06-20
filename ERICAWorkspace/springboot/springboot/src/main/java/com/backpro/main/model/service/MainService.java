@@ -313,19 +313,21 @@ public class MainService {
     // ========== User (USR) ==========
 
     @Transactional(readOnly = true)
-    public List<User> getUsers(String isCompany, String department, String team) {
+    public List<User> getUsers(String isCompany, String department, String team, Long branchId) {
         boolean hasCompany = hasText(isCompany);
         boolean hasDepartment = hasText(department);
         boolean hasTeam = hasText(team);
+        boolean hasBranch = branchId != null;
 
-        if (!hasCompany && !hasDepartment && !hasTeam) {
+        if (!hasCompany && !hasDepartment && !hasTeam && !hasBranch) {
             return userMapper.findAll();
         }
 
         return userMapper.findByFilters(
                 hasCompany ? isCompany : null,
                 hasDepartment ? department : null,
-                hasTeam ? team : null
+                hasTeam ? team : null,
+                hasBranch ? branchId : null
         );
     }
 
@@ -388,6 +390,7 @@ public class MainService {
         }
 
         if (request.getCenterId() != null) user.setCenterId(request.getCenterId());
+        if (request.getBranchId() != null) user.setBranchId(request.getBranchId());
         if (request.getIsCompany() != null) user.setIsCompany(normalizeYn(request.getIsCompany(), user.getIsCompany()));
         if (request.getDepartment() != null) user.setDepartment(request.getDepartment());
         if (request.getTeam() != null) user.setTeam(request.getTeam());

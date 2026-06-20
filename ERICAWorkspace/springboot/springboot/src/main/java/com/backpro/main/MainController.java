@@ -225,8 +225,9 @@ public class MainController {
     public ApiResponse<List<User>> getUser(
             @RequestParam(name = "is_company", required = false) String isCompany,
             @RequestParam(required = false) String department,
-            @RequestParam(required = false) String team) {
-        return ApiResponse.ok(mainService.getUsers(isCompany, department, team));
+            @RequestParam(required = false) String team,
+            @RequestParam(name = "branch_id", required = false) Long branchId) {
+        return ApiResponse.ok(mainService.getUsers(isCompany, department, team, branchId));
     }
 
     @GetMapping("/users/{id}")
